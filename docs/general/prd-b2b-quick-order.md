@@ -340,20 +340,20 @@ GET    /api/b2b/quick-order/{id}
 PUT    /api/b2b/quick-order/{id}/approve
 POST   /api/b2b/quick-order/{id}/submit
 
-# Template API  
+        # Template API  
 GET    /api/b2b/templates
 POST   /api/b2b/templates
 PUT    /api/b2b/templates/{id}
 DELETE /api/b2b/templates/{id}
 POST   /api/b2b/templates/{id}/apply
 
-# Team API
+        # Team API
 GET    /api/b2b/team/members
 POST   /api/b2b/team/members
 PUT    /api/b2b/team/members/{id}
 DELETE /api/b2b/team/members/{id}
 
-# Analytics API
+        # Analytics API
 GET    /api/b2b/analytics/savings
 GET    /api/b2b/analytics/usage
 GET    /api/b2b/analytics/performance
@@ -425,10 +425,10 @@ GET    /api/b2b/analytics/performance
 │  │               │  │
 │  └───────────────┘  │
 │                     │
-│ Produkt: ABC123     │
-│ Menge: [___] ✓      │
+│ Product: ABC123     │
+│ Quantity: [___] ✓   │
 │                     │
-│ Gescannt: 23/50     │
+│ Scanned: 23/50      │
 └─────────────────────┘
 ```
 
@@ -592,7 +592,7 @@ Conversion → Upsell
 
 ### Mitigation Strategies
 1. **Technical Debt Management**: 20% Sprint Time
-2. **Customer Advisory Board**: Quarterly Meetings  
+2. **Customer Advisory Board**: Quarterly Meetings
 3. **Competitive Intelligence**: Monthly Analysis
 4. **Financial Buffer**: 12 Months Runway
 5. **Insurance**: Cyber, E&O, D&O

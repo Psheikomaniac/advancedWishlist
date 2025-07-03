@@ -2,22 +2,22 @@
 
 ## Overview
 
-Das Social Sharing Feature ermöglicht es Kunden, ihre Wunschlisten mit Freunden, Familie oder öffentlich zu teilen. Dies fördert virale Verbreitung und erhöht die Conversion-Rate durch soziale Kaufimpulse.
+The Social Sharing Feature allows customers to share their wishlists with friends, family or publicly. This promotes viral spread and increases conversion rate through social buying impulses.
 
 ## User Stories
 
-### Als Wishlist-Besitzer möchte ich...
-1. **Links generieren** zum Teilen meiner Wunschliste
-2. **Datenschutz kontrollieren** mit verschiedenen Sichtbarkeitsoptionen
-3. **Passwortschutz** für private geteilte Listen
-4. **Ablaufdatum setzen** für temporäre Shares
-5. **Statistiken einsehen** über Views und Interaktionen
+### As a wishlist owner, I want to...
+1. **Generate links** to share my wishlist
+2. **Control privacy** with various visibility options
+3. **Password protection** for privately shared lists
+4. **Set expiry dates** for temporary shares
+5. **View statistics** about views and interactions
 
-### Als Wishlist-Betrachter möchte ich...
-1. **Listen ansehen** ohne Account
-2. **Produkte kaufen** direkt aus der geteilten Liste
-3. **Benachrichtigt werden** bei Änderungen
-4. **Kommentare hinterlassen** (optional)
+### As a wishlist viewer, I want to...
+1. **View lists** without an account
+2. **Purchase products** directly from the shared list
+3. **Get notifications** about changes
+4. **Leave comments** (optional)
 
 ## Technical Implementation
 
@@ -180,18 +180,18 @@ class WishlistShareService
         $socialData = match($platform) {
             'facebook' => [
                 'url' => $shareUrl,
-                'title' => sprintf('%s - Wunschliste', $wishlist->getName()),
-                'description' => $wishlist->getDescription() ?? 'Schau dir meine Wunschliste an!',
+                'title' => sprintf('%s - Wishlist', $wishlist->getName()),
+                'description' => $wishlist->getDescription() ?? 'Check out my wishlist!',
             ],
             'whatsapp' => [
                 'text' => sprintf(
-                    "Schau dir meine Wunschliste '%s' an: %s",
+                    "Check out my wishlist '%s': %s",
                     $wishlist->getName(),
                     $shareUrl
                 ),
             ],
             'twitter' => [
-                'text' => sprintf('Meine Wunschliste: %s', $wishlist->getName()),
+                'text' => sprintf('My wishlist: %s', $wishlist->getName()),
                 'url' => $shareUrl,
                 'hashtags' => 'wishlist,shopping',
             ],
@@ -402,124 +402,124 @@ class ShareTokenGenerator
 ```vue
 <template>
   <div class="share-wishlist-modal">
-    <h2>Wunschliste teilen</h2>
-    
+    <h2>Share wishlist</h2>
+
     <!-- Share Methods -->
     <div class="share-methods">
-      <button 
-        v-for="method in shareMethods" 
-        :key="method.id"
-        @click="selectMethod(method)"
-        :class="{ active: selectedMethod === method.id }"
-        class="share-method"
+      <button
+          v-for="method in shareMethods"
+          :key="method.id"
+          @click="selectMethod(method)"
+          :class="{ active: selectedMethod === method.id }"
+          class="share-method"
       >
         <i :class="method.icon"></i>
         {{ method.label }}
       </button>
     </div>
-    
+
     <!-- Link Sharing -->
     <div v-if="selectedMethod === 'link'" class="share-link">
       <div class="share-options">
         <label>
           <input type="checkbox" v-model="shareSettings.passwordProtected">
-          Passwortschutz
+          Password protection
         </label>
-        
+
         <div v-if="shareSettings.passwordProtected" class="password-input">
-          <input 
-            type="password" 
-            v-model="shareSettings.password"
-            placeholder="Passwort eingeben"
+          <input
+              type="password"
+              v-model="shareSettings.password"
+              placeholder="Enter password"
           >
         </div>
-        
+
         <label>
           <input type="checkbox" v-model="shareSettings.hasExpiry">
-          Ablaufdatum setzen
+          Set expiry date
         </label>
-        
+
         <div v-if="shareSettings.hasExpiry" class="expiry-input">
-          <input 
-            type="date" 
-            v-model="shareSettings.expiryDate"
-            :min="minDate"
+          <input
+              type="date"
+              v-model="shareSettings.expiryDate"
+              :min="minDate"
           >
         </div>
-        
+
         <label>
           <input type="checkbox" v-model="shareSettings.hidePrice">
-          Preise ausblenden
+          Hide prices
         </label>
       </div>
-      
+
       <button @click="generateLink" class="btn-primary">
-        Link generieren
+        Generate link
       </button>
-      
+
       <div v-if="shareLink" class="share-result">
         <div class="link-display">
-          <input 
-            type="text" 
-            :value="shareLink" 
-            readonly
-            ref="linkInput"
+          <input
+              type="text"
+              :value="shareLink"
+              readonly
+              ref="linkInput"
           >
           <button @click="copyLink" class="btn-copy">
             <i class="icon-copy"></i>
           </button>
         </div>
-        
+
         <div class="qr-code" v-if="qrCode">
           <img :src="qrCode" alt="QR Code">
           <button @click="downloadQr" class="btn-download">
-            QR Code downloaden
+            Download QR code
           </button>
         </div>
-        
+
         <div class="share-stats" v-if="shareInfo">
-          <p>Aufrufe: {{ shareInfo.views }}</p>
-          <p>Eindeutige Besucher: {{ shareInfo.uniqueViews }}</p>
+          <p>Views: {{ shareInfo.views }}</p>
+          <p>Unique visitors: {{ shareInfo.uniqueViews }}</p>
         </div>
       </div>
     </div>
-    
+
     <!-- Email Sharing -->
     <div v-if="selectedMethod === 'email'" class="share-email">
       <form @submit.prevent="shareViaEmail">
         <div class="form-group">
-          <label>Empfänger E-Mail:</label>
-          <input 
-            type="email" 
-            v-model="emailData.recipient"
-            required
+          <label>Recipient email:</label>
+          <input
+              type="email"
+              v-model="emailData.recipient"
+              required
           >
         </div>
-        
+
         <div class="form-group">
-          <label>Nachricht (optional):</label>
-          <textarea 
-            v-model="emailData.message"
-            rows="4"
-            placeholder="Persönliche Nachricht hinzufügen..."
+          <label>Message (optional):</label>
+          <textarea
+              v-model="emailData.message"
+              rows="4"
+              placeholder="Add a personal message..."
           ></textarea>
         </div>
-        
+
         <button type="submit" class="btn-primary">
-          E-Mail senden
+          Send email
         </button>
       </form>
     </div>
-    
+
     <!-- Social Sharing -->
     <div v-if="selectedMethod === 'social'" class="share-social">
       <div class="social-platforms">
-        <button 
-          v-for="platform in socialPlatforms"
-          :key="platform.id"
-          @click="shareOnPlatform(platform)"
-          class="social-button"
-          :style="{ backgroundColor: platform.color }"
+        <button
+            v-for="platform in socialPlatforms"
+            :key="platform.id"
+            @click="shareOnPlatform(platform)"
+            class="social-button"
+            :style="{ backgroundColor: platform.color }"
         >
           <i :class="platform.icon"></i>
           {{ platform.name }}
@@ -530,255 +530,255 @@ class ShareTokenGenerator
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
-import { useWishlistStore } from '@/stores/wishlist'
-import { useShareService } from '@/services/shareService'
-import { useNotification } from '@/composables/useNotification'
+  import { ref, computed } from 'vue'
+  import { useWishlistStore } from '@/stores/wishlist'
+  import { useShareService } from '@/services/shareService'
+  import { useNotification } from '@/composables/useNotification'
 
-const props = defineProps({
-  wishlistId: {
-    type: String,
-    required: true
+  const props = defineProps({
+    wishlistId: {
+      type: String,
+      required: true
+    }
+  })
+
+  const wishlistStore = useWishlistStore()
+  const shareService = useShareService()
+  const notification = useNotification()
+
+  const selectedMethod = ref('link')
+  const shareLink = ref('')
+  const qrCode = ref('')
+  const shareInfo = ref(null)
+
+  const shareSettings = ref({
+    passwordProtected: false,
+    password: '',
+    hasExpiry: false,
+    expiryDate: '',
+    hidePrice: false,
+    allowGuestPurchase: true
+  })
+
+  const emailData = ref({
+    recipient: '',
+    message: ''
+  })
+
+  const shareMethods = [
+    { id: 'link', label: 'Link', icon: 'icon-link' },
+    { id: 'email', label: 'Email', icon: 'icon-email' },
+    { id: 'social', label: 'Social Media', icon: 'icon-share' }
+  ]
+
+  const socialPlatforms = [
+    {
+      id: 'facebook',
+      name: 'Facebook',
+      icon: 'icon-facebook',
+      color: '#1877f2'
+    },
+    {
+      id: 'whatsapp',
+      name: 'WhatsApp',
+      icon: 'icon-whatsapp',
+      color: '#25d366'
+    },
+    {
+      id: 'twitter',
+      name: 'Twitter',
+      icon: 'icon-twitter',
+      color: '#1da1f2'
+    },
+    {
+      id: 'pinterest',
+      name: 'Pinterest',
+      icon: 'icon-pinterest',
+      color: '#bd081c'
+    }
+  ]
+
+  const minDate = computed(() => {
+    const tomorrow = new Date()
+    tomorrow.setDate(tomorrow.getDate() + 1)
+    return tomorrow.toISOString().split('T')[0]
+  })
+
+  async function generateLink() {
+    try {
+      const response = await shareService.createShare({
+        wishlistId: props.wishlistId,
+        shareMethod: 'link',
+        shareSettings: {
+          password: shareSettings.value.passwordProtected ?
+              shareSettings.value.password : null,
+          expiresAt: shareSettings.value.hasExpiry ?
+              shareSettings.value.expiryDate : null,
+          hidePrices: shareSettings.value.hidePrice,
+          allowGuestPurchase: shareSettings.value.allowGuestPurchase
+        }
+      })
+
+      shareLink.value = response.url
+      qrCode.value = response.qrCode
+      shareInfo.value = response
+
+      notification.success('Share link created!')
+    } catch (error) {
+      notification.error('Error creating link')
+    }
   }
-})
 
-const wishlistStore = useWishlistStore()
-const shareService = useShareService()
-const notification = useNotification()
-
-const selectedMethod = ref('link')
-const shareLink = ref('')
-const qrCode = ref('')
-const shareInfo = ref(null)
-
-const shareSettings = ref({
-  passwordProtected: false,
-  password: '',
-  hasExpiry: false,
-  expiryDate: '',
-  hidePrice: false,
-  allowGuestPurchase: true
-})
-
-const emailData = ref({
-  recipient: '',
-  message: ''
-})
-
-const shareMethods = [
-  { id: 'link', label: 'Link', icon: 'icon-link' },
-  { id: 'email', label: 'E-Mail', icon: 'icon-email' },
-  { id: 'social', label: 'Social Media', icon: 'icon-share' }
-]
-
-const socialPlatforms = [
-  { 
-    id: 'facebook', 
-    name: 'Facebook', 
-    icon: 'icon-facebook',
-    color: '#1877f2'
-  },
-  { 
-    id: 'whatsapp', 
-    name: 'WhatsApp', 
-    icon: 'icon-whatsapp',
-    color: '#25d366'
-  },
-  { 
-    id: 'twitter', 
-    name: 'Twitter', 
-    icon: 'icon-twitter',
-    color: '#1da1f2'
-  },
-  { 
-    id: 'pinterest', 
-    name: 'Pinterest', 
-    icon: 'icon-pinterest',
-    color: '#bd081c'
+  async function copyLink() {
+    try {
+      await navigator.clipboard.writeText(shareLink.value)
+      notification.success('Link copied!')
+    } catch (error) {
+      // Fallback
+      this.$refs.linkInput.select()
+      document.execCommand('copy')
+      notification.success('Link copied!')
+    }
   }
-]
 
-const minDate = computed(() => {
-  const tomorrow = new Date()
-  tomorrow.setDate(tomorrow.getDate() + 1)
-  return tomorrow.toISOString().split('T')[0]
-})
+  async function shareViaEmail() {
+    try {
+      await shareService.createShare({
+        wishlistId: props.wishlistId,
+        shareMethod: 'email',
+        recipientEmail: emailData.value.recipient,
+        message: emailData.value.message
+      })
 
-async function generateLink() {
-  try {
-    const response = await shareService.createShare({
-      wishlistId: props.wishlistId,
-      shareMethod: 'link',
-      shareSettings: {
-        password: shareSettings.value.passwordProtected ? 
-          shareSettings.value.password : null,
-        expiresAt: shareSettings.value.hasExpiry ? 
-          shareSettings.value.expiryDate : null,
-        hidePrices: shareSettings.value.hidePrice,
-        allowGuestPurchase: shareSettings.value.allowGuestPurchase
-      }
-    })
-    
-    shareLink.value = response.url
-    qrCode.value = response.qrCode
-    shareInfo.value = response
-    
-    notification.success('Share-Link erstellt!')
-  } catch (error) {
-    notification.error('Fehler beim Erstellen des Links')
+      notification.success('Email sent!')
+      emailData.value = { recipient: '', message: '' }
+    } catch (error) {
+      notification.error('Error sending email')
+    }
   }
-}
 
-async function copyLink() {
-  try {
-    await navigator.clipboard.writeText(shareLink.value)
-    notification.success('Link kopiert!')
-  } catch (error) {
-    // Fallback
-    this.$refs.linkInput.select()
-    document.execCommand('copy')
-    notification.success('Link kopiert!')
+  async function shareOnPlatform(platform) {
+    try {
+      const response = await shareService.createShare({
+        wishlistId: props.wishlistId,
+        shareMethod: 'social',
+        platform: platform.id
+      })
+
+      // Open platform share dialog
+      const shareUrl = buildPlatformShareUrl(platform, response)
+      window.open(shareUrl, '_blank', 'width=600,height=400')
+
+    } catch (error) {
+      notification.error('Error sharing')
+    }
   }
-}
 
-async function shareViaEmail() {
-  try {
-    await shareService.createShare({
-      wishlistId: props.wishlistId,
-      shareMethod: 'email',
-      recipientEmail: emailData.value.recipient,
-      message: emailData.value.message
-    })
-    
-    notification.success('E-Mail versendet!')
-    emailData.value = { recipient: '', message: '' }
-  } catch (error) {
-    notification.error('Fehler beim E-Mail-Versand')
+  function buildPlatformShareUrl(platform, shareData) {
+    const encodedUrl = encodeURIComponent(shareData.url)
+    const encodedText = encodeURIComponent(shareData.text || '')
+
+    switch (platform.id) {
+      case 'facebook':
+        return `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`
+
+      case 'whatsapp':
+        return `https://wa.me/?text=${encodedText}%20${encodedUrl}`
+
+      case 'twitter':
+        return `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedText}`
+
+      case 'pinterest':
+        const media = encodeURIComponent(shareData.image || '')
+        return `https://pinterest.com/pin/create/button/?url=${encodedUrl}&media=${media}&description=${encodedText}`
+
+      default:
+        return shareData.url
+    }
   }
-}
 
-async function shareOnPlatform(platform) {
-  try {
-    const response = await shareService.createShare({
-      wishlistId: props.wishlistId,
-      shareMethod: 'social',
-      platform: platform.id
-    })
-    
-    // Open platform share dialog
-    const shareUrl = buildPlatformShareUrl(platform, response)
-    window.open(shareUrl, '_blank', 'width=600,height=400')
-    
-  } catch (error) {
-    notification.error('Fehler beim Teilen')
+  function downloadQr() {
+    const link = document.createElement('a')
+    link.download = 'wishlist-qr-code.png'
+    link.href = qrCode.value
+    link.click()
   }
-}
-
-function buildPlatformShareUrl(platform, shareData) {
-  const encodedUrl = encodeURIComponent(shareData.url)
-  const encodedText = encodeURIComponent(shareData.text || '')
-  
-  switch (platform.id) {
-    case 'facebook':
-      return `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`
-      
-    case 'whatsapp':
-      return `https://wa.me/?text=${encodedText}%20${encodedUrl}`
-      
-    case 'twitter':
-      return `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedText}`
-      
-    case 'pinterest':
-      const media = encodeURIComponent(shareData.image || '')
-      return `https://pinterest.com/pin/create/button/?url=${encodedUrl}&media=${media}&description=${encodedText}`
-      
-    default:
-      return shareData.url
-  }
-}
-
-function downloadQr() {
-  const link = document.createElement('a')
-  link.download = 'wishlist-qr-code.png'
-  link.href = qrCode.value
-  link.click()
-}
 </script>
 
 <style scoped>
-.share-methods {
-  display: flex;
-  gap: 1rem;
-  margin-bottom: 2rem;
-}
+  .share-methods {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
 
-.share-method {
-  flex: 1;
-  padding: 1rem;
-  border: 2px solid #e0e0e0;
-  background: white;
-  cursor: pointer;
-  transition: all 0.2s;
-}
+  .share-method {
+    flex: 1;
+    padding: 1rem;
+    border: 2px solid #e0e0e0;
+    background: white;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
 
-.share-method.active {
-  border-color: var(--primary-color);
-  background: var(--primary-light);
-}
+  .share-method.active {
+    border-color: var(--primary-color);
+    background: var(--primary-light);
+  }
 
-.share-options {
-  margin-bottom: 1.5rem;
-}
+  .share-options {
+    margin-bottom: 1.5rem;
+  }
 
-.share-options label {
-  display: block;
-  margin-bottom: 0.5rem;
-}
+  .share-options label {
+    display: block;
+    margin-bottom: 0.5rem;
+  }
 
-.link-display {
-  display: flex;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
-}
+  .link-display {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
 
-.link-display input {
-  flex: 1;
-  padding: 0.5rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-}
+  .link-display input {
+    flex: 1;
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+  }
 
-.qr-code {
-  text-align: center;
-  margin: 1rem 0;
-}
+  .qr-code {
+    text-align: center;
+    margin: 1rem 0;
+  }
 
-.qr-code img {
-  max-width: 200px;
-  margin-bottom: 1rem;
-}
+  .qr-code img {
+    max-width: 200px;
+    margin-bottom: 1rem;
+  }
 
-.social-platforms {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1rem;
-}
+  .social-platforms {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
 
-.social-button {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1rem;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: opacity 0.2s;
-}
+  .social-button {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
 
-.social-button:hover {
-  opacity: 0.9;
-}
+  .social-button:hover {
+    opacity: 0.9;
+  }
 </style>
 ```
 
@@ -865,59 +865,59 @@ class ShareAnalyticsService
 ```sql
 -- Share tracking table
 CREATE TABLE `wishlist_share` (
-  `id` BINARY(16) NOT NULL,
-  `wishlist_id` BINARY(16) NOT NULL,
-  `token` VARCHAR(64) NOT NULL,
-  `type` ENUM('link','email','social') NOT NULL,
-  `active` TINYINT(1) DEFAULT 1,
-  `password` VARCHAR(255),
-  `expires_at` DATETIME(3),
-  `settings` JSON,
-  `views` INT DEFAULT 0,
-  `unique_views` INT DEFAULT 0,
-  `last_viewed_at` DATETIME(3),
-  `created_by` BINARY(16),
-  `created_at` DATETIME(3) NOT NULL,
-  `revoked_at` DATETIME(3),
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `uniq.wishlist_share.token` (`token`),
-  KEY `idx.wishlist_share.wishlist` (`wishlist_id`),
-  KEY `idx.wishlist_share.active` (`active`, `expires_at`),
-  CONSTRAINT `fk.wishlist_share.wishlist` FOREIGN KEY (`wishlist_id`) 
-    REFERENCES `wishlist` (`id`) ON DELETE CASCADE
+                                  `id` BINARY(16) NOT NULL,
+                                  `wishlist_id` BINARY(16) NOT NULL,
+                                  `token` VARCHAR(64) NOT NULL,
+                                  `type` ENUM('link','email','social') NOT NULL,
+                                  `active` TINYINT(1) DEFAULT 1,
+                                  `password` VARCHAR(255),
+                                  `expires_at` DATETIME(3),
+                                  `settings` JSON,
+                                  `views` INT DEFAULT 0,
+                                  `unique_views` INT DEFAULT 0,
+                                  `last_viewed_at` DATETIME(3),
+                                  `created_by` BINARY(16),
+                                  `created_at` DATETIME(3) NOT NULL,
+                                  `revoked_at` DATETIME(3),
+                                  PRIMARY KEY (`id`),
+                                  UNIQUE KEY `uniq.wishlist_share.token` (`token`),
+                                  KEY `idx.wishlist_share.wishlist` (`wishlist_id`),
+                                  KEY `idx.wishlist_share.active` (`active`, `expires_at`),
+                                  CONSTRAINT `fk.wishlist_share.wishlist` FOREIGN KEY (`wishlist_id`)
+                                      REFERENCES `wishlist` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Share views tracking
 CREATE TABLE `wishlist_share_view` (
-  `id` BINARY(16) NOT NULL,
-  `share_id` BINARY(16) NOT NULL,
-  `visitor_id` VARCHAR(64) NOT NULL,
-  `ip_address` VARCHAR(45),
-  `user_agent` VARCHAR(500),
-  `referrer` VARCHAR(500),
-  `viewed_at` DATETIME(3) NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `uniq.share_view.visitor` (`share_id`, `visitor_id`),
-  KEY `idx.share_view.share` (`share_id`),
-  CONSTRAINT `fk.share_view.share` FOREIGN KEY (`share_id`) 
-    REFERENCES `wishlist_share` (`id`) ON DELETE CASCADE
+                                       `id` BINARY(16) NOT NULL,
+                                       `share_id` BINARY(16) NOT NULL,
+                                       `visitor_id` VARCHAR(64) NOT NULL,
+                                       `ip_address` VARCHAR(45),
+                                       `user_agent` VARCHAR(500),
+                                       `referrer` VARCHAR(500),
+                                       `viewed_at` DATETIME(3) NOT NULL,
+                                       PRIMARY KEY (`id`),
+                                       UNIQUE KEY `uniq.share_view.visitor` (`share_id`, `visitor_id`),
+                                       KEY `idx.share_view.share` (`share_id`),
+                                       CONSTRAINT `fk.share_view.share` FOREIGN KEY (`share_id`)
+                                           REFERENCES `wishlist_share` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Social share metrics
 CREATE TABLE `wishlist_share_social` (
-  `id` BINARY(16) NOT NULL,
-  `share_id` BINARY(16) NOT NULL,
-  `platform` VARCHAR(50) NOT NULL,
-  `clicks` INT DEFAULT 0,
-  `likes` INT DEFAULT 0,
-  `shares` INT DEFAULT 0,
-  `comments` INT DEFAULT 0,
-  `reach` INT DEFAULT 0,
-  `tracked_at` DATETIME(3) NOT NULL,
-  PRIMARY KEY (`id`),
-  KEY `idx.share_social.share_platform` (`share_id`, `platform`),
-  CONSTRAINT `fk.share_social.share` FOREIGN KEY (`share_id`) 
-    REFERENCES `wishlist_share` (`id`) ON DELETE CASCADE
+                                         `id` BINARY(16) NOT NULL,
+                                         `share_id` BINARY(16) NOT NULL,
+                                         `platform` VARCHAR(50) NOT NULL,
+                                         `clicks` INT DEFAULT 0,
+                                         `likes` INT DEFAULT 0,
+                                         `shares` INT DEFAULT 0,
+                                         `comments` INT DEFAULT 0,
+                                         `reach` INT DEFAULT 0,
+                                         `tracked_at` DATETIME(3) NOT NULL,
+                                         PRIMARY KEY (`id`),
+                                         KEY `idx.share_social.share_platform` (`share_id`, `platform`),
+                                         CONSTRAINT `fk.share_social.share` FOREIGN KEY (`share_id`)
+                                             REFERENCES `wishlist_share` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
@@ -1015,8 +1015,8 @@ $this->cache->set($cacheKey, $wishlist, $ttl);
 
 ```yaml
 # Cloudflare Page Rules for shared wishlists
-/wishlist/shared/*
-  - Cache Level: Cache Everything  
+  /wishlist/shared/*
+    - Cache Level: Cache Everything
   - Edge Cache TTL: 1 hour
   - Browser Cache TTL: 30 minutes
 ```

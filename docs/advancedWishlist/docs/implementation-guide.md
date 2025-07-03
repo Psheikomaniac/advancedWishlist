@@ -1,90 +1,90 @@
-# Implementierungsleitfaden - Advanced Wishlist System
+# Implementation Guide - Advanced Wishlist System
 
-## Überblick
+## Overview
 
-Dieses Dokument dient als umfassender Leitfaden für Entwickler, die das Advanced Wishlist System implementieren. Es fasst alle Komponenten zusammen und bietet eine strukturierte Anleitung für die Umsetzung.
+This document serves as a comprehensive guide for developers implementing the Advanced Wishlist System. It summarizes all components and provides a structured guide for implementation.
 
-## Architektur-Übersicht
+## Architecture Overview
 
-Das Advanced Wishlist System ist nach dem Domain-Driven Design Prinzip aufgebaut und besteht aus folgenden Hauptkomponenten:
+The Advanced Wishlist System is built according to Domain-Driven Design principles and consists of the following main components:
 
-1. **Datenmodell** - Entities und Repositories
+1. **Data Model** - Entities and Repositories
 2. **Service Layer** - Business Logic
-3. **API Layer** - Store API und Admin API
-4. **Frontend** - Storefront und Administration
-5. **Event System** - Event DTOs und Subscriber
+3. **API Layer** - Store API and Admin API
+4. **Frontend** - Storefront and Administration
+5. **Event System** - Event DTOs and Subscribers
 
-## Implementierungsschritte
+## Implementation Steps
 
-### Phase 1: Grundstruktur
+### Phase 1: Basic Structure
 
-1. **Plugin-Struktur einrichten**
+1. **Set up Plugin Structure**
    ```bash
    bin/console plugin:create AdvancedWishlist
    ```
 
-2. **Datenbank-Schema implementieren** (siehe [Database Schema](../wishlist-database-schema.md))
-   - Entities erstellen
-   - Migrations schreiben
+2. **Implement Database Schema** (see [Database Schema](../wishlist-database-schema.md))
+   - Create entities
+   - Write migrations
 
-3. **DTOs definieren**
-   - Request DTOs (siehe [Request DTOs](../wishlist-request-dtos.md))
-   - Response DTOs (siehe [Response DTOs](../wishlist-response-dtos.md))
-   - Event DTOs (siehe [Event DTOs](../wishlist-event-dtos.md))
+3. **Define DTOs**
+   - Request DTOs (see [Request DTOs](../wishlist-request-dtos.md))
+   - Response DTOs (see [Response DTOs](../wishlist-response-dtos.md))
+   - Event DTOs (see [Event DTOs](../wishlist-event-dtos.md))
 
 ### Phase 2: Business Logic
 
-1. **Services implementieren** (siehe [Backend Services](../wishlist-backend-services.md))
+1. **Implement Services** (see [Backend Services](../wishlist-backend-services.md))
    - WishlistService
    - WishlistItemService
    - ShareService
    - NotificationService
 
-2. **Repositories erstellen**
+2. **Create Repositories**
    - WishlistRepository
    - WishlistItemRepository
    - ShareRepository
    - AnalyticsRepository
 
-3. **Event Subscriber einrichten**
-   - Alle relevanten Events abonnieren
+3. **Set up Event Subscribers**
+   - Subscribe to all relevant events
 
-### Phase 3: API-Schicht
+### Phase 3: API Layer
 
-1. **Store API implementieren** (siehe [Store API](../wishlist-store-api.md))
-   - Customer-facing Endpoints
+1. **Implement Store API** (see [Store API](../wishlist-store-api.md))
+   - Customer-facing endpoints
    - Guest Wishlist Support
 
-2. **Admin API implementieren** (siehe [Admin API](../wishlist-admin-api.md))
-   - Management-Funktionen
-   - Analytics-Endpoints
+2. **Implement Admin API** (see [Admin API](../wishlist-admin-api.md))
+   - Management functions
+   - Analytics endpoints
 
 ### Phase 4: Frontend
 
-1. **Storefront-Komponenten entwickeln** (siehe [Frontend Components](../wishlist-frontend-components.md))
+1. **Develop Storefront Components** (see [Frontend Components](../wishlist-frontend-components.md))
    - Wishlist Button
    - Wishlist Page
    - Share Dialogs
 
-2. **Administration-Module erstellen**
+2. **Create Administration Modules**
    - Dashboard Widgets
-   - Konfigurationsseite
-   - Analytics-Berichte
+   - Configuration Page
+   - Analytics Reports
 
-## Technische Spezifikationen
+## Technical Specifications
 
 ### Coding Standards
 
 - **PHP**: PSR-12
-- **JavaScript**: ESLint mit Shopware Konfiguration
-- **Vue.js**: Composition API mit TypeScript
+- **JavaScript**: ESLint with Shopware Configuration
+- **Vue.js**: Composition API with TypeScript
 
 ### Unit Tests
 
-Jede Komponente muss mit Unit Tests abgedeckt sein:
+Each component must be covered by unit tests:
 
 ```php
-// Beispiel für einen Service-Test
+// Example for a service test
 public function testCreateWishlistSuccess(): void
 {
     // Arrange
@@ -101,50 +101,50 @@ public function testCreateWishlistSuccess(): void
 }
 ```
 
-### Leistungsoptimierung
+### Performance Optimization
 
-- Verwendung von Indexen für häufige Abfragen
-- Caching von Wishlist-Daten in Redis
-- Lazy Loading für Produkt-Details
+- Use of indexes for frequent queries
+- Caching of wishlist data in Redis
+- Lazy loading for product details
 
 ### Security Considerations
 
-- CSRF-Schutz für alle Formulare
-- Input-Validierung durch DTOs
-- Berechtigungsprüfung vor jeder Operation
-- Sichere Token-Generierung für Sharing
+- CSRF protection for all forms
+- Input validation through DTOs
+- Permission checks before each operation
+- Secure token generation for sharing
 
-## Integration mit anderen Plugins
+## Integration with Other Plugins
 
-### Erweiterungspunkte
+### Extension Points
 
-Das Plugin bietet folgende Erweiterungspunkte:
+The plugin provides the following extension points:
 
-1. **Events**: Alle wichtigen Aktionen lösen Events aus
-2. **Services**: Öffentliche Service-Methoden für externe Nutzung
-3. **Hooks**: Frontend-Hooks für Template-Anpassungen
+1. **Events**: All important actions trigger events
+2. **Services**: Public service methods for external use
+3. **Hooks**: Frontend hooks for template customization
 
-### Bekannte Kompatibilitäten
+### Known Compatibilities
 
-- **Shopware CMS Elements**: Vollständige Integration
-- **Customer Specific Prices**: Korrekte Preisanzeige
-- **B2B Suite**: Erweiterte Funktionen für B2B-Kunden
+- **Shopware CMS Elements**: Full integration
+- **Customer Specific Prices**: Correct price display
+- **B2B Suite**: Extended features for B2B customers
 
-## Deployment-Checkliste
+## Deployment Checklist
 
-- [ ] Alle Unit Tests bestanden
-- [ ] Integration Tests durchgeführt
-- [ ] Performance-Benchmark erstellt
-- [ ] Dokumentation aktualisiert
-- [ ] Changelog gepflegt
-- [ ] Versionsnummer erhöht
-- [ ] Shopware Store-Guidelines überprüft
+- [ ] All unit tests passed
+- [ ] Integration tests performed
+- [ ] Performance benchmark created
+- [ ] Documentation updated
+- [ ] Changelog maintained
+- [ ] Version number incremented
+- [ ] Shopware Store guidelines verified
 
-## Debugging und Fehlerbehebung
+## Debugging and Troubleshooting
 
 ### Logging
 
-Das Plugin verwendet das Shopware Logging-System:
+The plugin uses the Shopware logging system:
 
 ```php
 $this->logger->error('Failed to create wishlist', [
@@ -153,29 +153,29 @@ $this->logger->error('Failed to create wishlist', [
 ]);
 ```
 
-### Bekannte Probleme und Lösungen
+### Known Issues and Solutions
 
-| Problem | Symptom | Lösung |
-|---------|---------|--------|
-| Wishlist wird nicht gespeichert | 500 Fehler in API | Datenbank-Berechtigungen prüfen |
-| Sharing funktioniert nicht | Leerer Link | Email-Konfiguration überprüfen |
-| Performance-Probleme | Langsame Ladezeiten | Indexe und Caching optimieren |
+| Problem | Symptom | Solution |
+|---------|---------|----------|
+| Wishlist not saving | 500 error in API | Check database permissions |
+| Sharing not working | Empty link | Check email configuration |
+| Performance issues | Slow loading times | Optimize indexes and caching |
 
-## Support und Ressourcen
+## Support and Resources
 
-- **Dokumentation**: `docs/` Verzeichnis
+- **Documentation**: `docs/` directory
 - **Issue Tracker**: GitHub Issues
 - **Support Email**: support@advanced-wishlist.com
 
-## Anhang
+## Appendix
 
-### Glossar
+### Glossary
 
-- **Wishlist**: Sammlung von Produkten, die ein Kunde speichern möchte
-- **Share Token**: Einzigartiger Identifikator für geteilte Wishlists
-- **Price Alert**: Benachrichtigung bei Preisänderungen
+- **Wishlist**: Collection of products that a customer wants to save
+- **Share Token**: Unique identifier for shared wishlists
+- **Price Alert**: Notification for price changes
 
-### Referenzen
+### References
 
 - [Shopware Developer Documentation](https://developer.shopware.com/)
 - [Vue.js Documentation](https://vuejs.org/guide/introduction.html)

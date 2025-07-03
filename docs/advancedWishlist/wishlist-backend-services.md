@@ -2,13 +2,13 @@
 
 ## Overview
 
-Die Service Layer implementiert die gesamte Business Logic des Wishlist Systems. Services sind zustandslos, testbar und folgen dem Single Responsibility Principle.
+The Service Layer implements the complete business logic of the Wishlist System. Services are stateless, testable, and follow the Single Responsibility Principle.
 
 ## Core Services
 
 ### WishlistService
 
-Der zentrale Service für alle Wishlist-Operationen.
+The central service for all wishlist operations.
 
 ```php
 <?php declare(strict_types=1);
@@ -232,7 +232,7 @@ class WishlistService
             // Create default wishlist
             $request = new CreateWishlistRequest();
             $request->setCustomerId($customerId);
-            $request->setName('Meine Wunschliste');
+            $request->setName('My Wishlist');
             $request->setType('private');
             $request->setIsDefault(true);
             
@@ -376,7 +376,7 @@ class WishlistService
 
 ### WishlistItemService
 
-Service für die Verwaltung von Wishlist-Items.
+Service for managing wishlist items.
 
 ```php
 <?php declare(strict_types=1);
@@ -750,7 +750,7 @@ class WishlistItemService
 
 ### PriceMonitorService
 
-Service für Preis-Überwachung und Benachrichtigungen.
+Service for price monitoring and notifications.
 
 ```php
 <?php declare(strict_types=1);
@@ -1052,7 +1052,7 @@ class PriceMonitorService
 
 ### NotificationService
 
-Service für alle Arten von Benachrichtigungen.
+Service for all types of notifications.
 
 ```php
 <?php declare(strict_types=1);
@@ -1397,7 +1397,7 @@ class NotificationService
 
 ### WishlistCacheService
 
-Cache-Management für Wishlist-Daten.
+Cache management for wishlist data.
 
 ```php
 <?php declare(strict_types=1);
@@ -1558,7 +1558,7 @@ class WishlistCacheService
 
 ### WishlistExportService
 
-Export-Funktionalität für Wishlists.
+Export functionality for wishlists.
 
 ```php
 <?php declare(strict_types=1);

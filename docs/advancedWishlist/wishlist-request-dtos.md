@@ -2,7 +2,7 @@
 
 ## Overview
 
-Request DTOs (Data Transfer Objects) definieren die Struktur eingehender Daten und bieten automatische Validierung. Jeder API-Endpoint hat sein eigenes Request DTO für Type Safety und klare Contracts.
+Request DTOs (Data Transfer Objects) define the structure of incoming data and provide automatic validation. Each API endpoint has its own Request DTO for type safety and clear contracts.
 
 ## Base Request DTO
 

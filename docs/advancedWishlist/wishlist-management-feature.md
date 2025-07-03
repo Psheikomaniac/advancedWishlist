@@ -2,23 +2,23 @@
 
 ## Overview
 
-Das Wishlist Management ist das Kernfeature des Systems. Es ermöglicht Kunden das Erstellen, Verwalten und Organisieren von Wunschlisten mit verschiedenen Produkten.
+Wishlist Management is the core feature of the system. It allows customers to create, manage and organize wishlists with various products.
 
 ## User Stories
 
-### Als Kunde möchte ich...
-1. **Wishlists erstellen** mit eigenem Namen und Beschreibung
-2. **Produkte hinzufügen** mit einem Klick vom Produktdetail
-3. **Mehrere Listen verwalten** für verschiedene Anlässe
-4. **Produkte verschieben** zwischen verschiedenen Listen
-5. **Listen priorisieren** mit einer Standard-Liste
-6. **Notizen hinzufügen** zu einzelnen Produkten
+### As a customer, I want to...
+1. **Create wishlists** with custom name and description
+2. **Add products** with one click from product detail
+3. **Manage multiple lists** for different occasions
+4. **Move products** between different lists
+5. **Prioritize lists** with a default list
+6. **Add notes** to individual products
 
-### Als Shop-Betreiber möchte ich...
-1. **Limits setzen** für maximale Anzahl von Listen/Produkten
-2. **Analytics einsehen** über populäre Wishlist-Produkte
-3. **Benachrichtigungen** bei bestimmten Events
-4. **Integration** in bestehende Shop-Prozesse
+### As a shop owner, I want to...
+1. **Set limits** for maximum number of lists/products
+2. **View analytics** about popular wishlist products
+3. **Receive notifications** for certain events
+4. **Integration** into existing shop processes
 
 ## Technical Implementation
 
@@ -544,7 +544,7 @@ class WishlistRepository extends EntityRepository
       </select>
       
       <button @click="showCreateModal = true" class="btn-create">
-        + Neue Wunschliste
+        + New Wishlist
       </button>
     </div>
     
@@ -554,9 +554,9 @@ class WishlistRepository extends EntityRepository
       <p v-if="currentWishlist.description">{{ currentWishlist.description }}</p>
       
       <div class="wishlist-actions">
-        <button @click="editWishlist" class="btn-edit">Bearbeiten</button>
-        <button @click="shareWishlist" class="btn-share">Teilen</button>
-        <button @click="deleteWishlist" class="btn-delete">Löschen</button>
+        <button @click="editWishlist" class="btn-edit">Edit</button>
+        <button @click="shareWishlist" class="btn-share">Share</button>
+        <button @click="deleteWishlist" class="btn-delete">Delete</button>
       </div>
       
       <div class="items-grid">
@@ -571,9 +571,9 @@ class WishlistRepository extends EntityRepository
       </div>
       
       <div v-if="!currentWishlist.items.length" class="empty-state">
-        <p>Diese Wunschliste ist noch leer.</p>
+        <p>This wishlist is still empty.</p>
         <router-link to="/search" class="btn-primary">
-          Produkte entdecken
+          Discover products
         </router-link>
       </div>
     </div>
@@ -624,9 +624,9 @@ async function loadWishlist() {
 async function removeItem(itemId) {
   try {
     await wishlistStore.removeItem(selectedWishlistId.value, itemId)
-    notification.success('Produkt entfernt')
+    notification.success('Product removed')
   } catch (error) {
-    notification.error('Fehler beim Entfernen')
+    notification.error('Error removing product')
   }
 }
 
@@ -634,7 +634,7 @@ async function onWishlistCreated(wishlist) {
   showCreateModal.value = false
   selectedWishlistId.value = wishlist.id
   await wishlistStore.loadWishlists()
-  notification.success('Wunschliste erstellt')
+  notification.success('Wishlist created')
 }
 </script>
 ```
@@ -769,32 +769,32 @@ POST   /store-api/wishlist/merge
 // Create wishlist
 POST /store-api/wishlist
 {
-  "name": "Geburtstag 2024",
-  "description": "Meine Geburtstagswünsche",
-  "type": "private",
-  "isDefault": false
+    "name": "Birthday 2024",
+    "description": "My birthday wishes",
+    "type": "private",
+    "isDefault": false
 }
 
 // Add item
 POST /store-api/wishlist/abc123/items
 {
-  "productId": "prod123",
-  "quantity": 1,
-  "note": "Größe M, Farbe Blau",
-  "priceAlertThreshold": 29.99
+    "productId": "prod123",
+    "quantity": 1,
+    "note": "Size M, Color Blue",
+    "priceAlertThreshold": 29.99
 }
 
 // Update item
 PUT /store-api/wishlist/abc123/items/item456
 {
-  "quantity": 2,
-  "priority": 1
+    "quantity": 2,
+    "priority": 1
 }
 
 // Move item
 POST /store-api/wishlist/abc123/items/item456/move
 {
-  "targetWishlistId": "def456"
+    "targetWishlistId": "def456"
 }
 ```
 
@@ -803,44 +803,44 @@ POST /store-api/wishlist/abc123/items/item456/move
 ```sql
 -- Main wishlist table
 CREATE TABLE `wishlist` (
-  `id` BINARY(16) NOT NULL,
-  `customer_id` BINARY(16) NOT NULL,
-  `name` VARCHAR(255) NOT NULL,
-  `description` TEXT,
-  `type` ENUM('private','public','shared') DEFAULT 'private',
-  `is_default` TINYINT(1) DEFAULT 0,
-  `sales_channel_id` BINARY(16),
-  `custom_fields` JSON,
-  `created_at` DATETIME(3) NOT NULL,
-  `updated_at` DATETIME(3),
-  PRIMARY KEY (`id`),
-  KEY `idx.wishlist.customer` (`customer_id`),
-  KEY `idx.wishlist.default` (`customer_id`, `is_default`),
-  CONSTRAINT `fk.wishlist.customer_id` FOREIGN KEY (`customer_id`) 
-    REFERENCES `customer` (`id`) ON DELETE CASCADE
+                            `id` BINARY(16) NOT NULL,
+                            `customer_id` BINARY(16) NOT NULL,
+                            `name` VARCHAR(255) NOT NULL,
+                            `description` TEXT,
+                            `type` ENUM('private','public','shared') DEFAULT 'private',
+                            `is_default` TINYINT(1) DEFAULT 0,
+                            `sales_channel_id` BINARY(16),
+                            `custom_fields` JSON,
+                            `created_at` DATETIME(3) NOT NULL,
+                            `updated_at` DATETIME(3),
+                            PRIMARY KEY (`id`),
+                            KEY `idx.wishlist.customer` (`customer_id`),
+                            KEY `idx.wishlist.default` (`customer_id`, `is_default`),
+                            CONSTRAINT `fk.wishlist.customer_id` FOREIGN KEY (`customer_id`)
+                                REFERENCES `customer` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Wishlist items table
 CREATE TABLE `wishlist_item` (
-  `id` BINARY(16) NOT NULL,
-  `wishlist_id` BINARY(16) NOT NULL,
-  `product_id` BINARY(16) NOT NULL,
-  `product_version_id` BINARY(16) NOT NULL,
-  `quantity` INT(11) DEFAULT 1,
-  `note` VARCHAR(500),
-  `priority` INT(11),
-  `price_alert_threshold` DECIMAL(10,2),
-  `price_alert_active` TINYINT(1) DEFAULT 0,
-  `custom_fields` JSON,
-  `added_at` DATETIME(3) NOT NULL,
-  `updated_at` DATETIME(3),
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `uniq.wishlist_item.wishlist_product` (`wishlist_id`, `product_id`),
-  KEY `idx.wishlist_item.product` (`product_id`),
-  CONSTRAINT `fk.wishlist_item.wishlist_id` FOREIGN KEY (`wishlist_id`) 
-    REFERENCES `wishlist` (`id`) ON DELETE CASCADE,
-  CONSTRAINT `fk.wishlist_item.product` FOREIGN KEY (`product_id`, `product_version_id`) 
-    REFERENCES `product` (`id`, `version_id`) ON DELETE CASCADE
+                                 `id` BINARY(16) NOT NULL,
+                                 `wishlist_id` BINARY(16) NOT NULL,
+                                 `product_id` BINARY(16) NOT NULL,
+                                 `product_version_id` BINARY(16) NOT NULL,
+                                 `quantity` INT(11) DEFAULT 1,
+                                 `note` VARCHAR(500),
+                                 `priority` INT(11),
+                                 `price_alert_threshold` DECIMAL(10,2),
+                                 `price_alert_active` TINYINT(1) DEFAULT 0,
+                                 `custom_fields` JSON,
+                                 `added_at` DATETIME(3) NOT NULL,
+                                 `updated_at` DATETIME(3),
+                                 PRIMARY KEY (`id`),
+                                 UNIQUE KEY `uniq.wishlist_item.wishlist_product` (`wishlist_id`, `product_id`),
+                                 KEY `idx.wishlist_item.product` (`product_id`),
+                                 CONSTRAINT `fk.wishlist_item.wishlist_id` FOREIGN KEY (`wishlist_id`)
+                                     REFERENCES `wishlist` (`id`) ON DELETE CASCADE,
+                                 CONSTRAINT `fk.wishlist_item.product` FOREIGN KEY (`product_id`, `product_version_id`)
+                                     REFERENCES `product` (`id`, `version_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 

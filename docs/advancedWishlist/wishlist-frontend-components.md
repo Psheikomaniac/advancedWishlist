@@ -2,7 +2,7 @@
 
 ## Overview
 
-Die Frontend-Komponenten sind mit Vue.js 3 und der Composition API entwickelt. Sie folgen einem modularen Design-System und sind vollständig TypeScript-typisiert.
+The frontend components are developed with Vue.js 3 and the Composition API. They follow a modular design system and are fully TypeScript typed.
 
 ## Component Architecture
 
@@ -41,7 +41,7 @@ Die Frontend-Komponenten sind mit Vue.js 3 und der Composition API entwickelt. S
 
 ### WishlistButton
 
-Der zentrale Button zum Hinzufügen/Entfernen von Produkten.
+The central button for adding/removing products.
 
 ```vue
 <template>
@@ -380,7 +380,7 @@ function handleKeydown(event: KeyboardEvent) {
 
 ### WishlistManager
 
-Zentrale Verwaltungskomponente für alle Wishlists.
+Central management component for all wishlists.
 
 ```vue
 <template>
@@ -925,8 +925,8 @@ onMounted(() => {
 
 ```vue
 <template>
-  <div 
-    :class="[
+  <div
+      :class="[
       'wishlist-item',
       {
         'wishlist-item--selected': isSelected,
@@ -934,77 +934,77 @@ onMounted(() => {
         'wishlist-item--has-alert': item.priceAlertActive
       }
     ]"
-    @click="handleClick"
+      @click="handleClick"
   >
     <!-- Selection Checkbox -->
     <div v-if="selectable" class="wishlist-item__select">
       <base-checkbox
-        v-model="isSelected"
-        :aria-label="`Select ${item.product.name}`"
-        @click.stop
+          v-model="isSelected"
+          :aria-label="`Select ${item.product.name}`"
+          @click.stop
       />
     </div>
-    
+
     <!-- Product Image -->
     <div class="wishlist-item__image">
       <img
-        :src="item.product.cover?.url || '/placeholder.jpg'"
-        :alt="item.product.name"
-        loading="lazy"
+          :src="item.product.cover?.url || '/placeholder.jpg'"
+          :alt="item.product.name"
+          loading="lazy"
       >
-      
+
       <div v-if="!item.product.available" class="wishlist-item__badge">
         Out of Stock
       </div>
-      
+
       <div v-if="item.priority" class="wishlist-item__priority">
         <icon-star /> {{ item.priority }}
       </div>
     </div>
-    
+
     <!-- Product Info -->
     <div class="wishlist-item__info">
       <h3 class="wishlist-item__name">
         {{ item.product.name }}
       </h3>
-      
+
       <p class="wishlist-item__number">
         {{ item.product.productNumber }}
       </p>
-      
+
       <div v-if="item.note" class="wishlist-item__note">
         <icon-note />
         {{ item.note }}
       </div>
-      
+
       <div class="wishlist-item__meta">
         <span class="wishlist-item__added">
           Added {{ formatDate(item.addedAt) }}
         </span>
-        
+
         <span v-if="item.priceAlertActive" class="wishlist-item__alert">
           <icon-bell />
           Alert at {{ formatPrice(item.priceAlertThreshold) }}
         </span>
       </div>
     </div>
-    
+
     <!-- Price Info -->
     <div class="wishlist-item__price">
       <price-display
-        :price="item.product.price"
-        :show-discount="true"
+          :price="item.product.price"
+          :show-discount="true"
       />
-      
+
       <quantity-selector
-        v-if="showQuantity"
-        v-model="quantity"
-        :min="1"
-        :max="item.product.stock"
-        @change="handleQuantityChange"
+          v-if="showQuantity"
+          v-model="quantity"
+          :min="1"
+          :max="item.product.stock"
+          @change="handleQuantityChange"
       />
     </div>
-    
+
     <!-- Actions -->
     <div class="wishlist-item__actions">
       <base-dropdown>
@@ -1013,31 +1013,31 @@ onMounted(() => {
             <icon-more-vertical />
           </base-button>
         </template>
-        
+
         <base-dropdown-item @click="handleEdit">
           <icon-edit /> Edit
         </base-dropdown-item>
-        
+
         <base-dropdown-item @click="handleMove">
           <icon-move /> Move to...
         </base-dropdown-item>
-        
+
         <base-dropdown-item @click="handleSetAlert">
           <icon-bell /> Set Price Alert
         </base-dropdown-item>
-        
+
         <base-dropdown-divider />
-        
+
         <base-dropdown-item variant="danger" @click="handleRemove">
           <icon-trash /> Remove
         </base-dropdown-item>
       </base-dropdown>
-      
+
       <base-button
-        variant="primary"
-        size="sm"
-        :disabled="!item.product.available"
-        @click.stop="handleAddToCart"
+          variant="primary"
+          size="sm"
+          :disabled="!item.product.available"
+          @click.stop="handleAddToCart"
       >
         <icon-shopping-cart />
         Add to Cart
@@ -1047,236 +1047,236 @@ onMounted(() => {
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import { formatDistanceToNow } from 'date-fns'
-import type { WishlistItem } from '@/types/wishlist'
+  import { ref, computed } from 'vue'
+  import { formatDistanceToNow } from 'date-fns'
+  import type { WishlistItem } from '@/types/wishlist'
 
-interface Props {
-  item: WishlistItem
-  selectable?: boolean
-  selected?: boolean
-  showQuantity?: boolean
-}
+  interface Props {
+    item: WishlistItem
+    selectable?: boolean
+    selected?: boolean
+    showQuantity?: boolean
+  }
 
-const props = withDefaults(defineProps<Props>(), {
-  selectable: false,
-  selected: false,
-  showQuantity: true
-})
+  const props = withDefaults(defineProps<Props>(), {
+    selectable: false,
+    selected: false,
+    showQuantity: true
+  })
 
-const emit = defineEmits<{
-  click: [item: WishlistItem]
-  select: [selected: boolean]
-  remove: [item: WishlistItem]
-  update: [item: WishlistItem, updates: Partial<WishlistItem>]
-  move: [item: WishlistItem]
-  'add-to-cart': [item: WishlistItem, quantity: number]
-}>()
+  const emit = defineEmits<{
+    click: [item: WishlistItem]
+    select: [selected: boolean]
+    remove: [item: WishlistItem]
+    update: [item: WishlistItem, updates: Partial<WishlistItem>]
+    move: [item: WishlistItem]
+    'add-to-cart': [item: WishlistItem, quantity: number]
+  }>()
 
-const quantity = ref(props.item.quantity || 1)
+  const quantity = ref(props.item.quantity || 1)
 
-const isSelected = computed({
-  get: () => props.selected,
-  set: (value) => emit('select', value)
-})
+  const isSelected = computed({
+    get: () => props.selected,
+    set: (value) => emit('select', value)
+  })
 
-function formatDate(date: string) {
-  return formatDistanceToNow(new Date(date), { addSuffix: true })
-}
+  function formatDate(date: string) {
+    return formatDistanceToNow(new Date(date), { addSuffix: true })
+  }
 
-function formatPrice(price: number) {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD'
-  }).format(price)
-}
+  function formatPrice(price: number) {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD'
+    }).format(price)
+  }
 
-function handleClick() {
-  emit('click', props.item)
-}
+  function handleClick() {
+    emit('click', props.item)
+  }
 
-function handleQuantityChange(newQuantity: number) {
-  quantity.value = newQuantity
-  emit('update', props.item, { quantity: newQuantity })
-}
+  function handleQuantityChange(newQuantity: number) {
+    quantity.value = newQuantity
+    emit('update', props.item, { quantity: newQuantity })
+  }
 
-function handleEdit() {
-  // Open edit modal
-}
+  function handleEdit() {
+    // Open edit modal
+  }
 
-function handleMove() {
-  emit('move', props.item)
-}
+  function handleMove() {
+    emit('move', props.item)
+  }
 
-function handleSetAlert() {
-  // Open price alert modal
-}
+  function handleSetAlert() {
+    // Open price alert modal
+  }
 
-function handleRemove() {
-  emit('remove', props.item)
-}
+  function handleRemove() {
+    emit('remove', props.item)
+  }
 
-function handleAddToCart() {
-  emit('add-to-cart', props.item, quantity.value)
-}
+  function handleAddToCart() {
+    emit('add-to-cart', props.item, quantity.value)
+  }
 </script>
 
 <style scoped>
-.wishlist-item {
-  display: grid;
-  grid-template-columns: auto 120px 1fr auto auto;
-  gap: 1rem;
-  padding: 1rem;
-  background: white;
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  transition: all 0.2s ease;
-  cursor: pointer;
-}
-
-.wishlist-item:hover {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  transform: translateY(-1px);
-}
-
-.wishlist-item--selected {
-  background: var(--selection-bg);
-  border-color: var(--primary-color);
-}
-
-.wishlist-item--unavailable {
-  opacity: 0.7;
-}
-
-.wishlist-item__select {
-  display: flex;
-  align-items: center;
-}
-
-.wishlist-item__image {
-  position: relative;
-  width: 120px;
-  height: 120px;
-  border-radius: 4px;
-  overflow: hidden;
-}
-
-.wishlist-item__image img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.wishlist-item__badge {
-  position: absolute;
-  top: 0.5rem;
-  left: 0.5rem;
-  padding: 0.25rem 0.5rem;
-  background: rgba(0, 0, 0, 0.8);
-  color: white;
-  font-size: 0.75rem;
-  border-radius: 4px;
-}
-
-.wishlist-item__priority {
-  position: absolute;
-  bottom: 0.5rem;
-  right: 0.5rem;
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  padding: 0.25rem 0.5rem;
-  background: var(--warning-bg);
-  color: var(--warning-color);
-  font-size: 0.75rem;
-  border-radius: 4px;
-}
-
-.wishlist-item__info {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.wishlist-item__name {
-  font-size: 1.125rem;
-  font-weight: 500;
-  color: var(--text-primary);
-  margin: 0;
-}
-
-.wishlist-item__number {
-  font-size: 0.875rem;
-  color: var(--text-secondary);
-  margin: 0;
-}
-
-.wishlist-item__note {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.875rem;
-  color: var(--text-secondary);
-  font-style: italic;
-}
-
-.wishlist-item__meta {
-  display: flex;
-  gap: 1rem;
-  font-size: 0.75rem;
-  color: var(--text-muted);
-}
-
-.wishlist-item__alert {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  color: var(--primary-color);
-}
-
-.wishlist-item__price {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 0.5rem;
-}
-
-.wishlist-item__actions {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
   .wishlist-item {
-    grid-template-columns: 80px 1fr;
-    gap: 0.75rem;
+    display: grid;
+    grid-template-columns: auto 120px 1fr auto auto;
+    gap: 1rem;
+    padding: 1rem;
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    cursor: pointer;
   }
-  
+
+  .wishlist-item:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transform: translateY(-1px);
+  }
+
+  .wishlist-item--selected {
+    background: var(--selection-bg);
+    border-color: var(--primary-color);
+  }
+
+  .wishlist-item--unavailable {
+    opacity: 0.7;
+  }
+
   .wishlist-item__select {
-    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
   }
-  
+
   .wishlist-item__image {
-    width: 80px;
-    height: 80px;
+    position: relative;
+    width: 120px;
+    height: 120px;
+    border-radius: 4px;
+    overflow: hidden;
   }
-  
+
+  .wishlist-item__image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .wishlist-item__badge {
+    position: absolute;
+    top: 0.5rem;
+    left: 0.5rem;
+    padding: 0.25rem 0.5rem;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    font-size: 0.75rem;
+    border-radius: 4px;
+  }
+
+  .wishlist-item__priority {
+    position: absolute;
+    bottom: 0.5rem;
+    right: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem 0.5rem;
+    background: var(--warning-bg);
+    color: var(--warning-color);
+    font-size: 0.75rem;
+    border-radius: 4px;
+  }
+
   .wishlist-item__info {
-    grid-column: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
   }
-  
+
+  .wishlist-item__name {
+    font-size: 1.125rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    margin: 0;
+  }
+
+  .wishlist-item__number {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin: 0;
+  }
+
+  .wishlist-item__note {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    font-style: italic;
+  }
+
+  .wishlist-item__meta {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+
+  .wishlist-item__alert {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    color: var(--primary-color);
+  }
+
   .wishlist-item__price {
-    grid-column: 2;
-    align-items: flex-start;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.5rem;
   }
-  
+
   .wishlist-item__actions {
-    grid-column: 1 / -1;
-    justify-content: space-between;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
   }
-}
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .wishlist-item {
+      grid-template-columns: 80px 1fr;
+      gap: 0.75rem;
+    }
+
+    .wishlist-item__select {
+      grid-column: 1 / -1;
+    }
+
+    .wishlist-item__image {
+      width: 80px;
+      height: 80px;
+    }
+
+    .wishlist-item__info {
+      grid-column: 2;
+    }
+
+    .wishlist-item__price {
+      grid-column: 2;
+      align-items: flex-start;
+    }
+
+    .wishlist-item__actions {
+      grid-column: 1 / -1;
+      justify-content: space-between;
+    }
+  }
 </style>
 ```
 
@@ -1294,213 +1294,213 @@ import { useNotification } from './useNotification'
 import type { Wishlist, WishlistItem } from '@/types/wishlist'
 
 export function useWishlist(wishlistId?: Ref<string>) {
-  const wishlistStore = useWishlistStore()
-  const authStore = useAuthStore()
-  const notification = useNotification()
-  
-  const { wishlists, loading, error } = storeToRefs(wishlistStore)
-  const { isLoggedIn } = storeToRefs(authStore)
-  
-  // Local state
-  const isProcessing = ref(false)
-  
-  // Current wishlist
-  const currentWishlist = computed(() => {
-    if (!wishlistId?.value) return null
-    return wishlists.value.find(w => w.id === wishlistId.value)
-  })
-  
-  // Check if product is in any wishlist
-  const isInWishlist = (productId: string) => {
-    return wishlistStore.hasProduct(productId)
-  }
-  
-  // Get product's wishlist
-  const getProductWishlist = (productId: string) => {
-    return wishlistStore.getProductWishlist(productId)
-  }
-  
-  // Add item to wishlist
-  async function addItem(
-    productId: string,
-    wishlistIdParam?: string,
-    options: Partial<WishlistItem> = {}
-  ) {
-    if (!isLoggedIn.value) {
-      notification.warning('Please sign in to add items to your wishlist')
-      return false
+    const wishlistStore = useWishlistStore()
+    const authStore = useAuthStore()
+    const notification = useNotification()
+
+    const { wishlists, loading, error } = storeToRefs(wishlistStore)
+    const { isLoggedIn } = storeToRefs(authStore)
+
+    // Local state
+    const isProcessing = ref(false)
+
+    // Current wishlist
+    const currentWishlist = computed(() => {
+        if (!wishlistId?.value) return null
+        return wishlists.value.find(w => w.id === wishlistId.value)
+    })
+
+    // Check if product is in any wishlist
+    const isInWishlist = (productId: string) => {
+        return wishlistStore.hasProduct(productId)
     }
-    
-    isProcessing.value = true
-    
-    try {
-      const targetWishlistId = wishlistIdParam || 
-        wishlistStore.defaultWishlist?.id || 
-        wishlists.value[0]?.id
-      
-      if (!targetWishlistId) {
-        throw new Error('No wishlist available')
-      }
-      
-      await wishlistStore.addItem(targetWishlistId, productId, options)
-      
-      const wishlistName = wishlists.value.find(w => w.id === targetWishlistId)?.name
-      notification.success(`Added to ${wishlistName || 'wishlist'}`)
-      
-      return true
-    } catch (error) {
-      notification.error('Failed to add item to wishlist')
-      return false
-    } finally {
-      isProcessing.value = false
+
+    // Get product's wishlist
+    const getProductWishlist = (productId: string) => {
+        return wishlistStore.getProductWishlist(productId)
     }
-  }
-  
-  // Remove item from wishlist
-  async function removeItem(itemId: string, wishlistIdParam?: string) {
-    if (!isLoggedIn.value) return false
-    
-    isProcessing.value = true
-    
-    try {
-      const targetWishlistId = wishlistIdParam || currentWishlist.value?.id
-      
-      if (!targetWishlistId) {
-        throw new Error('No wishlist specified')
-      }
-      
-      await wishlistStore.removeItem(targetWishlistId, itemId)
-      notification.info('Item removed from wishlist')
-      
-      return true
-    } catch (error) {
-      notification.error('Failed to remove item')
-      return false
-    } finally {
-      isProcessing.value = false
+
+    // Add item to wishlist
+    async function addItem(
+        productId: string,
+        wishlistIdParam?: string,
+        options: Partial<WishlistItem> = {}
+    ) {
+        if (!isLoggedIn.value) {
+            notification.warning('Please sign in to add items to your wishlist')
+            return false
+        }
+
+        isProcessing.value = true
+
+        try {
+            const targetWishlistId = wishlistIdParam ||
+                wishlistStore.defaultWishlist?.id ||
+                wishlists.value[0]?.id
+
+            if (!targetWishlistId) {
+                throw new Error('No wishlist available')
+            }
+
+            await wishlistStore.addItem(targetWishlistId, productId, options)
+
+            const wishlistName = wishlists.value.find(w => w.id === targetWishlistId)?.name
+            notification.success(`Added to ${wishlistName || 'wishlist'}`)
+
+            return true
+        } catch (error) {
+            notification.error('Failed to add item to wishlist')
+            return false
+        } finally {
+            isProcessing.value = false
+        }
     }
-  }
-  
-  // Toggle product in wishlist
-  async function toggleProduct(productId: string, options?: Partial<WishlistItem>) {
-    const productWishlist = getProductWishlist(productId)
-    
-    if (productWishlist) {
-      const item = productWishlist.items.find(i => i.productId === productId)
-      if (item) {
-        return await removeItem(item.id, productWishlist.id)
-      }
-    } else {
-      return await addItem(productId, undefined, options)
+
+    // Remove item from wishlist
+    async function removeItem(itemId: string, wishlistIdParam?: string) {
+        if (!isLoggedIn.value) return false
+
+        isProcessing.value = true
+
+        try {
+            const targetWishlistId = wishlistIdParam || currentWishlist.value?.id
+
+            if (!targetWishlistId) {
+                throw new Error('No wishlist specified')
+            }
+
+            await wishlistStore.removeItem(targetWishlistId, itemId)
+            notification.info('Item removed from wishlist')
+
+            return true
+        } catch (error) {
+            notification.error('Failed to remove item')
+            return false
+        } finally {
+            isProcessing.value = false
+        }
     }
-  }
-  
-  // Move item between wishlists
-  async function moveItem(
-    itemId: string,
-    sourceWishlistId: string,
-    targetWishlistId: string
-  ) {
-    isProcessing.value = true
-    
-    try {
-      await wishlistStore.moveItem(itemId, sourceWishlistId, targetWishlistId)
-      notification.success('Item moved successfully')
-      return true
-    } catch (error) {
-      notification.error('Failed to move item')
-      return false
-    } finally {
-      isProcessing.value = false
+
+    // Toggle product in wishlist
+    async function toggleProduct(productId: string, options?: Partial<WishlistItem>) {
+        const productWishlist = getProductWishlist(productId)
+
+        if (productWishlist) {
+            const item = productWishlist.items.find(i => i.productId === productId)
+            if (item) {
+                return await removeItem(item.id, productWishlist.id)
+            }
+        } else {
+            return await addItem(productId, undefined, options)
+        }
     }
-  }
-  
-  // Create new wishlist
-  async function createWishlist(data: Partial<Wishlist>) {
-    isProcessing.value = true
-    
-    try {
-      const wishlist = await wishlistStore.createWishlist(data)
-      notification.success('Wishlist created successfully')
-      return wishlist
-    } catch (error) {
-      notification.error('Failed to create wishlist')
-      return null
-    } finally {
-      isProcessing.value = false
+
+    // Move item between wishlists
+    async function moveItem(
+        itemId: string,
+        sourceWishlistId: string,
+        targetWishlistId: string
+    ) {
+        isProcessing.value = true
+
+        try {
+            await wishlistStore.moveItem(itemId, sourceWishlistId, targetWishlistId)
+            notification.success('Item moved successfully')
+            return true
+        } catch (error) {
+            notification.error('Failed to move item')
+            return false
+        } finally {
+            isProcessing.value = false
+        }
     }
-  }
-  
-  // Update wishlist
-  async function updateWishlist(wishlistIdParam: string, data: Partial<Wishlist>) {
-    isProcessing.value = true
-    
-    try {
-      await wishlistStore.updateWishlist(wishlistIdParam, data)
-      notification.success('Wishlist updated successfully')
-      return true
-    } catch (error) {
-      notification.error('Failed to update wishlist')
-      return false
-    } finally {
-      isProcessing.value = false
+
+    // Create new wishlist
+    async function createWishlist(data: Partial<Wishlist>) {
+        isProcessing.value = true
+
+        try {
+            const wishlist = await wishlistStore.createWishlist(data)
+            notification.success('Wishlist created successfully')
+            return wishlist
+        } catch (error) {
+            notification.error('Failed to create wishlist')
+            return null
+        } finally {
+            isProcessing.value = false
+        }
     }
-  }
-  
-  // Delete wishlist
-  async function deleteWishlist(wishlistIdParam: string) {
-    isProcessing.value = true
-    
-    try {
-      await wishlistStore.deleteWishlist(wishlistIdParam)
-      notification.success('Wishlist deleted successfully')
-      return true
-    } catch (error) {
-      notification.error('Failed to delete wishlist')
-      return false
-    } finally {
-      isProcessing.value = false
+
+    // Update wishlist
+    async function updateWishlist(wishlistIdParam: string, data: Partial<Wishlist>) {
+        isProcessing.value = true
+
+        try {
+            await wishlistStore.updateWishlist(wishlistIdParam, data)
+            notification.success('Wishlist updated successfully')
+            return true
+        } catch (error) {
+            notification.error('Failed to update wishlist')
+            return false
+        } finally {
+            isProcessing.value = false
+        }
     }
-  }
-  
-  // Share wishlist
-  async function shareWishlist(wishlistIdParam: string, options: ShareOptions) {
-    isProcessing.value = true
-    
-    try {
-      const shareInfo = await wishlistStore.shareWishlist(wishlistIdParam, options)
-      notification.success('Wishlist shared successfully')
-      return shareInfo
-    } catch (error) {
-      notification.error('Failed to share wishlist')
-      return null
-    } finally {
-      isProcessing.value = false
+
+    // Delete wishlist
+    async function deleteWishlist(wishlistIdParam: string) {
+        isProcessing.value = true
+
+        try {
+            await wishlistStore.deleteWishlist(wishlistIdParam)
+            notification.success('Wishlist deleted successfully')
+            return true
+        } catch (error) {
+            notification.error('Failed to delete wishlist')
+            return false
+        } finally {
+            isProcessing.value = false
+        }
     }
-  }
-  
-  return {
-    // State
-    wishlists,
-    currentWishlist,
-    loading,
-    error,
-    isProcessing,
-    
-    // Getters
-    isInWishlist,
-    getProductWishlist,
-    
-    // Actions
-    addItem,
-    removeItem,
-    toggleProduct,
-    moveItem,
-    createWishlist,
-    updateWishlist,
-    deleteWishlist,
-    shareWishlist
-  }
+
+    // Share wishlist
+    async function shareWishlist(wishlistIdParam: string, options: ShareOptions) {
+        isProcessing.value = true
+
+        try {
+            const shareInfo = await wishlistStore.shareWishlist(wishlistIdParam, options)
+            notification.success('Wishlist shared successfully')
+            return shareInfo
+        } catch (error) {
+            notification.error('Failed to share wishlist')
+            return null
+        } finally {
+            isProcessing.value = false
+        }
+    }
+
+    return {
+        // State
+        wishlists,
+        currentWishlist,
+        loading,
+        error,
+        isProcessing,
+
+        // Getters
+        isInWishlist,
+        getProductWishlist,
+
+        // Actions
+        addItem,
+        removeItem,
+        toggleProduct,
+        moveItem,
+        createWishlist,
+        updateWishlist,
+        deleteWishlist,
+        shareWishlist
+    }
 }
 ```
 
@@ -1516,34 +1516,34 @@ export function useWishlist(wishlistId?: Ref<string>) {
   --wishlist-primary-dark: #c2185b;
   --wishlist-primary-light: #f8bbd0;
   --wishlist-accent: #ff4081;
-  
+
   // Spacing
   --wishlist-spacing-xs: 0.25rem;
   --wishlist-spacing-sm: 0.5rem;
   --wishlist-spacing-md: 1rem;
   --wishlist-spacing-lg: 1.5rem;
   --wishlist-spacing-xl: 2rem;
-  
+
   // Typography
   --wishlist-font-size-sm: 0.875rem;
   --wishlist-font-size-base: 1rem;
   --wishlist-font-size-lg: 1.125rem;
   --wishlist-font-size-xl: 1.5rem;
-  
+
   // Borders
   --wishlist-border-radius: 4px;
   --wishlist-border-color: #e0e0e0;
-  
+
   // Shadows
   --wishlist-shadow-sm: 0 1px 3px rgba(0,0,0,0.12);
   --wishlist-shadow-md: 0 4px 6px rgba(0,0,0,0.1);
   --wishlist-shadow-lg: 0 10px 15px rgba(0,0,0,0.1);
-  
+
   // Transitions
   --wishlist-transition-fast: 150ms ease;
   --wishlist-transition-base: 200ms ease;
   --wishlist-transition-slow: 300ms ease;
-  
+
   // Z-index
   --wishlist-z-dropdown: 1000;
   --wishlist-z-modal: 1100;
@@ -1573,12 +1573,12 @@ export function useWishlist(wishlistId?: Ref<string>) {
   border-radius: var(--wishlist-border-radius);
   transition: all var(--wishlist-transition-base);
   cursor: pointer;
-  
+
   &:disabled {
     opacity: 0.5;
     cursor: not-allowed;
   }
-  
+
   &:focus-visible {
     outline: 2px solid var(--wishlist-primary);
     outline-offset: 2px;
@@ -1591,7 +1591,7 @@ export function useWishlist(wishlistId?: Ref<string>) {
   border-radius: var(--wishlist-border-radius);
   padding: var(--wishlist-spacing-md);
   transition: box-shadow var(--wishlist-transition-base);
-  
+
   &:hover {
     box-shadow: var(--wishlist-shadow-md);
   }
@@ -1617,110 +1617,110 @@ import { useWishlistStore } from '@/stores/wishlist'
 import { useAuthStore } from '@/stores/auth'
 
 describe('WishlistButton', () => {
-  let wrapper: any
-  let wishlistStore: any
-  let authStore: any
-  
-  beforeEach(() => {
-    const pinia = createPinia()
-    
-    wrapper = mount(WishlistButton, {
-      props: {
-        productId: 'test-product-123',
-        productName: 'Test Product',
-        productPrice: 99.99
-      },
-      global: {
-        plugins: [pinia]
-      }
+    let wrapper: any
+    let wishlistStore: any
+    let authStore: any
+
+    beforeEach(() => {
+        const pinia = createPinia()
+
+        wrapper = mount(WishlistButton, {
+            props: {
+                productId: 'test-product-123',
+                productName: 'Test Product',
+                productPrice: 99.99
+            },
+            global: {
+                plugins: [pinia]
+            }
+        })
+
+        wishlistStore = useWishlistStore()
+        authStore = useAuthStore()
     })
-    
-    wishlistStore = useWishlistStore()
-    authStore = useAuthStore()
-  })
-  
-  it('renders correctly', () => {
-    expect(wrapper.find('.wishlist-button').exists()).toBe(true)
-    expect(wrapper.find('.wishlist-button__icon').exists()).toBe(true)
-  })
-  
-  it('shows correct state when product is not in wishlist', () => {
-    wishlistStore.hasProduct = vi.fn().mockReturnValue(false)
-    
-    expect(wrapper.classes()).not.toContain('wishlist-button--active')
-  })
-  
-  it('shows correct state when product is in wishlist', async () => {
-    wishlistStore.hasProduct = vi.fn().mockReturnValue(true)
-    await wrapper.vm.$nextTick()
-    
-    expect(wrapper.classes()).toContain('wishlist-button--active')
-  })
-  
-  it('handles click when logged in', async () => {
-    authStore.isLoggedIn = true
-    wishlistStore.hasProduct = vi.fn().mockReturnValue(false)
-    wishlistStore.addItem = vi.fn().mockResolvedValue(true)
-    
-    await wrapper.trigger('click')
-    
-    expect(wishlistStore.addItem).toHaveBeenCalledWith(
-      expect.any(String),
-      'test-product-123',
-      expect.objectContaining({
-        productName: 'Test Product',
-        productPrice: 99.99
-      })
-    )
-  })
-  
-  it('handles guest click when not logged in', async () => {
-    authStore.isLoggedIn = false
-    wishlistStore.toggleGuestWishlist = vi.fn().mockReturnValue(true)
-    
-    await wrapper.trigger('click')
-    
-    expect(wishlistStore.toggleGuestWishlist).toHaveBeenCalledWith('test-product-123')
-  })
-  
-  it('shows loading state during operation', async () => {
-    authStore.isLoggedIn = true
-    wishlistStore.addItem = vi.fn().mockImplementation(() => {
-      return new Promise(resolve => setTimeout(resolve, 100))
+
+    it('renders correctly', () => {
+        expect(wrapper.find('.wishlist-button').exists()).toBe(true)
+        expect(wrapper.find('.wishlist-button__icon').exists()).toBe(true)
     })
-    
-    const clickPromise = wrapper.trigger('click')
-    await wrapper.vm.$nextTick()
-    
-    expect(wrapper.classes()).toContain('wishlist-button--loading')
-    expect(wrapper.attributes('disabled')).toBeDefined()
-    
-    await clickPromise
-    
-    expect(wrapper.classes()).not.toContain('wishlist-button--loading')
-  })
-  
-  it('emits correct events', async () => {
-    authStore.isLoggedIn = true
-    wishlistStore.hasProduct = vi.fn().mockReturnValue(false)
-    wishlistStore.addItem = vi.fn().mockResolvedValue(true)
-    wishlistStore.defaultWishlist = { id: 'wishlist-123', name: 'My Wishlist' }
-    
-    await wrapper.trigger('click')
-    
-    expect(wrapper.emitted('added')).toBeTruthy()
-    expect(wrapper.emitted('added')[0]).toEqual(['wishlist-123'])
-    expect(wrapper.emitted('toggle')).toBeTruthy()
-    expect(wrapper.emitted('toggle')[0]).toEqual([true])
-  })
-  
-  it('supports keyboard navigation', async () => {
-    await wrapper.trigger('keydown', { key: 'Enter' })
-    expect(wishlistStore.addItem).toHaveBeenCalled()
-    
-    await wrapper.trigger('keydown', { key: ' ' })
-    expect(wishlistStore.addItem).toHaveBeenCalledTimes(2)
-  })
+
+    it('shows correct state when product is not in wishlist', () => {
+        wishlistStore.hasProduct = vi.fn().mockReturnValue(false)
+
+        expect(wrapper.classes()).not.toContain('wishlist-button--active')
+    })
+
+    it('shows correct state when product is in wishlist', async () => {
+        wishlistStore.hasProduct = vi.fn().mockReturnValue(true)
+        await wrapper.vm.$nextTick()
+
+        expect(wrapper.classes()).toContain('wishlist-button--active')
+    })
+
+    it('handles click when logged in', async () => {
+        authStore.isLoggedIn = true
+        wishlistStore.hasProduct = vi.fn().mockReturnValue(false)
+        wishlistStore.addItem = vi.fn().mockResolvedValue(true)
+
+        await wrapper.trigger('click')
+
+        expect(wishlistStore.addItem).toHaveBeenCalledWith(
+            expect.any(String),
+            'test-product-123',
+            expect.objectContaining({
+                productName: 'Test Product',
+                productPrice: 99.99
+            })
+        )
+    })
+
+    it('handles guest click when not logged in', async () => {
+        authStore.isLoggedIn = false
+        wishlistStore.toggleGuestWishlist = vi.fn().mockReturnValue(true)
+
+        await wrapper.trigger('click')
+
+        expect(wishlistStore.toggleGuestWishlist).toHaveBeenCalledWith('test-product-123')
+    })
+
+    it('shows loading state during operation', async () => {
+        authStore.isLoggedIn = true
+        wishlistStore.addItem = vi.fn().mockImplementation(() => {
+            return new Promise(resolve => setTimeout(resolve, 100))
+        })
+
+        const clickPromise = wrapper.trigger('click')
+        await wrapper.vm.$nextTick()
+
+        expect(wrapper.classes()).toContain('wishlist-button--loading')
+        expect(wrapper.attributes('disabled')).toBeDefined()
+
+        await clickPromise
+
+        expect(wrapper.classes()).not.toContain('wishlist-button--loading')
+    })
+
+    it('emits correct events', async () => {
+        authStore.isLoggedIn = true
+        wishlistStore.hasProduct = vi.fn().mockReturnValue(false)
+        wishlistStore.addItem = vi.fn().mockResolvedValue(true)
+        wishlistStore.defaultWishlist = { id: 'wishlist-123', name: 'My Wishlist' }
+
+        await wrapper.trigger('click')
+
+        expect(wrapper.emitted('added')).toBeTruthy()
+        expect(wrapper.emitted('added')[0]).toEqual(['wishlist-123'])
+        expect(wrapper.emitted('toggle')).toBeTruthy()
+        expect(wrapper.emitted('toggle')[0]).toEqual([true])
+    })
+
+    it('supports keyboard navigation', async () => {
+        await wrapper.trigger('keydown', { key: 'Enter' })
+        expect(wishlistStore.addItem).toHaveBeenCalled()
+
+        await wrapper.trigger('keydown', { key: ' ' })
+        expect(wishlistStore.addItem).toHaveBeenCalledTimes(2)
+    })
 })
 ```
 
@@ -1731,11 +1731,11 @@ describe('WishlistButton', () => {
 ```typescript
 // Lazy load heavy components
 const WishlistAnalytics = defineAsyncComponent(() =>
-  import('./analytics/WishlistAnalytics.vue')
+    import('./analytics/WishlistAnalytics.vue')
 )
 
 const ShareWishlistModal = defineAsyncComponent(() =>
-  import('./modals/ShareWishlistModal.vue')
+    import('./modals/ShareWishlistModal.vue')
 )
 ```
 
@@ -1744,9 +1744,9 @@ const ShareWishlistModal = defineAsyncComponent(() =>
 ```vue
 <!-- For large lists -->
 <virtual-list
-  :items="wishlistItems"
-  :item-height="120"
-  :buffer="5"
+    :items="wishlistItems"
+    :item-height="120"
+    :buffer="5"
 >
   <template #default="{ item }">
     <wishlist-item :item="item" />
@@ -1759,14 +1759,14 @@ const ShareWishlistModal = defineAsyncComponent(() =>
 ```vue
 <picture>
   <source
-    :srcset="`${item.product.cover.url}?w=240&format=webp`"
-    type="image/webp"
+      :srcset="`${item.product.cover.url}?w=240&format=webp`"
+      type="image/webp"
   >
   <img
-    :src="`${item.product.cover.url}?w=240`"
-    :alt="item.product.name"
-    loading="lazy"
-    decoding="async"
+      :src="`${item.product.cover.url}?w=240`"
+      :alt="item.product.name"
+      loading="lazy"
+      decoding="async"
   >
 </picture>
 ```

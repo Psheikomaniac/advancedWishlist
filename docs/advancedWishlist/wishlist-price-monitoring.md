@@ -2,22 +2,22 @@
 
 ## Overview
 
-Das Price Monitoring Feature überwacht Preisänderungen für Wishlist-Produkte und benachrichtigt Kunden automatisch bei Preissenkungen. Es bietet detaillierte Preishistorien und Analysen.
+The Price Monitoring Feature monitors price changes for wishlist products and automatically notifies customers about price drops. It offers detailed price histories and analyses.
 
 ## User Stories
 
-### Als Kunde möchte ich...
-1. **Preisalarme setzen** für individuelle Produkte
-2. **Benachrichtigungen erhalten** wenn der Preis unter meinen Schwellwert fällt
-3. **Preishistorie einsehen** für meine Wishlist-Produkte
-4. **Preistrends verstehen** mit Visualisierungen
-5. **Alarme verwalten** und anpassen
+### As a customer, I want to...
+1. **Set price alerts** for individual products
+2. **Receive notifications** when the price falls below my threshold
+3. **View price history** for my wishlist products
+4. **Understand price trends** with visualizations
+5. **Manage alerts** and adjust them
 
-### Als Shop-Betreiber möchte ich...
-1. **Conversion steigern** durch gezielte Preisbenachrichtigungen
-2. **Kundenverhalten analysieren** bezüglich Preissensitivität
-3. **Automatisierung** der Benachrichtigungen
-4. **Performance optimieren** bei vielen Preisalarmen
+### As a shop owner, I want to...
+1. **Increase conversion** through targeted price notifications
+2. **Analyze customer behavior** regarding price sensitivity
+3. **Automate** notifications
+4. **Optimize performance** with many price alerts
 
 ## Technical Implementation
 
@@ -767,104 +767,104 @@ class PriceHistoryService
 <template>
   <div class="price-monitor">
     <div class="price-alert-setup">
-      <h3>Preisalarm einrichten</h3>
-      
+      <h3>Set up price alert</h3>
+
       <div class="current-price">
-        <span class="label">Aktueller Preis:</span>
+        <span class="label">Current price:</span>
         <span class="price">{{ formatPrice(currentPrice) }}</span>
       </div>
-      
+
       <div class="target-price">
-        <label>Wunschpreis:</label>
+        <label>Target price:</label>
         <div class="price-input">
-          <input 
-            type="number" 
-            v-model.number="targetPrice"
-            :max="currentPrice - 0.01"
-            step="0.01"
-            @input="calculateSavings"
+          <input
+              type="number"
+              v-model.number="targetPrice"
+              :max="currentPrice - 0.01"
+              step="0.01"
+              @input="calculateSavings"
           >
           <span class="currency">€</span>
         </div>
-        
+
         <div class="savings-preview" v-if="targetPrice > 0">
           <span class="savings">
-            Ersparnis: {{ formatPrice(savings) }} 
+            Savings: {{ formatPrice(savings) }} 
             ({{ savingsPercentage.toFixed(1) }}%)
           </span>
         </div>
       </div>
-      
+
       <div class="alert-options">
         <label>
-          <input 
-            type="checkbox" 
-            v-model="options.notifyOnAnyDrop"
+          <input
+              type="checkbox"
+              v-model="options.notifyOnAnyDrop"
           >
-          Bei jeder Preissenkung benachrichtigen
+          Notify on any price drop
         </label>
-        
+
         <label>
-          <input 
-            type="checkbox" 
-            v-model="options.includeShipping"
+          <input
+              type="checkbox"
+              v-model="options.includeShipping"
           >
-          Versandkosten berücksichtigen
+          Include shipping costs
         </label>
       </div>
-      
-      <button 
-        @click="setPriceAlert" 
-        :disabled="!isValidPrice"
-        class="btn-primary"
+
+      <button
+          @click="setPriceAlert"
+          :disabled="!isValidPrice"
+          class="btn-primary"
       >
         <i class="icon-bell"></i>
-        Preisalarm aktivieren
+        Activate price alert
       </button>
     </div>
-    
+
     <!-- Price History Chart -->
     <div class="price-history" v-if="showHistory">
-      <h3>Preisverlauf</h3>
-      
+      <h3>Price history</h3>
+
       <div class="time-range">
-        <button 
-          v-for="range in timeRanges" 
-          :key="range.value"
-          @click="selectedRange = range.value"
-          :class="{ active: selectedRange === range.value }"
+        <button
+            v-for="range in timeRanges"
+            :key="range.value"
+            @click="selectedRange = range.value"
+            :class="{ active: selectedRange === range.value }"
         >
           {{ range.label }}
         </button>
       </div>
-      
+
       <div class="chart-container">
         <price-history-chart
-          :data="priceHistory"
-          :current-price="currentPrice"
-          :target-price="targetPrice"
-          @hover="onChartHover"
+            :data="priceHistory"
+            :current-price="currentPrice"
+            :target-price="targetPrice"
+            @hover="onChartHover"
         />
       </div>
-      
+
       <div class="price-stats">
         <div class="stat">
-          <span class="label">Niedrigster Preis:</span>
+          <span class="label">Lowest price:</span>
           <span class="value">{{ formatPrice(stats.min) }}</span>
           <span class="date">{{ formatDate(stats.minDate) }}</span>
         </div>
-        
+
         <div class="stat">
-          <span class="label">Höchster Preis:</span>
+          <span class="label">Highest price:</span>
           <span class="value">{{ formatPrice(stats.max) }}</span>
           <span class="date">{{ formatDate(stats.maxDate) }}</span>
         </div>
-        
+
         <div class="stat">
-          <span class="label">Durchschnitt:</span>
+          <span class="label">Average:</span>
           <span class="value">{{ formatPrice(stats.avg) }}</span>
         </div>
-        
+
         <div class="stat">
           <span class="label">Trend:</span>
           <span class="value trend" :class="stats.trend">
@@ -874,31 +874,31 @@ class PriceHistoryService
         </div>
       </div>
     </div>
-    
+
     <!-- Active Alerts -->
     <div class="active-alerts" v-if="activeAlerts.length > 0">
-      <h3>Aktive Preisalarme</h3>
-      
+      <h3>Active price alerts</h3>
+
       <div class="alert-list">
-        <div 
-          v-for="alert in activeAlerts" 
-          :key="alert.id"
-          class="alert-item"
+        <div
+            v-for="alert in activeAlerts"
+            :key="alert.id"
+            class="alert-item"
         >
           <div class="alert-info">
             <h4>{{ alert.product.name }}</h4>
             <div class="prices">
-              <span class="current">Aktuell: {{ formatPrice(alert.currentPrice) }}</span>
-              <span class="target">Ziel: {{ formatPrice(alert.targetPrice) }}</span>
+              <span class="current">Current: {{ formatPrice(alert.currentPrice) }}</span>
+              <span class="target">Target: {{ formatPrice(alert.targetPrice) }}</span>
             </div>
             <div class="progress">
-              <div 
-                class="progress-bar" 
-                :style="{ width: alert.progressPercentage + '%' }"
+              <div
+                  class="progress-bar"
+                  :style="{ width: alert.progressPercentage + '%' }"
               ></div>
             </div>
           </div>
-          
+
           <div class="alert-actions">
             <button @click="editAlert(alert)" class="btn-edit">
               <i class="icon-edit"></i>
@@ -910,31 +910,31 @@ class PriceHistoryService
         </div>
       </div>
     </div>
-    
+
     <!-- Price Prediction -->
     <div class="price-prediction" v-if="prediction">
-      <h3>Preisprognose</h3>
-      
+      <h3>Price forecast</h3>
+
       <div class="prediction-content">
         <div class="prediction-value">
-          <span class="label">Erwarteter Preis in {{ predictionDays }} Tagen:</span>
+          <span class="label">Expected price in {{ predictionDays }} days:</span>
           <span class="price">{{ formatPrice(prediction.price) }}</span>
           <span class="confidence">
-            Konfidenz: {{ prediction.confidence }}%
+            Confidence: {{ prediction.confidence }}%
           </span>
         </div>
-        
+
         <div class="prediction-chart">
           <price-prediction-chart
-            :historical="priceHistory"
-            :prediction="prediction"
-            :days="predictionDays"
+              :historical="priceHistory"
+              :prediction="prediction"
+              :days="predictionDays"
           />
         </div>
-        
+
         <p class="disclaimer">
-          * Prognose basierend auf historischen Daten. 
-          Keine Garantie für tatsächliche Preisentwicklung.
+          * Forecast based on historical data.
+          No guarantee for actual price development.
         </p>
       </div>
     </div>
@@ -942,339 +942,339 @@ class PriceHistoryService
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted } from 'vue'
-import { usePriceMonitorStore } from '@/stores/priceMonitor'
-import { useNotification } from '@/composables/useNotification'
-import PriceHistoryChart from './PriceHistoryChart.vue'
-import PricePredictionChart from './PricePredictionChart.vue'
+  import { ref, computed, watch, onMounted } from 'vue'
+  import { usePriceMonitorStore } from '@/stores/priceMonitor'
+  import { useNotification } from '@/composables/useNotification'
+  import PriceHistoryChart from './PriceHistoryChart.vue'
+  import PricePredictionChart from './PricePredictionChart.vue'
 
-const props = defineProps({
-  productId: {
-    type: String,
-    required: true
-  },
-  wishlistItemId: {
-    type: String,
-    required: true
-  },
-  currentPrice: {
-    type: Number,
-    required: true
+  const props = defineProps({
+    productId: {
+      type: String,
+      required: true
+    },
+    wishlistItemId: {
+      type: String,
+      required: true
+    },
+    currentPrice: {
+      type: Number,
+      required: true
+    }
+  })
+
+  const priceMonitorStore = usePriceMonitorStore()
+  const notification = useNotification()
+
+  const targetPrice = ref(0)
+  const selectedRange = ref(30)
+  const predictionDays = ref(7)
+  const showHistory = ref(false)
+
+  const options = ref({
+    notifyOnAnyDrop: false,
+    includeShipping: false,
+    considerVariants: true
+  })
+
+  const timeRanges = [
+    { label: '7 Days', value: 7 },
+    { label: '30 Days', value: 30 },
+    { label: '90 Days', value: 90 },
+    { label: '1 Year', value: 365 }
+  ]
+
+  const savings = computed(() => {
+    if (targetPrice.value > 0 && targetPrice.value < props.currentPrice) {
+      return props.currentPrice - targetPrice.value
+    }
+    return 0
+  })
+
+  const savingsPercentage = computed(() => {
+    if (savings.value > 0) {
+      return (savings.value / props.currentPrice) * 100
+    }
+    return 0
+  })
+
+  const isValidPrice = computed(() => {
+    return targetPrice.value > 0 && targetPrice.value < props.currentPrice
+  })
+
+  const priceHistory = computed(() =>
+      priceMonitorStore.getPriceHistory(props.productId, selectedRange.value)
+  )
+
+  const stats = computed(() =>
+      priceMonitorStore.getPriceStatistics(props.productId)
+  )
+
+  const activeAlerts = computed(() =>
+      priceMonitorStore.getActiveAlerts(props.productId)
+  )
+
+  const prediction = computed(() =>
+      priceMonitorStore.getPricePrediction(props.productId, predictionDays.value)
+  )
+
+  onMounted(async () => {
+    await priceMonitorStore.loadPriceData(props.productId)
+    showHistory.value = priceHistory.value.length > 0
+  })
+
+  async function setPriceAlert() {
+    try {
+      await priceMonitorStore.createPriceAlert({
+        wishlistItemId: props.wishlistItemId,
+        productId: props.productId,
+        targetPrice: targetPrice.value,
+        options: options.value
+      })
+
+      notification.success('Price alert has been activated!')
+      targetPrice.value = 0
+    } catch (error) {
+      notification.error('Error activating price alert')
+    }
   }
-})
 
-const priceMonitorStore = usePriceMonitorStore()
-const notification = useNotification()
+  async function deleteAlert(alert) {
+    if (!confirm('Really delete price alert?')) {
+      return
+    }
 
-const targetPrice = ref(0)
-const selectedRange = ref(30)
-const predictionDays = ref(7)
-const showHistory = ref(false)
-
-const options = ref({
-  notifyOnAnyDrop: false,
-  includeShipping: false,
-  considerVariants: true
-})
-
-const timeRanges = [
-  { label: '7 Tage', value: 7 },
-  { label: '30 Tage', value: 30 },
-  { label: '90 Tage', value: 90 },
-  { label: '1 Jahr', value: 365 }
-]
-
-const savings = computed(() => {
-  if (targetPrice.value > 0 && targetPrice.value < props.currentPrice) {
-    return props.currentPrice - targetPrice.value
+    try {
+      await priceMonitorStore.deletePriceAlert(alert.id)
+      notification.success('Price alert deleted')
+    } catch (error) {
+      notification.error('Error deleting alert')
+    }
   }
-  return 0
-})
 
-const savingsPercentage = computed(() => {
-  if (savings.value > 0) {
-    return (savings.value / props.currentPrice) * 100
+  function formatPrice(price) {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD'
+    }).format(price)
   }
-  return 0
-})
 
-const isValidPrice = computed(() => {
-  return targetPrice.value > 0 && targetPrice.value < props.currentPrice
-})
-
-const priceHistory = computed(() => 
-  priceMonitorStore.getPriceHistory(props.productId, selectedRange.value)
-)
-
-const stats = computed(() => 
-  priceMonitorStore.getPriceStatistics(props.productId)
-)
-
-const activeAlerts = computed(() => 
-  priceMonitorStore.getActiveAlerts(props.productId)
-)
-
-const prediction = computed(() => 
-  priceMonitorStore.getPricePrediction(props.productId, predictionDays.value)
-)
-
-onMounted(async () => {
-  await priceMonitorStore.loadPriceData(props.productId)
-  showHistory.value = priceHistory.value.length > 0
-})
-
-async function setPriceAlert() {
-  try {
-    await priceMonitorStore.createPriceAlert({
-      wishlistItemId: props.wishlistItemId,
-      productId: props.productId,
-      targetPrice: targetPrice.value,
-      options: options.value
-    })
-    
-    notification.success('Preisalarm wurde aktiviert!')
-    targetPrice.value = 0
-  } catch (error) {
-    notification.error('Fehler beim Aktivieren des Preisalarms')
+  function formatDate(date) {
+    if (!date) return ''
+    return new Intl.DateTimeFormat('en-US', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    }).format(new Date(date))
   }
-}
 
-async function deleteAlert(alert) {
-  if (!confirm('Preisalarm wirklich löschen?')) {
-    return
+  function getTrendIcon(trend) {
+    return {
+      'increasing': 'icon-trending-up',
+      'decreasing': 'icon-trending-down',
+      'stable': 'icon-minus'
+    }[trend] || 'icon-minus'
   }
-  
-  try {
-    await priceMonitorStore.deletePriceAlert(alert.id)
-    notification.success('Preisalarm gelöscht')
-  } catch (error) {
-    notification.error('Fehler beim Löschen')
+
+  function getTrendLabel(trend) {
+    return {
+      'increasing': 'Rising',
+      'decreasing': 'Falling',
+      'stable': 'Stable'
+    }[trend] || 'Unknown'
   }
-}
-
-function formatPrice(price) {
-  return new Intl.NumberFormat('de-DE', {
-    style: 'currency',
-    currency: 'EUR'
-  }).format(price)
-}
-
-function formatDate(date) {
-  if (!date) return ''
-  return new Intl.DateTimeFormat('de-DE', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric'
-  }).format(new Date(date))
-}
-
-function getTrendIcon(trend) {
-  return {
-    'increasing': 'icon-trending-up',
-    'decreasing': 'icon-trending-down',
-    'stable': 'icon-minus'
-  }[trend] || 'icon-minus'
-}
-
-function getTrendLabel(trend) {
-  return {
-    'increasing': 'Steigend',
-    'decreasing': 'Fallend',
-    'stable': 'Stabil'
-  }[trend] || 'Unbekannt'
-}
 </script>
 
 <style scoped>
-.price-monitor {
-  background: white;
-  border-radius: 8px;
-  padding: 1.5rem;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
+  .price-monitor {
+    background: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
 
-.price-alert-setup {
-  margin-bottom: 2rem;
-}
+  .price-alert-setup {
+    margin-bottom: 2rem;
+  }
 
-.current-price {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  margin-bottom: 1rem;
-  font-size: 1.25rem;
-}
+  .current-price {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    font-size: 1.25rem;
+  }
 
-.current-price .price {
-  font-weight: bold;
-  color: var(--primary-color);
-}
+  .current-price .price {
+    font-weight: bold;
+    color: var(--primary-color);
+  }
 
-.target-price {
-  margin-bottom: 1rem;
-}
+  .target-price {
+    margin-bottom: 1rem;
+  }
 
-.price-input {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-top: 0.5rem;
-}
+  .price-input {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+  }
 
-.price-input input {
-  width: 150px;
-  padding: 0.5rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 1.1rem;
-}
+  .price-input input {
+    width: 150px;
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1.1rem;
+  }
 
-.savings-preview {
-  margin-top: 0.5rem;
-  color: #28a745;
-  font-weight: 500;
-}
+  .savings-preview {
+    margin-top: 0.5rem;
+    color: #28a745;
+    font-weight: 500;
+  }
 
-.alert-options {
-  margin: 1.5rem 0;
-}
+  .alert-options {
+    margin: 1.5rem 0;
+  }
 
-.alert-options label {
-  display: block;
-  margin-bottom: 0.5rem;
-}
+  .alert-options label {
+    display: block;
+    margin-bottom: 0.5rem;
+  }
 
-.time-range {
-  display: flex;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
-}
+  .time-range {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
 
-.time-range button {
-  padding: 0.5rem 1rem;
-  border: 1px solid #ddd;
-  background: white;
-  border-radius: 4px;
-  cursor: pointer;
-}
+  .time-range button {
+    padding: 0.5rem 1rem;
+    border: 1px solid #ddd;
+    background: white;
+    border-radius: 4px;
+    cursor: pointer;
+  }
 
-.time-range button.active {
-  background: var(--primary-color);
-  color: white;
-  border-color: var(--primary-color);
-}
+  .time-range button.active {
+    background: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+  }
 
-.chart-container {
-  height: 300px;
-  margin-bottom: 1.5rem;
-}
+  .chart-container {
+    height: 300px;
+    margin-bottom: 1.5rem;
+  }
 
-.price-stats {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1rem;
-}
+  .price-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+  }
 
-.stat {
-  padding: 1rem;
-  background: #f8f9fa;
-  border-radius: 4px;
-}
+  .stat {
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 4px;
+  }
 
-.stat .label {
-  display: block;
-  font-size: 0.875rem;
-  color: #666;
-  margin-bottom: 0.25rem;
-}
+  .stat .label {
+    display: block;
+    font-size: 0.875rem;
+    color: #666;
+    margin-bottom: 0.25rem;
+  }
 
-.stat .value {
-  display: block;
-  font-size: 1.25rem;
-  font-weight: bold;
-}
+  .stat .value {
+    display: block;
+    font-size: 1.25rem;
+    font-weight: bold;
+  }
 
-.stat .date {
-  display: block;
-  font-size: 0.75rem;
-  color: #999;
-  margin-top: 0.25rem;
-}
+  .stat .date {
+    display: block;
+    font-size: 0.75rem;
+    color: #999;
+    margin-top: 0.25rem;
+  }
 
-.trend.increasing {
-  color: #dc3545;
-}
+  .trend.increasing {
+    color: #dc3545;
+  }
 
-.trend.decreasing {
-  color: #28a745;
-}
+  .trend.decreasing {
+    color: #28a745;
+  }
 
-.trend.stable {
-  color: #6c757d;
-}
+  .trend.stable {
+    color: #6c757d;
+  }
 
-.alert-list {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
+  .alert-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
 
-.alert-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-}
+  .alert-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+  }
 
-.progress {
-  width: 200px;
-  height: 4px;
-  background: #e9ecef;
-  border-radius: 2px;
-  margin-top: 0.5rem;
-  overflow: hidden;
-}
+  .progress {
+    width: 200px;
+    height: 4px;
+    background: #e9ecef;
+    border-radius: 2px;
+    margin-top: 0.5rem;
+    overflow: hidden;
+  }
 
-.progress-bar {
-  height: 100%;
-  background: var(--primary-color);
-  transition: width 0.3s ease;
-}
+  .progress-bar {
+    height: 100%;
+    background: var(--primary-color);
+    transition: width 0.3s ease;
+  }
 
-.prediction-content {
-  background: #f0f8ff;
-  padding: 1.5rem;
-  border-radius: 8px;
-}
+  .prediction-content {
+    background: #f0f8ff;
+    padding: 1.5rem;
+    border-radius: 8px;
+  }
 
-.prediction-value {
-  text-align: center;
-  margin-bottom: 1.5rem;
-}
+  .prediction-value {
+    text-align: center;
+    margin-bottom: 1.5rem;
+  }
 
-.prediction-value .price {
-  display: block;
-  font-size: 2rem;
-  font-weight: bold;
-  color: var(--primary-color);
-  margin: 0.5rem 0;
-}
+  .prediction-value .price {
+    display: block;
+    font-size: 2rem;
+    font-weight: bold;
+    color: var(--primary-color);
+    margin: 0.5rem 0;
+  }
 
-.confidence {
-  display: block;
-  font-size: 0.875rem;
-  color: #666;
-}
+  .confidence {
+    display: block;
+    font-size: 0.875rem;
+    color: #666;
+  }
 
-.disclaimer {
-  margin-top: 1rem;
-  font-size: 0.75rem;
-  color: #666;
-  font-style: italic;
-  text-align: center;
-}
+  .disclaimer {
+    margin-top: 1rem;
+    font-size: 0.75rem;
+    color: #666;
+    font-style: italic;
+    text-align: center;
+  }
 </style>
 ```
 
@@ -1283,45 +1283,45 @@ function getTrendLabel(trend) {
 ```sql
 -- Price alerts table
 CREATE TABLE `wishlist_price_alert` (
-  `id` BINARY(16) NOT NULL,
-  `wishlist_item_id` BINARY(16) NOT NULL,
-  `product_id` BINARY(16) NOT NULL,
-  `customer_id` BINARY(16) NOT NULL,
-  `target_price` DECIMAL(10,2) NOT NULL,
-  `current_price` DECIMAL(10,2) NOT NULL,
-  `price_drop_percentage` DECIMAL(5,2),
-  `active` TINYINT(1) DEFAULT 1,
-  `options` JSON,
-  `triggered_count` INT DEFAULT 0,
-  `last_triggered_at` DATETIME(3),
-  `last_checked_at` DATETIME(3),
-  `lowest_price` DECIMAL(10,2),
-  `created_at` DATETIME(3) NOT NULL,
-  `updated_at` DATETIME(3),
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `uniq.price_alert.item` (`wishlist_item_id`),
-  KEY `idx.price_alert.product` (`product_id`, `active`),
-  KEY `idx.price_alert.customer` (`customer_id`),
-  KEY `idx.price_alert.check` (`active`, `last_checked_at`),
-  CONSTRAINT `fk.price_alert.wishlist_item` FOREIGN KEY (`wishlist_item_id`) 
-    REFERENCES `wishlist_item` (`id`) ON DELETE CASCADE
+                                        `id` BINARY(16) NOT NULL,
+                                        `wishlist_item_id` BINARY(16) NOT NULL,
+                                        `product_id` BINARY(16) NOT NULL,
+                                        `customer_id` BINARY(16) NOT NULL,
+                                        `target_price` DECIMAL(10,2) NOT NULL,
+                                        `current_price` DECIMAL(10,2) NOT NULL,
+                                        `price_drop_percentage` DECIMAL(5,2),
+                                        `active` TINYINT(1) DEFAULT 1,
+                                        `options` JSON,
+                                        `triggered_count` INT DEFAULT 0,
+                                        `last_triggered_at` DATETIME(3),
+                                        `last_checked_at` DATETIME(3),
+                                        `lowest_price` DECIMAL(10,2),
+                                        `created_at` DATETIME(3) NOT NULL,
+                                        `updated_at` DATETIME(3),
+                                        PRIMARY KEY (`id`),
+                                        UNIQUE KEY `uniq.price_alert.item` (`wishlist_item_id`),
+                                        KEY `idx.price_alert.product` (`product_id`, `active`),
+                                        KEY `idx.price_alert.customer` (`customer_id`),
+                                        KEY `idx.price_alert.check` (`active`, `last_checked_at`),
+                                        CONSTRAINT `fk.price_alert.wishlist_item` FOREIGN KEY (`wishlist_item_id`)
+                                            REFERENCES `wishlist_item` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Price history table
 CREATE TABLE `product_price_history` (
-  `id` BINARY(16) NOT NULL,
-  `product_id` BINARY(16) NOT NULL,
-  `price` DECIMAL(10,2) NOT NULL,
-  `currency_id` BINARY(16) NOT NULL,
-  `sales_channel_id` BINARY(16),
-  `source` VARCHAR(50) DEFAULT 'system',
-  `metadata` JSON,
-  `recorded_at` DATETIME(3) NOT NULL,
-  PRIMARY KEY (`id`),
-  KEY `idx.price_history.product_date` (`product_id`, `recorded_at`),
-  KEY `idx.price_history.date` (`recorded_at`),
-  CONSTRAINT `fk.price_history.product` FOREIGN KEY (`product_id`) 
-    REFERENCES `product` (`id`) ON DELETE CASCADE
+                                         `id` BINARY(16) NOT NULL,
+                                         `product_id` BINARY(16) NOT NULL,
+                                         `price` DECIMAL(10,2) NOT NULL,
+                                         `currency_id` BINARY(16) NOT NULL,
+                                         `sales_channel_id` BINARY(16),
+                                         `source` VARCHAR(50) DEFAULT 'system',
+                                         `metadata` JSON,
+                                         `recorded_at` DATETIME(3) NOT NULL,
+                                         PRIMARY KEY (`id`),
+                                         KEY `idx.price_history.product_date` (`product_id`, `recorded_at`),
+                                         KEY `idx.price_history.date` (`recorded_at`),
+                                         CONSTRAINT `fk.price_history.product` FOREIGN KEY (`product_id`)
+                                             REFERENCES `product` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 PARTITION BY RANGE (YEAR(recorded_at)) (
   PARTITION p2024 VALUES LESS THAN (2025),
@@ -1332,19 +1332,19 @@ PARTITION BY RANGE (YEAR(recorded_at)) (
 
 -- Compressed price history for long-term storage
 CREATE TABLE `product_price_history_compressed` (
-  `id` BINARY(16) NOT NULL,
-  `product_id` BINARY(16) NOT NULL,
-  `date` DATE NOT NULL,
-  `open_price` DECIMAL(10,2) NOT NULL,
-  `close_price` DECIMAL(10,2) NOT NULL,
-  `min_price` DECIMAL(10,2) NOT NULL,
-  `max_price` DECIMAL(10,2) NOT NULL,
-  `avg_price` DECIMAL(10,2) NOT NULL,
-  `entry_count` INT NOT NULL,
-  `currency_id` BINARY(16) NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `uniq.price_compressed.product_date` (`product_id`, `date`),
-  KEY `idx.price_compressed.date` (`date`)
+                                                    `id` BINARY(16) NOT NULL,
+                                                    `product_id` BINARY(16) NOT NULL,
+                                                    `date` DATE NOT NULL,
+                                                    `open_price` DECIMAL(10,2) NOT NULL,
+                                                    `close_price` DECIMAL(10,2) NOT NULL,
+                                                    `min_price` DECIMAL(10,2) NOT NULL,
+                                                    `max_price` DECIMAL(10,2) NOT NULL,
+                                                    `avg_price` DECIMAL(10,2) NOT NULL,
+                                                    `entry_count` INT NOT NULL,
+                                                    `currency_id` BINARY(16) NOT NULL,
+                                                    PRIMARY KEY (`id`),
+                                                    UNIQUE KEY `uniq.price_compressed.product_date` (`product_id`, `date`),
+                                                    KEY `idx.price_compressed.date` (`date`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
@@ -1425,11 +1425,11 @@ $price = $this->cache->get($cacheKey, function() use ($productId) {
 
 ```sql
 -- Optimize price check queries
-CREATE INDEX `idx.price_alert.batch_check` 
-ON `wishlist_price_alert` (`active`, `last_checked_at`, `product_id`)
-WHERE `active` = 1;
+CREATE INDEX `idx.price_alert.batch_check`
+    ON `wishlist_price_alert` (`active`, `last_checked_at`, `product_id`)
+    WHERE `active` = 1;
 
 -- Optimize history queries
-CREATE INDEX `idx.price_history.analysis` 
-ON `product_price_history` (`product_id`, `recorded_at` DESC, `price`);
+CREATE INDEX `idx.price_history.analysis`
+    ON `product_price_history` (`product_id`, `recorded_at` DESC, `price`);
 ```

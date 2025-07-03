@@ -2,13 +2,13 @@
 
 ## Overview
 
-Das Datenbankschema ist optimiert für Performance, Skalierbarkeit und Flexibilität. Es nutzt Shopware 6's Entity-Relationship Model mit zusätzlichen Optimierungen für Wishlist-spezifische Anforderungen.
+The database schema is optimized for performance, scalability, and flexibility. It uses Shopware 6's Entity-Relationship Model with additional optimizations for wishlist-specific requirements.
 
 ## Core Tables
 
 ### wishlist
 
-Die Haupttabelle für Wunschlisten.
+The main table for wishlists.
 
 ```sql
 CREATE TABLE `wishlist` (
@@ -36,7 +36,7 @@ CREATE TABLE `wishlist` (
     REFERENCES `sales_channel` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Trigger für item_count Update
+-- Trigger for item_count update
 DELIMITER $$
 CREATE TRIGGER `wishlist_item_count_insert` 
 AFTER INSERT ON `wishlist_item` 
@@ -62,7 +62,7 @@ DELIMITER ;
 
 ### wishlist_item
 
-Einzelne Produkte in Wunschlisten.
+Individual products in wishlists.
 
 ```sql
 CREATE TABLE `wishlist_item` (
@@ -90,7 +90,7 @@ CREATE TABLE `wishlist_item` (
     REFERENCES `product` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Index für Price Monitoring
+-- Index for Price Monitoring
 CREATE INDEX `idx.wishlist_item.price_monitoring` 
 ON `wishlist_item` (`product_id`, `price_alert_threshold`) 
 WHERE `price_alert_active` = 1;
@@ -98,7 +98,7 @@ WHERE `price_alert_active` = 1;
 
 ### wishlist_share
 
-Sharing-Informationen für Wunschlisten.
+Sharing information for wishlists.
 
 ```sql
 CREATE TABLE `wishlist_share` (
@@ -130,7 +130,7 @@ CREATE TABLE `wishlist_share` (
 
 ### wishlist_share_view
 
-Tracking von Share-Aufrufen.
+Tracking of share views.
 
 ```sql
 CREATE TABLE `wishlist_share_view` (
@@ -160,7 +160,7 @@ CREATE TABLE `wishlist_share_view` (
 
 ### wishlist_analytics
 
-Aggregierte Analytics-Daten.
+Aggregated analytics data.
 
 ```sql
 CREATE TABLE `wishlist_analytics` (
@@ -183,7 +183,7 @@ CREATE TABLE `wishlist_analytics` (
 
 ### wishlist_product_analytics
 
-Produkt-bezogene Analytics.
+Product-related analytics.
 
 ```sql
 CREATE TABLE `wishlist_product_analytics` (
@@ -215,7 +215,7 @@ PARTITION BY RANGE (YEAR(period_start)) (
 
 ### guest_wishlist
 
-Temporäre Wunschlisten für Gäste.
+Temporary wishlists for guests.
 
 ```sql
 CREATE TABLE `guest_wishlist` (
@@ -255,7 +255,7 @@ DO
 
 ### guest_wishlist_merge_log
 
-Log für Zusammenführungen nach Registrierung.
+Log for merges after registration.
 
 ```sql
 CREATE TABLE `guest_wishlist_merge_log` (
@@ -281,7 +281,7 @@ CREATE TABLE `guest_wishlist_merge_log` (
 
 ### wishlist_notification_queue
 
-Queue für ausstehende Benachrichtigungen.
+Queue for pending notifications.
 
 ```sql
 CREATE TABLE `wishlist_notification_queue` (
@@ -308,7 +308,7 @@ CREATE TABLE `wishlist_notification_queue` (
 
 ### wishlist_notification_log
 
-Log gesendeter Benachrichtigungen.
+Log of sent notifications.
 
 ```sql
 CREATE TABLE `wishlist_notification_log` (
@@ -335,7 +335,7 @@ CREATE TABLE `wishlist_notification_log` (
 
 ### wishlist_cache
 
-Cache-Tabelle für häufige Abfragen.
+Cache table for frequent queries.
 
 ```sql
 CREATE TABLE `wishlist_cache` (
@@ -352,11 +352,11 @@ CREATE TABLE `wishlist_cache` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
-## Views und Materialized Views
+## Views and Materialized Views
 
 ### v_wishlist_product_popularity
 
-View für beliebte Wishlist-Produkte.
+View for popular wishlist products.
 
 ```sql
 CREATE VIEW `v_wishlist_product_popularity` AS
@@ -379,7 +379,7 @@ GROUP BY p.id;
 
 ### mv_wishlist_conversion_stats
 
-Materialized View für Conversion-Statistiken.
+Materialized view for conversion statistics.
 
 ```sql
 CREATE TABLE `mv_wishlist_conversion_stats` (
@@ -565,7 +565,7 @@ ON `wishlist_share_view` (`share_id`, `viewed_at`, `purchased`);
 
 ```sql
 -- Cleanup old guest wishlists
-DELIMITER $$
+DELIMITER $
 CREATE PROCEDURE `cleanup_old_data`()
 BEGIN
   -- Delete expired guest wishlists
@@ -584,7 +584,7 @@ BEGIN
   -- Optimize tables
   OPTIMIZE TABLE `wishlist_share_view`;
   OPTIMIZE TABLE `guest_wishlist`;
-END$$
+END$
 DELIMITER ;
 
 -- Schedule weekly cleanup
@@ -598,20 +598,20 @@ DO CALL cleanup_old_data();
 
 ```sql
 -- Update product statistics
-DELIMITER $$
+DELIMITER $
 CREATE PROCEDURE `update_product_statistics`()
 BEGIN
   -- Update wishlist counts
-  UPDATE `product` p
-  SET p.`wishlist_count` = (
+UPDATE `product` p
+SET p.`wishlist_count` = (
     SELECT COUNT(DISTINCT wi.`wishlist_id`)
     FROM `wishlist_item` wi
     WHERE wi.`product_id` = p.`id`
-  );
-  
-  -- Refresh materialized views
-  CALL refresh_wishlist_conversion_stats();
-END$$
+);
+
+-- Refresh materialized views
+CALL refresh_wishlist_conversion_stats();
+END$
 DELIMITER ;
 ```
 
@@ -621,22 +621,22 @@ DELIMITER ;
 
 ```sql
 -- Monitor slow queries
-SELECT 
-  digest_text,
-  count_star,
-  avg_timer_wait/1000000000 AS avg_ms,
-  sum_timer_wait/1000000000 AS total_ms
+SELECT
+    digest_text,
+    count_star,
+    avg_timer_wait/1000000000 AS avg_ms,
+    sum_timer_wait/1000000000 AS total_ms
 FROM performance_schema.events_statements_summary_by_digest
 WHERE digest_text LIKE '%wishlist%'
 ORDER BY sum_timer_wait DESC
-LIMIT 10;
+    LIMIT 10;
 
 -- Table statistics
-SELECT 
-  table_name,
-  table_rows,
-  data_length/1024/1024 AS data_mb,
-  index_length/1024/1024 AS index_mb
+SELECT
+    table_name,
+    table_rows,
+    data_length/1024/1024 AS data_mb,
+    index_length/1024/1024 AS index_mb
 FROM information_schema.tables
 WHERE table_schema = DATABASE()
   AND table_name LIKE '%wishlist%';

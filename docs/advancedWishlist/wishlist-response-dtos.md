@@ -2,7 +2,7 @@
 
 ## Overview
 
-Response DTOs standardisieren die API-Antworten und sorgen für konsistente Datenstrukturen. Sie implementieren JsonSerializable für automatische JSON-Konvertierung und bieten Type Safety für Frontend-Entwickler.
+Response DTOs standardize API responses and ensure consistent data structures. They implement JsonSerializable for automatic JSON conversion and provide type safety for frontend developers.
 
 ## Base Response DTO
 

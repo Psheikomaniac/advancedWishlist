@@ -2,7 +2,7 @@
 
 ## Overview
 
-Die Store API stellt alle Endpunkte für das Frontend bereit. Alle Endpoints folgen RESTful-Prinzipien und nutzen JSON für Request/Response.
+The Store API provides all endpoints for the frontend. All endpoints follow RESTful principles and use JSON for request/response.
 
 ## Authentication
 
@@ -28,7 +28,7 @@ Response:
 }
 ```
 
-Alle weiteren Requests benötigen:
+All subsequent requests require:
 ```http
 sw-context-token: SWSC1234567890
 ```
@@ -56,8 +56,8 @@ Response:
     {
       "id": "0189abcd-ef12-3456-7890-abcdef123456",
       "customerId": "0189abcd-ef12-3456-7890-abcdef123457",
-      "name": "Geburtstag 2024",
-      "description": "Meine Geburtstagswünsche",
+      "name": "Birthday 2024",
+      "description": "My birthday wishes",
       "type": "private",
       "isDefault": true,
       "itemCount": 12,
@@ -100,8 +100,8 @@ Response:
 {
   "id": "0189abcd-ef12-3456-7890-abcdef123456",
   "customerId": "0189abcd-ef12-3456-7890-abcdef123457",
-  "name": "Geburtstag 2024",
-  "description": "Meine Geburtstagswünsche",
+  "name": "Birthday 2024",
+  "description": "My birthday wishes",
   "type": "private",
   "isDefault": true,
   "itemCount": 12,
@@ -112,7 +112,7 @@ Response:
       "wishlistId": "0189abcd-ef12-3456-7890-abcdef123456",
       "productId": "0189abcd-ef12-3456-7890-abcdef123459",
       "quantity": 1,
-      "note": "Größe M, Farbe Blau",
+      "note": "Size M, Color Blue",
       "priority": 1,
       "priceAlertThreshold": 29.99,
       "priceAlertActive": true,
@@ -121,7 +121,7 @@ Response:
         "id": "0189abcd-ef12-3456-7890-abcdef123459",
         "productNumber": "SW10001",
         "name": "Premium T-Shirt",
-        "description": "Hochwertiges Baumwoll-T-Shirt",
+        "description": "High-quality cotton t-shirt",
         "price": {
           "net": 25.21,
           "gross": 29.99,
@@ -134,7 +134,7 @@ Response:
         "stock": 125,
         "cover": {
           "url": "https://shop.example.com/media/product/tshirt-blue.jpg",
-          "alt": "Premium T-Shirt Blau"
+          "alt": "Premium T-Shirt Blue"
         }
       }
     }
@@ -161,8 +161,8 @@ sw-context-token: {token}
 Content-Type: application/json
 
 {
-  "name": "Weihnachten 2024",
-  "description": "Meine Weihnachtswünsche",
+  "name": "Christmas 2024",
+  "description": "My Christmas wishes",
   "type": "private",
   "isDefault": false
 }
@@ -173,8 +173,8 @@ Response:
 {
   "id": "0189abcd-ef12-3456-7890-abcdef123461",
   "customerId": "0189abcd-ef12-3456-7890-abcdef123457",
-  "name": "Weihnachten 2024",
-  "description": "Meine Weihnachtswünsche",
+  "name": "Christmas 2024",
+  "description": "My Christmas wishes",
   "type": "private",
   "isDefault": false,
   "itemCount": 0,
@@ -192,8 +192,8 @@ sw-context-token: {token}
 Content-Type: application/json
 
 {
-  "name": "Weihnachten 2024 - Familie",
-  "description": "Geschenkideen für die Familie",
+  "name": "Christmas 2024 - Family",
+  "description": "Gift ideas for the family",
   "type": "shared",
   "isDefault": true
 }
@@ -229,7 +229,7 @@ Content-Type: application/json
 {
   "productId": "0189abcd-ef12-3456-7890-abcdef123462",
   "quantity": 2,
-  "note": "Größe L, Farbe Schwarz",
+  "note": "Size L, Color Black",
   "priceAlertThreshold": 49.99,
   "productOptions": {
     "color": "black",
@@ -245,7 +245,7 @@ Response:
   "wishlistId": "0189abcd-ef12-3456-7890-abcdef123461",
   "productId": "0189abcd-ef12-3456-7890-abcdef123462",
   "quantity": 2,
-  "note": "Größe L, Farbe Schwarz",
+  "note": "Size L, Color Black",
   "priority": 2,
   "priceAlertThreshold": 49.99,
   "priceAlertActive": true,
@@ -271,7 +271,7 @@ Content-Type: application/json
 {
   "quantity": 3,
   "priority": 1,
-  "note": "DRINGEND! Größe L, Farbe Schwarz",
+  "note": "URGENT! Size L, Color Black",
   "priceAlertThreshold": 45.00
 }
 ```
@@ -309,12 +309,12 @@ Content-Type: application/json
     {
       "productId": "0189abcd-ef12-3456-7890-abcdef123465",
       "quantity": 1,
-      "note": "Variante A"
+      "note": "Variant A"
     },
     {
       "productId": "0189abcd-ef12-3456-7890-abcdef123466",
       "quantity": 2,
-      "note": "Variante B"
+      "note": "Variant B"
     }
   ]
 }
@@ -393,7 +393,7 @@ Content-Type: application/json
 {
   "shareMethod": "email",
   "recipientEmail": "friend@example.com",
-  "message": "Schau dir mal meine Wunschliste an!",
+  "message": "Check out my wishlist!",
   "shareSettings": {
     "expiresAt": "2024-06-30T23:59:59.000Z"
   }
@@ -415,8 +415,8 @@ Response:
 ```json
 {
   "id": "0189abcd-ef12-3456-7890-abcdef123456",
-  "name": "Geburtstag 2024",
-  "description": "Meine Geburtstagswünsche",
+  "name": "Birthday 2024",
+  "description": "My birthday wishes",
   "itemCount": 12,
   "items": [
     {
@@ -431,12 +431,12 @@ Response:
         }
       },
       "quantity": 1,
-      "note": "Größe M"
+      "note": "Size M"
     }
   ],
   "owner": {
-    "firstName": "Max",
-    "lastName": "M." // Abbreviated for privacy
+    "firstName": "John",
+    "lastName": "D." // Abbreviated for privacy
   },
   "shareSettings": {
     "hidePrices": false,
@@ -477,7 +477,7 @@ Content-Type: application/json
 {
   "productId": "0189abcd-ef12-3456-7890-abcdef123472",
   "quantity": 1,
-  "note": "Interessant!"
+  "note": "Interesting!"
 }
 ```
 
@@ -523,7 +523,7 @@ Response:
   "wishlists": [
     {
       "id": "0189abcd-ef12-3456-7890-abcdef123456",
-      "name": "Geburtstag 2024",
+      "name": "Birthday 2024",
       "itemId": "0189abcd-ef12-3456-7890-abcdef123473"
     }
   ]
@@ -546,7 +546,7 @@ Response:
   "topCategories": [
     {
       "id": "0189abcd-ef12-3456-7890-abcdef123474",
-      "name": "Kleidung",
+      "name": "Clothing",
       "itemCount": 12
     }
   ],
@@ -557,7 +557,7 @@ Response:
   "recentActivity": [
     {
       "type": "item_added",
-      "wishlistName": "Geburtstag 2024",
+      "wishlistName": "Birthday 2024",
       "productName": "Premium T-Shirt",
       "timestamp": "2024-01-25T16:30:00.000Z"
     }
@@ -573,7 +573,7 @@ sw-context-token: {token}
 Content-Type: application/json
 
 {
-  "query": "geburtstag",
+  "query": "birthday",
   "filters": {
     "type": ["private", "shared"],
     "hasItems": true

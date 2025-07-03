@@ -2,22 +2,22 @@
 
 ## Overview
 
-Das Guest Wishlist Feature ermöglicht es nicht registrierten Besuchern, temporäre Wunschlisten zu erstellen und zu verwalten. Diese werden nach der Registrierung automatisch in permanente Wunschlisten überführt.
+The Guest Wishlist Feature allows unregistered visitors to create and manage temporary wishlists. These are automatically converted to permanent wishlists after registration.
 
 ## User Stories
 
-### Als Gast möchte ich...
-1. **Produkte merken** ohne Registrierungszwang
-2. **Wishlist behalten** nach späterer Registrierung
-3. **Benachrichtigt werden** über gespeicherte Produkte
-4. **Wishlist teilen** auch als Gast
-5. **Nahtlos fortfahren** nach Login/Registrierung
+### As a guest, I want to...
+1. **Save products** without registration requirement
+2. **Keep wishlist** after later registration
+3. **Get notifications** about saved products
+4. **Share wishlist** even as a guest
+5. **Continue seamlessly** after login/registration
 
-### Als Shop-Betreiber möchte ich...
-1. **Conversion erhöhen** durch niedrige Einstiegshürde
-2. **Gäste motivieren** zur Registrierung
-3. **Daten sammeln** über Gast-Interessen
-4. **GDPR-konform** arbeiten
+### As a shop owner, I want to...
+1. **Increase conversion** through low entry barriers
+2. **Motivate guests** to register
+3. **Collect data** about guest interests
+4. **Work GDPR-compliant**
 
 ## Technical Implementation
 
@@ -102,7 +102,7 @@ class GuestWishlistService
             'salesChannelId' => $context->getSalesChannelId(),
             'languageId' => $context->getLanguageId(),
             'currencyId' => $context->getCurrencyId(),
-            'name' => 'Meine Wunschliste',
+            'name' => 'My Wishlist',
             'items' => [],
             'expiresAt' => $this->calculateExpiryDate(),
             'ipAddress' => $this->getIpAddress(),
@@ -566,21 +566,21 @@ class GuestIdentifierService
       <div class="notice-content">
         <i class="icon-info"></i>
         <p>
-          Ihre Wunschliste wird temporär gespeichert. 
-          <router-link to="/account/register">Registrieren Sie sich</router-link>, 
-          um sie dauerhaft zu speichern.
+          Your wishlist is temporarily saved. 
+          <router-link to="/account/register">Register</router-link> 
+          to save it permanently.
         </p>
       </div>
       
       <button @click="showEmailReminder = true" class="btn-reminder">
         <i class="icon-email"></i>
-        Erinnerung senden
+        Send reminder
       </button>
     </div>
     
     <!-- Guest Wishlist Items -->
     <div class="wishlist-items">
-      <h2>Ihre Wunschliste ({{ itemCount }} Artikel)</h2>
+      <h2>Your Wishlist ({{ itemCount }} items)</h2>
       
       <div v-if="loading" class="loading">
         <spinner />
@@ -598,10 +598,10 @@ class GuestIdentifierService
       
       <div v-else class="empty-state">
         <i class="icon-heart-empty"></i>
-        <h3>Ihre Wunschliste ist leer</h3>
-        <p>Speichern Sie Ihre Lieblingsprodukte für später</p>
+        <h3>Your wishlist is empty</h3>
+        <p>Save your favorite products for later</p>
         <router-link to="/products" class="btn-primary">
-          Produkte entdecken
+          Discover products
         </router-link>
       </div>
     </div>
@@ -609,20 +609,20 @@ class GuestIdentifierService
     <!-- Email Reminder Modal -->
     <modal v-if="showEmailReminder" @close="showEmailReminder = false">
       <div class="email-reminder-form">
-        <h3>Wunschliste per E-Mail sichern</h3>
+        <h3>Save wishlist via email</h3>
         <p>
-          Erhalten Sie einen Link zu Ihrer Wunschliste per E-Mail, 
-          damit Sie später darauf zugreifen können.
+          Receive a link to your wishlist via email, 
+          so you can access it later.
         </p>
         
         <form @submit.prevent="sendReminder">
           <div class="form-group">
-            <label>E-Mail-Adresse:</label>
+            <label>Email address:</label>
             <input 
               type="email" 
               v-model="reminderEmail"
               required
-              placeholder="ihre@email.de"
+              placeholder="your@email.com"
             >
           </div>
           
@@ -632,16 +632,16 @@ class GuestIdentifierService
                 type="checkbox" 
                 v-model="consentNewsletter"
               >
-              Ich möchte über Angebote und Neuigkeiten informiert werden
+              I want to be informed about offers and news
             </label>
           </div>
           
           <div class="form-actions">
             <button type="button" @click="showEmailReminder = false">
-              Abbrechen
+              Cancel
             </button>
             <button type="submit" class="btn-primary">
-              Erinnerung senden
+              Send reminder
             </button>
           </div>
         </form>
@@ -650,13 +650,13 @@ class GuestIdentifierService
     
     <!-- Conversion Prompt -->
     <div v-if="shouldShowConversionPrompt" class="conversion-prompt">
-      <h3>Verpassen Sie keine Angebote!</h3>
+      <h3>Don't miss any offers!</h3>
       <p>
-        Registrieren Sie sich und erhalten Sie Benachrichtigungen, 
-        wenn Ihre Wunschprodukte im Preis fallen.
+        Register and receive notifications 
+        when your wishlist products go on sale.
       </p>
       <button @click="registerWithWishlist" class="btn-primary">
-        Jetzt registrieren & Wunschliste sichern
+        Register now & save wishlist
       </button>
     </div>
   </div>
@@ -702,16 +702,16 @@ watch(isLoggedIn, async (newValue, oldValue) => {
   if (newValue && !oldValue && hasItems.value) {
     // User just logged in, merge wishlist
     await guestWishlistStore.mergeToCustomer()
-    notification.success('Ihre Wunschliste wurde übernommen!')
+    notification.success('Your wishlist has been transferred!')
   }
 })
 
 async function removeItem(itemId) {
   try {
     await guestWishlistStore.removeItem(itemId)
-    notification.success('Artikel entfernt')
+    notification.success('Item removed')
   } catch (error) {
-    notification.error('Fehler beim Entfernen')
+    notification.error('Error removing item')
   }
 }
 
@@ -719,7 +719,7 @@ async function updateItem(itemId, data) {
   try {
     await guestWishlistStore.updateItem(itemId, data)
   } catch (error) {
-    notification.error('Fehler beim Aktualisieren')
+    notification.error('Error updating item')
   }
 }
 
@@ -731,7 +731,7 @@ async function sendReminder() {
     })
     
     showEmailReminder.value = false
-    notification.success('Erinnerung wurde versendet!')
+    notification.success('Reminder has been sent!')
     
     // Track conversion opportunity
     trackEvent('guest_wishlist_reminder_sent', {
@@ -739,7 +739,7 @@ async function sendReminder() {
       newsletter: consentNewsletter.value
     })
   } catch (error) {
-    notification.error('Fehler beim Versenden')
+    notification.error('Error sending reminder')
   }
 }
 
@@ -1144,22 +1144,22 @@ class GuestConversionService
     {
         return match($level) {
             'high' => [
-                'title' => 'Sie haben tolle Produkte ausgewählt!',
-                'message' => 'Registrieren Sie sich jetzt und erhalten Sie 10% Rabatt auf Ihre erste Bestellung.',
-                'cta' => 'Jetzt registrieren & sparen',
-                'incentive' => '10% Rabatt'
+                'title' => 'You\'ve selected great products!',
+                'message' => 'Register now and get 10% off your first order.',
+                'cta' => 'Register now & save',
+                'incentive' => '10% discount'
             ],
             'medium' => [
-                'title' => 'Verpassen Sie keine Angebote!',
-                'message' => 'Als registrierter Kunde erhalten Sie Preisalarm-Benachrichtigungen.',
-                'cta' => 'Kostenlos registrieren',
-                'incentive' => 'Preisalarme'
+                'title' => 'Don\'t miss any offers!',
+                'message' => 'As a registered customer you receive price alert notifications.',
+                'cta' => 'Register for free',
+                'incentive' => 'Price alerts'
             ],
             'low' => [
-                'title' => 'Speichern Sie Ihre Auswahl',
-                'message' => 'Ihre Wunschliste dauerhaft speichern und von überall zugreifen.',
-                'cta' => 'Account erstellen',
-                'incentive' => 'Dauerhaft speichern'
+                'title' => 'Save your selection',
+                'message' => 'Save your wishlist permanently and access it from anywhere.',
+                'cta' => 'Create account',
+                'incentive' => 'Save permanently'
             ],
         };
     }
@@ -1171,43 +1171,43 @@ class GuestConversionService
 ```javascript
 // Progressive email capture
 export const useEmailCapture = () => {
-  const showEmailCapture = ref(false)
-  const capturedEmail = ref('')
-  
-  const shouldShowCapture = computed(() => {
-    const guestStore = useGuestWishlistStore()
-    const hasEmail = localStorage.getItem('guest_email')
-    
-    return guestStore.itemCount >= 2 && !hasEmail
-  })
-  
-  const captureEmail = async (email) => {
-    try {
-      // Save email
-      localStorage.setItem('guest_email', email)
-      
-      // Send to backend
-      await api.post('/guest-wishlist/capture-email', { email })
-      
-      // Track conversion
-      gtag('event', 'email_captured', {
-        event_category: 'guest_conversion',
-        method: 'wishlist'
-      })
-      
-      return true
-    } catch (error) {
-      console.error('Email capture failed:', error)
-      return false
+    const showEmailCapture = ref(false)
+    const capturedEmail = ref('')
+
+    const shouldShowCapture = computed(() => {
+        const guestStore = useGuestWishlistStore()
+        const hasEmail = localStorage.getItem('guest_email')
+
+        return guestStore.itemCount >= 2 && !hasEmail
+    })
+
+    const captureEmail = async (email) => {
+        try {
+            // Save email
+            localStorage.setItem('guest_email', email)
+
+            // Send to backend
+            await api.post('/guest-wishlist/capture-email', { email })
+
+            // Track conversion
+            gtag('event', 'email_captured', {
+                event_category: 'guest_conversion',
+                method: 'wishlist'
+            })
+
+            return true
+        } catch (error) {
+            console.error('Email capture failed:', error)
+            return false
+        }
     }
-  }
-  
-  return {
-    showEmailCapture,
-    capturedEmail,
-    shouldShowCapture,
-    captureEmail
-  }
+
+    return {
+        showEmailCapture,
+        capturedEmail,
+        shouldShowCapture,
+        captureEmail
+    }
 }
 ```
 

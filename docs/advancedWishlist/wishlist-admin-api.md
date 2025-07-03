@@ -2,11 +2,11 @@
 
 ## Overview
 
-Die Admin API bietet vollständige Verwaltungsfunktionen für das Wishlist System. Sie ermöglicht Administratoren die Überwachung, Analyse und Verwaltung aller Wishlist-bezogenen Daten.
+The Admin API provides complete management functions for the Wishlist System. It enables administrators to monitor, analyze, and manage all wishlist-related data.
 
 ## Authentication
 
-Admin API verwendet OAuth2 mit Client Credentials Flow:
+Admin API uses OAuth2 with Client Credentials Flow:
 
 ```http
 POST /api/oauth/token
@@ -28,7 +28,7 @@ Response:
 }
 ```
 
-Alle weiteren Requests benötigen:
+All subsequent requests require:
 ```http
 Authorization: Bearer {access_token}
 ```
@@ -810,9 +810,9 @@ $export = $client->wishlists()->export([
 import { WishlistAdminClient } from '@advanced-wishlist/admin-sdk';
 
 const client = new WishlistAdminClient({
-  baseURL: 'https://shop.example.com',
-  clientId: 'SWIAADMIN123456',
-  clientSecret: 'your-client-secret'
+    baseURL: 'https://shop.example.com',
+    clientId: 'SWIAADMIN123456',
+    clientSecret: 'your-client-secret'
 });
 
 // Get real-time analytics
@@ -820,14 +820,14 @@ const realtime = await client.analytics.getRealtime();
 
 // Bulk delete old wishlists
 const result = await client.wishlists.bulkDelete({
-  criteria: {
-    filter: [
-      {
-        type: 'range',
-        field: 'createdAt',
-        parameters: { lt: '2023-01-01' }
-      }
-    ]
-  }
+    criteria: {
+        filter: [
+            {
+                type: 'range',
+                field: 'createdAt',
+                parameters: { lt: '2023-01-01' }
+            }
+        ]
+    }
 });
 ```

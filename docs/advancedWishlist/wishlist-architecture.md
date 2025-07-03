@@ -2,7 +2,7 @@
 
 ## Overview
 
-Das Advanced Wishlist System folgt einer **Domain-Driven Design (DDD)** Architektur mit klarer Trennung von Concerns. Die Implementierung nutzt **Shopware 6's Plugin-System** und integriert sich nahtlos in die bestehende Architektur.
+The Advanced Wishlist System follows a **Domain-Driven Design (DDD)** architecture with clear separation of concerns. The implementation uses **Shopware 6's Plugin System** and integrates seamlessly into the existing architecture.
 
 ## Architecture Layers
 
@@ -262,16 +262,16 @@ class WishlistPermissionValidator
 
 ```sql
 -- Composite indexes for common queries
-CREATE INDEX idx_wishlist_customer_type 
-ON wishlist(customer_id, type, created_at);
+CREATE INDEX idx_wishlist_customer_type
+   ON wishlist(customer_id, type, created_at);
 
-CREATE INDEX idx_wishlist_item_product 
-ON wishlist_item(wishlist_id, product_id);
+CREATE INDEX idx_wishlist_item_product
+   ON wishlist_item(wishlist_id, product_id);
 
 -- Partial index for active price alerts
-CREATE INDEX idx_price_alert_active 
-ON wishlist_item(product_id, price_alert_threshold) 
-WHERE price_alert_active = 1;
+CREATE INDEX idx_price_alert_active
+   ON wishlist_item(product_id, price_alert_threshold)
+   WHERE price_alert_active = 1;
 ```
 
 ### Query Optimization
@@ -406,19 +406,19 @@ class DuplicateWishlistItemException extends WishlistException {}
 
 ```json
 {
-    "errors": [
-        {
-            "status": "404",
-            "code": "WISHLIST__NOT_FOUND",
-            "title": "Wishlist not found",
-            "detail": "The wishlist with id 'xyz' could not be found",
-            "meta": {
-                "parameters": {
-                    "wishlistId": "xyz"
-                }
+   "errors": [
+      {
+         "status": "404",
+         "code": "WISHLIST__NOT_FOUND",
+         "title": "Wishlist not found",
+         "detail": "The wishlist with id 'xyz' could not be found",
+         "meta": {
+            "parameters": {
+               "wishlistId": "xyz"
             }
-        }
-    ]
+         }
+      }
+   ]
 }
 ```
 

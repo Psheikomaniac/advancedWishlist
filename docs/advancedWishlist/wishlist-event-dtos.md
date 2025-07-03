@@ -1,8 +1,8 @@
 # Event DTOs - Advanced Wishlist System
 
-## Überblick
+## Overview
 
-Event DTOs dienen als Transportobjekte für Events im Shopware Event System. Sie kapseln alle relevanten Daten, die bei einem bestimmten Ereignis übertragen werden müssen, und ermöglichen eine typensichere Kommunikation zwischen verschiedenen System-Komponenten.
+Event DTOs serve as transport objects for events in the Shopware Event System. They encapsulate all relevant data that needs to be transmitted during a specific event and enable type-safe communication between different system components.
 
 ## Base Event DTO
 
@@ -820,7 +820,7 @@ class WishlistToCartEvent extends AbstractEventDTO
 }
 ```
 
-## Event Subscriber Beispiel
+## Event Subscriber Example
 
 ```php
 <?php declare(strict_types=1);  
@@ -858,7 +858,7 @@ class WishlistEventSubscriber implements EventSubscriberInterface
             'customerId' => $event->getCustomerId(),
         ]);
 
-        // Weitere Verarbeitung...
+        // Further processing...
     }
 
     public function onWishlistShared(WishlistSharedEvent $event): void
@@ -868,7 +868,7 @@ class WishlistEventSubscriber implements EventSubscriberInterface
             'shareMethod' => $event->getShareMethod(),
         ]);
 
-        // Analytics tracking, E-Mail-Benachrichtigungen, etc.
+        // Analytics tracking, email notifications, etc.
     }
 
     public function onWishlistToCart(WishlistToCartEvent $event): void
@@ -883,7 +883,7 @@ class WishlistEventSubscriber implements EventSubscriberInterface
 }
 ```
 
-## Event-Versand Beispiel
+## Event Dispatch Example
 
 ```php
 <?php declare(strict_types=1);  
@@ -907,9 +907,9 @@ class WishlistService
 
     public function createWishlist(CreateWishlistRequest $request, Context $context): WishlistEntity
     {
-        // Wishlist erstellen Logik...
+        // Wishlist creation logic...
 
-        // Event erstellen und versenden
+        // Create and dispatch event
         $event = new WishlistCreatedEvent($wishlist, $context);
         $this->eventDispatcher->dispatch($event);
 

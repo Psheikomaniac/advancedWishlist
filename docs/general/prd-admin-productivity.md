@@ -7,7 +7,7 @@ The Admin Productivity Suite transforms Shopware 6 administration from a product
 
 ### Business Goals
 - **Target Market**: 100% of all Shopware 6 shops (universal need)
-- **Revenue Target**: 1000+ paying customers in 12 months  
+- **Revenue Target**: 1000+ paying customers in 12 months
 - **MRR Goal**: €75,000 after year 1
 - **Productivity Increase**: 40% verifiable time savings
 
@@ -201,70 +201,70 @@ As an admin, I want to...
 
 #### 3.6 AI Assistant "ShopBot"
 ```
-Als Admin möchte ich...
-- Natural Language Commands ("Zeige alle Produkte ohne Bilder")
-- Automatische Anomalie-Erkennung
+As an admin, I want to...
+- Natural Language Commands ("Show all products without images")
+- Automatic anomaly detection
 - Predictive Actions
 - Smart Suggestions
-- Bulk-Beschreibungen generieren
+- Generate bulk descriptions
 ```
 
 #### 3.7 Advanced Dashboard Builder
 ```
-Als Admin möchte ich...
-- Custom Dashboards erstellen
-- Widgets per Drag & Drop
-- Real-time Metriken
-- Exportierbare Reports
-- Scheduled Reports
+As an admin, I want to...
+- Create custom dashboards
+- Drag & drop widgets
+- Real-time metrics
+- Exportable reports
+- Scheduled reports
 ```
 
 #### 3.8 Workflow Automation
 ```
-Als Admin möchte ich...
-- Repetitive Tasks automatisieren
-- If-This-Then-That Regeln
-- Scheduled Jobs
-- Email-Notifications
-- Webhook-Trigger
+As an admin, I want to...
+- Automate repetitive tasks
+- If-This-Then-That rules
+- Scheduled jobs
+- Email notifications
+- Webhook triggers
 ```
 
-## 4. Paywall-Konzept & Monetarisierung
+## 4. Paywall Concept & Monetization
 
-### Tier-Struktur
+### Tier Structure
 
 #### 🎯 **STARTER (Free)**
-**Ziel**: Adoption maximieren, Vertrauen aufbauen
-- Unlimited List View (bis 100 Items)
+**Goal**: Maximize adoption, build trust
+- Unlimited List View (up to 100 items)
 - 5 Keyboard Shortcuts
 - Basic Search
 - 1 Saved Filter
 - Community Support
 - "Powered by" Badge
 
-#### 💎 **PRO (59€/Monat/Admin)**
-**Ziel**: Einzelne Power-User und kleine Teams
+#### 💎 **PRO (59€/month/admin)**
+**Goal**: Individual power users and small teams
 - Unlimited Everything
 - All Keyboard Shortcuts
 - Advanced Search & Filters
-- Bulk Editor (bis 100 Items)
+- Bulk Editor (up to 100 items)
 - Quick Actions Toolbar
 - Email Support
 - No Branding
 
-#### 🏢 **TEAM (149€/Monat für 5 User)**
-**Ziel**: Teams mit mehreren Admins
-- Alles aus PRO
-- 5 Admin-Lizenzen
+#### 🏢 **TEAM (149€/month for 5 users)**
+**Goal**: Teams with multiple admins
+- Everything from PRO
+- 5 Admin licenses
 - Shared Filters & Views
 - Team Activity Log
 - Bulk Editor (unlimited)
 - Priority Support
 - Custom Shortcuts
-- Export-Funktionen
+- Export Functions
 
-#### 🚀 **ENTERPRISE (299€/Monat unlimited)**
-**Ziel**: Große Organisationen, Agenturen
+#### 🚀 **ENTERPRISE (299€/month unlimited)**
+**Goal**: Large organizations, agencies
 - Unlimited Admin Users
 - AI Assistant "ShopBot"
 - Workflow Automation
@@ -274,42 +274,42 @@ Als Admin möchte ich...
 - Phone Support
 - Custom Training
 
-### Innovative Pricing-Modelle
+### Innovative Pricing Models
 
 #### Performance-Based Pricing
 ```
-Basic Fee: 29€/Monat
-+ 0.50€ pro gesparte Arbeitsstunde
-(gemessen durch Activity Tracking)
+Basic Fee: 29€/month
++ 0.50€ per saved work hour
+(measured through activity tracking)
 ```
 
 #### Usage-Based Tiers
 ```
-Light Use (< 2h/Tag): 39€/Monat
-Regular (2-4h/Tag): 59€/Monat  
-Heavy (4h+/Tag): 79€/Monat
+Light Use (< 2h/day): 39€/month
+Regular (2-4h/day): 59€/month  
+Heavy (4h+/day): 79€/month
 ```
 
-#### Bundle-Deals
+#### Bundle Deals
 - **Productivity Pack**: Admin Suite + Quick Order Tool = -20%
-- **Complete Shop**: Alle 3 Tools = -30%
-- **Agency Bundle**: 10 Shops = -40%
+- **Complete Shop**: All 3 tools = -30%
+- **Agency Bundle**: 10 shops = -40%
 
-### Monetarisierungs-Hacks
+### Monetization Hacks
 
-#### Freemium-Psychologie
+#### Freemium Psychology
 1. **Feature Teasing**: Grayed-out Premium Features
-2. **Usage Limits**: "Sie haben 23/25 Bulk Edits verwendet"
-3. **Time Bombing**: "PRO Features noch 7 Tage testen"
-4. **Social Proof**: "2,341 Admins sparen 2.3h täglich"
+2. **Usage Limits**: "You have used 23/25 bulk edits"
+3. **Time Bombing**: "PRO Features available for 7 more days"
+4. **Social Proof**: "2,341 admins save 2.3h daily"
 
-#### Retention-Mechanismen
-- **Productivity Score**: Gamification der Zeitersparnis
-- **Weekly Reports**: "Sie haben diese Woche 12h gespart"
-- **Feature Usage**: Nicht genutzte Features highlighten
-- **Team Competitions**: Wer spart am meisten Zeit?
+#### Retention Mechanisms
+- **Productivity Score**: Gamification of time savings
+- **Weekly Reports**: "You saved 12h this week"
+- **Feature Usage**: Highlight unused features
+- **Team Competitions**: Who saves the most time?
 
-## 5. Technische Architektur
+## 5. Technical Architecture
 
 ### Frontend Architecture
 ```
@@ -417,7 +417,7 @@ class BulkOperationQueue {
 
 ### Database Optimizations
 ```sql
--- Indices for Performance
+-- Performance Indexes
 CREATE INDEX idx_products_search ON products 
   USING gin(to_tsvector('english', name || ' ' || description));
 
@@ -436,7 +436,7 @@ SELECT
 FROM admin_activity_log
 GROUP BY user_id, DATE(created_at);
 
--- Partitionierung für große Tabellen
+-- Partitioning for Large Tables
 CREATE TABLE admin_activity_log_2024_01 PARTITION OF admin_activity_log
   FOR VALUES FROM ('2024-01-01') TO ('2024-02-01');
 ```
@@ -444,61 +444,61 @@ CREATE TABLE admin_activity_log_2024_01 PARTITION OF admin_activity_log
 ## 6. User Experience Design
 
 ### Design Principles
-1. **Speed First**: Jede Aktion < 300ms Response
-2. **Keyboard Driven**: Maus ist optional
-3. **Context Aware**: Zeige nur relevante Optionen
-4. **Progressive Disclosure**: Komplexität bei Bedarf
-5. **Consistent Patterns**: Erlernbar und vorhersagbar
+1. **Speed First**: Every action < 300ms response
+2. **Keyboard Driven**: Mouse is optional
+3. **Context Aware**: Show only relevant options
+4. **Progressive Disclosure**: Complexity on demand
+5. **Consistent Patterns**: Learnable and predictable
 
 ### Key UI Components
 
 #### Command Palette (Ctrl+K)
 ```
 ┌─────────────────────────────────────────┐
-│ 🔍 Was möchten Sie tun?                 │
+│ 🔍 What do you want to do?              │
 ├─────────────────────────────────────────┤
-│ > produkt                               │
+│ > product                               │
 ├─────────────────────────────────────────┤
-│ 📦 Neues Produkt anlegen               │
-│ 🔍 Produkte suchen                     │
-│ 📊 Produkt-Report generieren           │
-│ 🏷️ Produkt-Tags verwalten              │
-│ 💰 Produkt-Preise anpassen             │
+│ 📦 Create new product                   │
+│ 🔍 Search products                      │
+│ 📊 Generate product report              │
+│ 🏷️ Manage product tags                  │
+│ 💰 Adjust product prices                │
 └─────────────────────────────────────────┘
 ```
 
 #### Inline Bulk Editor
 ```
 ┌────────────────────────────────────────┐
-│ Bulk Edit: 47 Produkte                 │
+│ Bulk Edit: 47 Products                 │
 ├────────────────────────────────────────┤
-│ Aktion: [Preis anpassen ▼]            │
+│ Action: [Adjust price ▼]               │
 │                                        │
-│ ○ Absolut setzen: [____]€             │
-│ ● Prozentual:     [+10]%              │
-│ ○ Aufschlag:      [____]€             │
+│ ○ Set absolute: [____]€                │
+│ ● Percentage:   [+10]%                 │
+│ ○ Add amount:   [____]€                │
 │                                        │
 │ Preview:                               │
-│ T-Shirt Rot:  29.99€ → 32.99€        │
-│ T-Shirt Blau: 29.99€ → 32.99€        │
+│ Red T-Shirt:  29.99€ → 32.99€         │
+│ Blue T-Shirt: 29.99€ → 32.99€         │
 │ ...                                    │
 │                                        │
-│ [Abbrechen] [Anwenden]                 │
+│ [Cancel] [Apply]                       │
 └────────────────────────────────────────┘
 ```
 
 #### Activity Timeline
 ```
 ┌─────────────────────────────────────┐
-│ Ihre Aktivität (Heute)              │
+│ Your Activity (Today)               │
 ├─────────────────────────────────────┤
-│ 09:15 ⚡ 50 Preise aktualisiert    │
-│ 09:42 📦 3 Produkte angelegt       │
-│ 10:15 🔍 Filter "Sale" erstellt    │
-│ 10:45 📊 Report exportiert         │
-│ 11:20 🏷️ 120 Tags hinzugefügt     │
+│ 09:15 ⚡ 50 prices updated         │
+│ 09:42 📦 3 products created        │
+│ 10:15 🔍 Filter "Sale" created     │
+│ 10:45 📊 Report exported           │
+│ 11:20 🏷️ 120 tags added           │
 ├─────────────────────────────────────┤
-│ Zeit gespart heute: 2h 15min 🎉    │
+│ Time saved today: 2h 15min 🎉      │
 └─────────────────────────────────────┘
 ```
 
@@ -526,76 +526,76 @@ CREATE TABLE admin_activity_log_2024_01 PARTITION OF admin_activity_log
 ## 7. Go-to-Market Strategy
 
 ### Positioning
-"Die Admin Suite, die sich selbst bezahlt - 2 Stunden täglich sparen = 250€ Gegenwert"
+"The admin suite that pays for itself - save 2 hours daily = €250 value"
 
 ### Launch Strategy
 
-#### Phase 1: Stealth Beta (Monat -1)
+#### Phase 1: Stealth Beta (Month -1)
 1. **Influencer Program**
-   - 10 bekannte Shopware YouTuber
-   - Exklusive Preview-Videos
-   - "Coming Soon" Hype aufbauen
+   - 10 known Shopware YouTubers
+   - Exclusive preview videos
+   - "Coming Soon" hype building
 
 2. **Community Seeding**
    - Shopware Slack/Discord
    - Reddit r/shopware
-   - Facebook Gruppen
-   - "Sneak Peek" Screenshots
+   - Facebook groups
+   - "Sneak Peek" screenshots
 
-#### Phase 2: Public Beta (Monat 1)
+#### Phase 2: Public Beta (Month 1)
 1. **Free for Feedback**
-   - 100 Beta-Plätze
-   - Öffentliches Feedback-Board
-   - Weekly Update Videos
-   - Beta-Badge für Early Adopters
+   - 100 beta spots
+   - Public feedback board
+   - Weekly update videos
+   - Beta badge for early adopters
 
 2. **Content Blitz**
    - "10 Hidden Shopware Admin Tricks"
    - "Why I Save 2 Hours Daily"
-   - Comparison Videos (Vorher/Nachher)
-   - ROI Calculator Tool
+   - Comparison videos (before/after)
+   - ROI calculator tool
 
-#### Phase 3: Official Launch (Monat 2)
+#### Phase 3: Official Launch (Month 2)
 1. **Launch Week Special**
-   - 50% Rabatt erste 500 Kunden
-   - Lifetime Deal für ersten 24h
-   - Bundle mit anderen Tools
-   - Affiliate Program Start
+   - 50% discount first 500 customers
+   - Lifetime deal for first 24h
+   - Bundle with other tools
+   - Affiliate program start
 
 2. **PR Push**
-   - E-Commerce Magazin Feature
-   - Shopware Blog Gastbeitrag
-   - Podcast Tour (5 Shows)
-   - Product Hunt Launch
+   - E-Commerce magazine feature
+   - Shopware blog guest post
+   - Podcast tour (5 shows)
+   - Product Hunt launch
 
 ### Customer Acquisition
 
 #### Acquisition Channels
 ```
 1. Shopware Store (35%)
-   - Optimized Listings
-   - Video Demos
-   - Reviews Campaign
+   - Optimized listings
+   - Video demos
+   - Review campaigns
 
 2. Content/SEO (25%)
    - "Shopware Admin Tips"
-   - Tool Comparisons
-   - Tutorial Series
+   - Tool comparisons
+   - Tutorial series
 
 3. Community (20%)
-   - Forum Presence
+   - Forum presence
    - Slack/Discord
-   - Meetup Sponsoring
+   - Meetup sponsoring
 
 4. Partnerships (15%)
-   - Agency Deals
-   - Shopware Partners
-   - Complementary Tools
+   - Agency deals
+   - Shopware partners
+   - Complementary tools
 
 5. Paid Ads (5%)
    - Google Ads
-   - Facebook Retargeting
-   - LinkedIn for Enterprise
+   - Facebook retargeting
+   - LinkedIn for enterprise
 ```
 
 ### Viral Mechanics
@@ -604,18 +604,18 @@ CREATE TABLE admin_activity_log_2024_01 PARTITION OF admin_activity_log
 1. **Productivity Badges**: "I save 2h daily with Admin Suite"
 2. **Team Challenges**: "Our team saved 150h this month"
 3. **Public Dashboards**: Share beautiful reports
-4. **Referral Rewards**: 1 Monat gratis pro Referral
+4. **Referral Rewards**: 1 month free per referral
 
 #### Social Proof Engine
-- Live-Counter auf Website: "2,341 Stunden heute gespart"
-- Success Stories Rotation
-- Team Leaderboards
-- Monthly Productivity Awards
+- Live counter on website: "2,341 hours saved today"
+- Success stories rotation
+- Team leaderboards
+- Monthly productivity awards
 
 ## 8. Success Metrics & KPIs
 
 ### North Star Metric
-**Daily Time Saved per User** - Ziel: 2+ Stunden
+**Daily Time Saved per User** - Target: 2+ hours
 
 ### Business Metrics
 | Metric | Target M3 | Target M6 | Target M12 |
@@ -641,25 +641,25 @@ CREATE TABLE admin_activity_log_2024_01 PARTITION OF admin_activity_log
 | Viral Coefficient | >0.5 | Referrals |
 | CAC | <50€ | Marketing |
 | LTV | >500€ | Billing |
-| Payback Period | <3 Mon | Finance |
+| Payback Period | <3 months | Finance |
 
 ## 9. Competitive Analysis & Moat
 
 ### Direct Competition
-**Keine!** - First-Mover Advantage im Shopware Admin Space
+**None!** - First-mover advantage in Shopware admin space
 
 ### Indirect Competition
 | Tool | Strength | Weakness | Our Edge |
 |------|----------|----------|----------|
-| Browser Extensions | Kostenlos | Limited, Hacky | Native Integration |
-| External Tools | Feature-Rich | Nicht integriert | Seamless Experience |
-| Custom Development | Maßgeschneidert | Teuer (10k+) | Affordable |
+| Browser Extensions | Free | Limited, hacky | Native integration |
+| External Tools | Feature-rich | Not integrated | Seamless experience |
+| Custom Development | Tailored | Expensive (10k+) | Affordable |
 
 ### Defensibility Strategy
-1. **Data Moat**: Gespeicherte Preferences, Shortcuts, Filter
-2. **Integration Moat**: Deep Shopware Integration
-3. **Network Effect**: Team Features, Shared Templates
-4. **Switching Cost**: Retraining, Lost Productivity
+1. **Data Moat**: Saved preferences, shortcuts, filters
+2. **Integration Moat**: Deep Shopware integration
+3. **Network Effect**: Team features, shared templates
+4. **Switching Cost**: Retraining, lost productivity
 5. **Brand Moat**: "THE Shopware Admin Tool"
 
 ## 10. Risk Matrix & Mitigation
@@ -667,69 +667,69 @@ CREATE TABLE admin_activity_log_2024_01 PARTITION OF admin_activity_log
 ### Technical Risks
 | Risk | Probability | Impact | Mitigation |
 |------|------------|--------|------------|
-| Shopware Update Breaks | Medium | High | Beta Channel, Quick Patches |
-| Performance Issues | Low | High | Caching, CDN, Monitoring |
-| Browser Incompatibility | Low | Medium | Progressive Enhancement |
+| Shopware Update Breaks | Medium | High | Beta channel, quick patches |
+| Performance Issues | Low | High | Caching, CDN, monitoring |
+| Browser Incompatibility | Low | Medium | Progressive enhancement |
 
-### Business Risks  
+### Business Risks
 | Risk | Probability | Impact | Mitigation |
 |------|------------|--------|------------|
-| Shopware Native Features | Medium | High | Innovation Speed, Lock-in |
-| Low Adoption | Low | High | Freemium, Strong Onboarding |
-| Price Sensitivity | Medium | Medium | ROI Focus, Trial Extension |
+| Shopware Native Features | Medium | High | Innovation speed, lock-in |
+| Low Adoption | Low | High | Freemium, strong onboarding |
+| Price Sensitivity | Medium | Medium | ROI focus, trial extension |
 
 ### Strategic Risks
 | Risk | Probability | Impact | Mitigation |
 |------|------------|--------|------------|
-| Copycat Competition | High | Medium | Brand, First-Mover, Patents |
-| Market Saturation | Low | Medium | International, Platform Expansion |
-| Team Scaling | Medium | Medium | Remote First, Equity Incentives |
+| Copycat Competition | High | Medium | Brand, first-mover, patents |
+| Market Saturation | Low | Medium | International, platform expansion |
+| Team Scaling | Medium | Medium | Remote first, equity incentives |
 
 ## 11. 5-Year Vision
 
 ### Year 1: Foundation
-- 1,200 Customers
+- 1,200 customers
 - 75k€ MRR
 - Team of 8
 - Break-even
 
-### Year 2: Expansion  
-- 5,000 Customers
+### Year 2: Expansion
+- 5,000 customers
 - 250k€ MRR
-- Multi-Platform (WooCommerce)
-- Series A Ready
+- Multi-platform (WooCommerce)
+- Series A ready
 
 ### Year 3: Platform
-- 15,000 Customers
+- 15,000 customers
 - 750k€ MRR
-- App Marketplace
-- AI Integration
+- App marketplace
+- AI integration
 
 ### Year 4: Ecosystem
-- 30,000 Customers
+- 30,000 customers
 - 1.5M€ MRR
-- Acquisition Offers
-- IPO Consideration
+- Acquisition offers
+- IPO consideration
 
 ### Year 5: Exit
-- Strategic Acquisition by Shopware
-- Or: Independent Unicorn
-- 50,000+ Customers
+- Strategic acquisition by Shopware
+- Or: Independent unicorn
+- 50,000+ customers
 - 3M€+ MRR
 
 ## 12. Conclusion & Next Steps
 
-The Admin Productivity Suite addresses the most universal pain point of all Shopware users with a clear ROI promise. The path to €75k MRR is realistic due to the broad target audience and the obvious added value.
+The Admin Productivity Suite addresses the most universal pain point of all Shopware users with a clear ROI promise. The path to €75k MRR is realistic due to the broad target audience and obvious added value.
 
 ### Immediate Actions
-1. **Week 1**: Technical Prototype (Unlimited Lists)
-2. **Week 2**: User Testing with 10 Shop Operators
-3. **Week 3**: Bulk Editor MVP
-4. **Week 4**: Beta Launch Preparation
+1. **Week 1**: Technical prototype (unlimited lists)
+2. **Week 2**: User testing with 10 shop operators
+3. **Week 3**: Bulk editor MVP
+4. **Week 4**: Beta launch preparation
 
 ### Success Factors
 - **Speed of Execution**: Leverage first-mover advantage
-- **Community Building**: Shopware Ecosystem
+- **Community Building**: Shopware ecosystem
 - **Relentless Focus**: Make productivity measurable
 - **Customer Success**: Perfect onboarding
 
