@@ -1,21 +1,21 @@
 # Advanced Wishlist System - Development Roadmap
 
-## 📁 Projektstruktur
+## 📁 Project Structure
 
 ```
 /advanced-wishlist/
 ├── /docs/
-│   ├── /technical/          # Technische Dokumentation
-│   │   ├── architecture.md  # System-Architektur
-│   │   ├── dependencies.md  # Abhängigkeiten
-│   │   └── security.md      # Sicherheitskonzepte
-│   ├── /features/          # Feature-Spezifikationen  
+│   ├── /technical/          # Technical Documentation
+│   │   ├── architecture.md  # System Architecture
+│   │   ├── dependencies.md  # Dependencies
+│   │   └── security.md      # Security Concepts
+│   ├── /features/          # Feature Specifications  
 │   │   ├── wishlist-management.md
 │   │   ├── social-sharing.md
 │   │   ├── guest-wishlist.md
 │   │   ├── price-monitoring.md
 │   │   └── analytics.md
-│   ├── /api/               # API Dokumentation
+│   ├── /api/               # API Documentation
 │   │   ├── store-api.md    # Frontend API
 │   │   ├── admin-api.md    # Admin API
 │   │   └── webhooks.md     # Webhook Events
@@ -23,11 +23,11 @@
 │   │   ├── request-dtos.md # Request DTOs
 │   │   ├── response-dtos.md # Response DTOs
 │   │   └── event-dtos.md   # Event DTOs
-│   ├── /database/          # Datenbank
+│   ├── /database/          # Database
 │   │   ├── schema.md       # DB Schema
 │   │   ├── migrations.md   # Migrations
 │   │   └── indexes.md      # Performance Indexes
-│   ├── /frontend/          # Frontend Komponenten
+│   ├── /frontend/          # Frontend Components
 │   │   ├── components.md   # Vue Components
 │   │   ├── stores.md       # Pinia Stores
 │   │   └── pages.md        # Page Layouts
@@ -36,57 +36,57 @@
 │       ├── repositories.md # Data Access
 │       └── events.md       # Event System
 ├── /src/                   # Source Code
-└── README.md               # Projekt-Übersicht
+└── README.md               # Project Overview
 ```
 
 ## 🚀 Development Phases
 
 ### Phase 1: Foundation (Sprint 1-2)
-- [x] Projekt-Setup und Struktur
-- [ ] [Datenbank-Schema](./docs/database/schema.md) implementieren
-- [ ] [Base DTOs](./docs/dtos/request-dtos.md) erstellen
-- [ ] [Repository Layer](./docs/backend/repositories.md) aufbauen
+- [x] Project setup and structure
+- [ ] Implement [database schema](./docs/database/schema.md)
+- [ ] Create [base DTOs](./docs/dtos/request-dtos.md)
+- [ ] Build [repository layer](./docs/backend/repositories.md)
 
 ### Phase 2: Core Features (Sprint 3-4)
 - [ ] [Wishlist Management](./docs/features/wishlist-management.md)
-  - [ ] CRUD Operationen
+  - [ ] CRUD operations
   - [ ] [WishlistService](./docs/backend/services.md#wishlistservice)
   - [ ] [API Endpoints](./docs/api/store-api.md#wishlist-endpoints)
 - [ ] [Guest Wishlist](./docs/features/guest-wishlist.md)
-  - [ ] Cookie-basierte Speicherung
-  - [ ] Migration nach Login
+  - [ ] Cookie-based storage
+  - [ ] Migration after login
 
 ### Phase 3: Social Features (Sprint 5-6)
 - [ ] [Social Sharing](./docs/features/social-sharing.md)
-  - [ ] Share-Token Generation
-  - [ ] Privacy Settings
+  - [ ] Share-token generation
+  - [ ] Privacy settings
   - [ ] [ShareService](./docs/backend/services.md#shareservice)
 - [ ] [Frontend Components](./docs/frontend/components.md)
-  - [ ] Wishlist Button
-  - [ ] Share Modal
-  - [ ] List Manager
+  - [ ] Wishlist button
+  - [ ] Share modal
+  - [ ] List manager
 
 ### Phase 4: Advanced Features (Sprint 7-8)
 - [ ] [Price Monitoring](./docs/features/price-monitoring.md)
-  - [ ] Price Alert System
+  - [ ] Price alert system
   - [ ] [NotificationService](./docs/backend/services.md#notificationservice)
 - [ ] [Analytics Dashboard](./docs/features/analytics.md)
-  - [ ] Admin Widgets
+  - [ ] Admin widgets
   - [ ] Reporting API
 
 ### Phase 5: Testing & Launch (Sprint 9-10)
-- [ ] Unit Tests (min. 80% Coverage)
-- [ ] Integration Tests
-- [ ] Performance Testing
-- [ ] Security Audit
-- [ ] Beta Testing
-- [ ] Documentation Finalisierung
+- [ ] Unit tests (min. 80% coverage)
+- [ ] Integration tests
+- [ ] Performance testing
+- [ ] Security audit
+- [ ] Beta testing
+- [ ] Documentation finalization
 
-## 📊 Technische Metriken
+## 📊 Technical Metrics
 
 ### Performance Targets
 - API Response Time: < 200ms
-- Frontend Load: < 100ms für Wishlist Button
+- Frontend Load: < 100ms for wishlist button
 - Database Queries: < 50ms
 - Cache Hit Rate: > 90%
 
@@ -96,7 +96,7 @@
 - Test Coverage: > 80%
 - Documentation: 100%
 
-## 🔧 Entwicklungsrichtlinien
+## 🔧 Development Guidelines
 
 ### Code Standards
 - **PHP**: PSR-12 + Shopware Guidelines
@@ -115,12 +115,12 @@ main
 ```
 
 ### Definition of Done
-- [ ] Code Review durchgeführt
-- [ ] Unit Tests geschrieben
-- [ ] Dokumentation aktualisiert
-- [ ] DTOs implementiert
-- [ ] API dokumentiert
-- [ ] Performance getestet
+- [ ] Code review completed
+- [ ] Unit tests written
+- [ ] Documentation updated
+- [ ] DTOs implemented
+- [ ] API documented
+- [ ] Performance tested
 
 ## 🏁 Milestones
 
@@ -141,12 +141,12 @@ main
 
 ## 📝 Quick Links
 
-### Technische Dokumentation
+### Technical Documentation
 - [System Architecture](./docs/technical/architecture.md)
 - [API Reference](./docs/api/store-api.md)
 - [Database Schema](./docs/database/schema.md)
 
-### Feature Dokumentation
+### Feature Documentation
 - [Wishlist Management](./docs/features/wishlist-management.md)
 - [Social Sharing](./docs/features/social-sharing.md)
 - [Analytics](./docs/features/analytics.md)
@@ -156,13 +156,13 @@ main
 - [Service Layer](./docs/backend/services.md)
 - [Frontend Components](./docs/frontend/components.md)
 
-## 🚨 Aktuelle Blocker
+## 🚨 Current Blockers
 
-1. **Performance**: Virtual Scrolling für große Wishlists
-2. **Security**: Share-Token Encryption Strategy
-3. **UX**: Mobile Responsive Design
+1. **Performance**: Virtual scrolling for large wishlists
+2. **Security**: Share-token encryption strategy
+3. **UX**: Mobile responsive design
 
-## 📞 Team Kontakte
+## 📞 Team Contacts
 
 - **Product Owner**: product@wishlist.dev
 - **Tech Lead**: tech@wishlist.dev

@@ -1,191 +1,191 @@
-# Product Requirements Document: Advanced Wishlist System für Shopware 6
+# Product Requirements Document: Advanced Wishlist System for Shopware 6
 
 ## 1. Executive Summary
 
-### Produktvision
-Das Advanced Wishlist System transformiert Shopware 6 Shops durch ein vollständiges Wunschlisten-Ökosystem, das die fehlende Core-Funktionalität nicht nur nachrüstet, sondern moderne Social Commerce Features integriert und messbare Conversion-Steigerungen ermöglicht.
+### Product Vision
+The Advanced Wishlist System transforms Shopware 6 shops through a complete wishlist ecosystem that not only retrofits the missing core functionality but also integrates modern social commerce features and enables measurable conversion increases.
 
-### Geschäftsziele
-- **Marktführerschaft**: Erste vollständige Wishlist-Lösung für Shopware 6
-- **Revenue Target**: 500+ zahlende Kunden in 12 Monaten
-- **MRR-Ziel**: 50.000€ nach Jahr 1
-- **Conversion-Steigerung**: +15-25% für Plugin-Nutzer nachweisbar
+### Business Goals
+- **Market Leadership**: First complete wishlist solution for Shopware 6
+- **Revenue Target**: 500+ paying customers in 12 months
+- **MRR Goal**: €50,000 after year 1
+- **Conversion Increase**: +15-25% demonstrable for plugin users
 
 ### Unique Selling Proposition
-"Mehr als eine Wunschliste - Ein Conversion-Booster mit Social Shopping DNA"
+"More than a wishlist - A conversion booster with social shopping DNA"
 
-## 2. Marktanalyse & Opportunity
+## 2. Market Analysis & Opportunity
 
 ### Problem Statement
-- **GitHub Issue #253**: Über 200+ Upvotes für Wishlist-Feature
-- **Community-Frustration**: "Wie kann ein modernes E-Commerce System keine Wishlist haben?"
-- **Conversion-Verlust**: Shops verlieren 8-12% potentielle Käufer ohne Wishlist
-- **B2B-Bedarf**: Merkzettel für Großbestellungen fehlt komplett
+- **GitHub Issue #253**: Over 200+ upvotes for wishlist feature
+- **Community Frustration**: "How can a modern e-commerce system not have a wishlist?"
+- **Conversion Loss**: Shops lose 8-12% potential buyers without a wishlist
+- **B2B Need**: Note feature for bulk orders completely missing
 
-### Wettbewerbsanalyse
-| Konkurrent | Preis | Stärken | Schwächen |
-|------------|-------|---------|-----------|
-| Keine direkte Konkurrenz | - | - | Markt ist komplett offen |
-| Magento Wishlist | Built-in | Kostenlos | Nicht für Shopware |
-| WooCommerce Plugins | $49-199 | Viele Features | Andere Plattform |
+### Competitive Analysis
+| Competitor | Price | Strengths | Weaknesses |
+|------------|-------|-----------|------------|
+| No direct competition | - | - | Market is completely open |
+| Magento Wishlist | Built-in | Free | Not for Shopware |
+| WooCommerce Plugins | $49-199 | Many features | Different platform |
 
-### Zielgruppen
+### Target Groups
 1. **B2C Fashion & Lifestyle** (40%)
-   - Hochzeitsregister, Geburtstagslisten
-   - Social Sharing essentiell
-   
-2. **B2B Großhändler** (35%)
-   - Merkzettel für Wiederbestellungen
-   - Team-Kollaboration bei Einkauf
-   
-3. **Specialty Retailers** (25%)
-   - Sammler-Communities
-   - Limitierte Editionen vormerken
+   - Wedding registries, birthday lists
+   - Social sharing essential
 
-## 3. Feature-Spezifikation
+2. **B2B Wholesalers** (35%)
+   - Notes for reorders
+   - Team collaboration for purchasing
+
+3. **Specialty Retailers** (25%)
+   - Collector communities
+   - Bookmarking limited editions
+
+## 3. Feature Specification
 
 ### Core Features (MVP - Version 1.0)
 
 #### 3.1 Wishlist Management
 ```
-Als Kunde möchte ich...
-- Produkte mit einem Klick zur Wishlist hinzufügen
-- Multiple Wishlists erstellen und benennen
-- Produkte zwischen Listen verschieben
-- Notizen zu Produkten hinzufügen
-- Prioritäten/Ranking festlegen
+As a customer, I want to...
+- Add products to wishlist with one click
+- Create and name multiple wishlists
+- Move products between lists
+- Add notes to products
+- Set priorities/ranking
 ```
 
-**Technische Umsetzung:**
+**Technical Implementation:**
 - Entity: `wishlist`, `wishlist_item`, `wishlist_share`
 - API Endpoints: REST & Store-API
 - Frontend: Vue.js 3 Components
-- Echtzeit-Sync über WebSockets
+- Real-time sync via WebSockets
 
 #### 3.2 Social Sharing
 ```
-Als Kunde möchte ich...
-- Wishlists per Link teilen (öffentlich/privat)
-- QR-Code für Offline-Sharing generieren
-- WhatsApp/Email Integration
-- Facebook/Instagram Share-Buttons
-- Datenschutz-Einstellungen pro Liste
+As a customer, I want to...
+- Share wishlists via link (public/private)
+- Generate QR code for offline sharing
+- WhatsApp/Email integration
+- Facebook/Instagram share buttons
+- Privacy settings per list
 ```
 
-**Share-Optionen:**
-- Öffentlicher Link mit Passwort-Option
-- Zeitlich begrenzte Links
-- Read-only oder Kollaborativ
-- Einbettbare Widgets für Blogs
+**Share Options:**
+- Public link with password option
+- Time-limited links
+- Read-only or collaborative
+- Embeddable widgets for blogs
 
 #### 3.3 Guest Wishlist
 ```
-Als Gast möchte ich...
-- Wishlist ohne Registrierung nutzen
-- Liste nach Registrierung übernehmen
-- Cookie-basierte Speicherung (GDPR-konform)
-- Email-Erinnerung für Wishlist-Items
+As a guest, I want to...
+- Use wishlist without registration
+- Transfer list after registration
+- Cookie-based storage (GDPR-compliant)
+- Email reminder for wishlist items
 ```
 
 ### Advanced Features (Version 1.1+)
 
 #### 3.4 Price Monitoring
 ```
-Als Kunde möchte ich...
-- Preisalarme für Wishlist-Items setzen
-- Verfügbarkeits-Benachrichtigungen
-- Sale-Alerts für gemerkete Produkte
-- Historische Preisentwicklung sehen
+As a customer, I want to...
+- Set price alerts for wishlist items
+- Availability notifications
+- Sale alerts for saved products
+- View historical price development
 ```
 
 #### 3.5 Analytics Dashboard
 ```
-Als Shop-Betreiber möchte ich...
-- Top Wishlist-Produkte analysieren
-- Conversion-Rate von Wishlist zu Kauf
-- Sharing-Statistiken einsehen
-- Abandoned Wishlist Recovery
+As a shop owner, I want to...
+- Analyze top wishlist products
+- Conversion rate from wishlist to purchase
+- View sharing statistics
+- Abandoned wishlist recovery
 ```
 
 #### 3.6 B2B Features
 ```
-Als B2B-Kunde möchte ich...
-- Team-Wishlists mit Rollen
-- Genehmigungsworkflows
-- Budget-Limits pro Liste
-- CSV-Export/Import
+As a B2B customer, I want to...
+- Team wishlists with roles
+- Approval workflows
+- Budget limits per list
+- CSV export/import
 ```
 
-## 4. Paywall-Konzept & Monetarisierung
+## 4. Paywall Concept & Monetization
 
-### Tier-Struktur
+### Tier Structure
 
-#### 🆓 **BASIC (Kostenlos)**
-**Ziel**: Adoption fördern, Vertrauen aufbauen
-- 1 Wishlist pro Kunde
-- Max. 50 Produkte
+#### 🆓 **BASIC (Free)**
+**Goal**: Promote adoption, build trust
+- 1 Wishlist per customer
+- Max. 50 products
 - Basic Sharing (Link only)
-- 30 Tage Cookie-Speicherung für Gäste
+- 30 days cookie storage for guests
 - Community Support
 - "Powered by" Branding
 
-#### 💎 **PROFESSIONAL (49€/Monat)**
-**Ziel**: Kleine bis mittlere Shops
+#### 💎 **PROFESSIONAL (49€/month)**
+**Goal**: Small to medium shops
 - Unlimited Wishlists
-- Unlimited Produkte
-- Alle Sharing-Optionen
+- Unlimited Products
+- All Sharing Options
 - Price Drop Alerts
-- Guest Wishlist (90 Tage)
-- Email-Benachrichtigungen
+- Guest Wishlist (90 days)
+- Email Notifications
 - Basic Analytics
 - Priority Email Support
 - White-Label Option (+20€)
 
-#### 🏢 **BUSINESS (99€/Monat)**
-**Ziel**: Wachsende Shops mit Fokus auf Conversion
-- Alles aus Professional
+#### 🏢 **BUSINESS (99€/month)**
+**Goal**: Growing shops with focus on conversion
+- Everything from Professional
 - Advanced Analytics & Reports
-- A/B Testing für Wishlist-Buttons
+- A/B Testing for Wishlist Buttons
 - Abandoned Wishlist Recovery
-- API-Zugang
+- API Access
 - Multi-Language Support
 - Custom Email Templates
 - Live Chat Support
-- 2 Entwicklerstunden/Monat inklusive
+- 2 Developer hours/month included
 
-#### 🚀 **ENTERPRISE (199€/Monat + Setup)**
-**Ziel**: Große Shops, B2B, Multi-Channel
-- Alles aus Business
+#### 🚀 **ENTERPRISE (199€/month + Setup)**
+**Goal**: Large shops, B2B, Multi-Channel
+- Everything from Business
 - B2B Team Features
-- Multi-Shop/Mandanten
+- Multi-Shop/Clients
 - Custom Integrations
 - SSO/SAML Support
 - Dedicated Account Manager
-- SLA garantiert
+- SLA guaranteed
 - Custom Development
 - On-Premise Option
 
-### Upselling-Strategie
+### Upselling Strategy
 
-#### Add-Ons (Zusätzlich buchbar)
-- **WhatsApp Business Integration**: +29€/Monat
-- **Advanced B2B Module**: +49€/Monat
-- **KI-Powered Recommendations**: +39€/Monat
-- **Extended Analytics**: +19€/Monat
-- **Premium Support**: +99€/Monat
+#### Add-Ons (Additionally bookable)
+- **WhatsApp Business Integration**: +29€/month
+- **Advanced B2B Module**: +49€/month
+- **AI-Powered Recommendations**: +39€/month
+- **Extended Analytics**: +19€/month
+- **Premium Support**: +99€/month
 
 #### Usage-Based Pricing
-- **API Calls**: 10k inkl., dann 10€ pro 10k
-- **Email Notifications**: 1k inkl., dann 5€ pro 1k
-- **Storage**: 1GB inkl., dann 5€ pro GB
+- **API Calls**: 10k included, then 10€ per 10k
+- **Email Notifications**: 1k included, then 5€ per 1k
+- **Storage**: 1GB included, then 5€ per GB
 
 ### Trial & Activation Strategy
-1. **30 Tage Full Trial** (alle Business Features)
-2. **Automatisches Downgrade** auf gewählten Plan
-3. **Activation Incentive**: 20% Rabatt für Jahresvorauszahlung
-4. **Referral Program**: 30% Commission für 12 Monate
+1. **30 Days Full Trial** (all Business features)
+2. **Automatic Downgrade** to chosen plan
+3. **Activation Incentive**: 20% discount for annual payment
+4. **Referral Program**: 30% Commission for 12 months
 
-## 5. Technische Architektur
+## 5. Technical Architecture
 
 ### Backend Architecture
 ```
@@ -215,7 +215,7 @@ Als B2B-Kunde möchte ich...
 
 ### Database Schema
 ```sql
--- Haupttabellen
+-- Main tables
 wishlist (
     id BINARY(16),
     customer_id BINARY(16),
@@ -264,12 +264,12 @@ GET    /api/wishlist/top-products
 POST   /api/wishlist/export
 ```
 
-### Performance Optimierung
-- **Caching**: Redis für Wishlist-Daten
-- **Queue**: RabbitMQ für Notifications
-- **CDN**: Cloudflare für Share-Pages
-- **Lazy Loading**: Produkt-Details on demand
-- **Elasticsearch**: Für Wishlist-Suche
+### Performance Optimization
+- **Caching**: Redis for wishlist data
+- **Queue**: RabbitMQ for notifications
+- **CDN**: Cloudflare for share pages
+- **Lazy Loading**: Product details on demand
+- **Elasticsearch**: For wishlist search
 
 ## 6. User Interface Design
 
@@ -277,36 +277,36 @@ POST   /api/wishlist/export
 
 #### Wishlist Button States
 ```
-[ ♡ ] Zur Wunschliste     (Default)
-[ ♥ ] Auf Wunschliste     (Added)
-[ ⟳ ] Wird hinzugefügt... (Loading)
+[ ♡ ] Add to Wishlist     (Default)
+[ ♥ ] On Wishlist         (Added)
+[ ⟳ ] Adding...           (Loading)
 ```
 
 #### Wishlist Dropdown
 ```
 ┌─────────────────────────┐
-│ Meine Wunschlisten   ▼  │
+│ My Wishlists         ▼  │
 ├─────────────────────────┤
-│ ♥ Geburtstag (12)      │
-│ ♥ Weihnachten (5)      │
-│ ♥ Später kaufen (23)   │
+│ ♥ Birthday (12)        │
+│ ♥ Christmas (5)        │
+│ ♥ Buy Later (23)       │
 ├─────────────────────────┤
-│ + Neue Liste erstellen  │
+│ + Create New List       │
 └─────────────────────────┘
 ```
 
 #### Share Modal
 ```
 ┌─────────────────────────────────┐
-│     Wunschliste teilen          │
+│     Share Wishlist              │
 ├─────────────────────────────────┤
-│ 🔗 Link kopieren                │
-│ 📧 Per Email senden             │
+│ 🔗 Copy Link                    │
+│ 📧 Send via Email               │
 │ 💬 WhatsApp                     │
 │ 📘 Facebook                     │
 │ QR Code: [████████]             │
 ├─────────────────────────────────┤
-│ ⚙️ Datenschutz-Einstellungen    │
+│ ⚙️ Privacy Settings             │
 └─────────────────────────────────┘
 ```
 
@@ -331,36 +331,36 @@ POST   /api/wishlist/export
 
 ### Launch Plan
 
-#### Phase 1: Beta (Monat 1)
-- **Closed Beta**: 20 ausgewählte Partner-Shops
-- **Feedback Loop**: Wöchentliche Calls
-- **Bug Bounty**: 50€ pro kritischem Bug
+#### Phase 1: Beta (Month 1)
+- **Closed Beta**: 20 selected partner shops
+- **Feedback Loop**: Weekly calls
+- **Bug Bounty**: 50€ per critical bug
 - **Case Studies**: 3 Success Stories
 
-#### Phase 2: Public Launch (Monat 2)
-- **ProductHunt Launch**: Koordiniert mit Shopware Community
+#### Phase 2: Public Launch (Month 2)
+- **ProductHunt Launch**: Coordinated with Shopware Community
 - **Shopware Store**: Premium Placement Deal
-- **Launch Offer**: 50% Rabatt erste 3 Monate
-- **Webinar Series**: "Conversion Boost mit Wishlists"
+- **Launch Offer**: 50% discount first 3 months
+- **Webinar Series**: "Conversion Boost with Wishlists"
 
-#### Phase 3: Growth (Monat 3-6)
-- **Content Marketing**: SEO-optimierte Guides
-- **Influencer**: Deutsche E-Commerce YouTuber
-- **Partner Program**: Agenturen einbinden
+#### Phase 3: Growth (Month 3-6)
+- **Content Marketing**: SEO-optimized guides
+- **Influencers**: German E-Commerce YouTubers
+- **Partner Program**: Involve agencies
 - **Shopware Events**: Unite, Community Days
 
 ### Marketing Channels
-1. **Shopware Store** (40% Traffic erwartet)
+1. **Shopware Store** (40% traffic expected)
 2. **SEO/Content** (25%)
 3. **Community/Forums** (20%)
 4. **Paid Ads** (10%)
 5. **Referrals** (5%)
 
 ### Pricing Psychology
-- **Anchoring**: Enterprise zuerst zeigen
-- **Decoy Effect**: Business Plan optimiert
-- **Loss Aversion**: "Noch X Tage Trial"
-- **Social Proof**: Live-Counter aktive Wishlists
+- **Anchoring**: Show Enterprise first
+- **Decoy Effect**: Business Plan optimized
+- **Loss Aversion**: "Only X days of trial left"
+- **Social Proof**: Live counter of active wishlists
 
 ## 8. Success Metrics & KPIs
 
@@ -372,14 +372,14 @@ POST   /api/wishlist/export
 - **NPS Score**: > 50
 
 ### Product Metrics
-- **Adoption Rate**: 80% der Shops nutzen Feature
+- **Adoption Rate**: 80% of shops use the feature
 - **Daily Active Wishlists**: > 60%
-- **Share Rate**: > 15% der Listen
+- **Share Rate**: > 15% of lists
 - **Wishlist-to-Cart**: > 35%
-- **Items per Wishlist**: Ø 8-12
+- **Items per Wishlist**: Avg. 8-12
 
 ### Technical Metrics
-- **Page Load**: < 100ms für Wishlist-Button
+- **Page Load**: < 100ms for wishlist button
 - **API Response**: < 200ms
 - **Uptime**: 99.9% SLA
 - **Error Rate**: < 0.1%
@@ -389,8 +389,8 @@ POST   /api/wishlist/export
 ### Q1 2024: Foundation
 - ✓ MVP Development
 - ✓ Beta Testing
-- ✓ Shopware Store Zertifizierung
-- ✓ Launch Marketing-Website
+- ✓ Shopware Store Certification
+- ✓ Launch Marketing Website
 
 ### Q2 2024: Growth
 - Advanced Analytics
@@ -399,41 +399,41 @@ POST   /api/wishlist/export
 - Shopware 6.5 Compatibility
 
 ### Q3 2024: Expansion
-- KI-Recommendations
+- AI Recommendations
 - Social Commerce Integration
 - International Expansion (EN, FR, ES)
 - Enterprise Features
 
 ### Q4 2024: Innovation
-- AR Wishlist Visualisierung
+- AR Wishlist Visualization
 - Voice Commerce Integration
-- Blockchain-basierte Geschenklisten
+- Blockchain-based Gift Lists
 - Predictive Analytics
 
 ## 10. Risk Management
 
 ### Technical Risks
-- **Shopware Updates**: Dediziertes Compatibility Team
-- **Performance**: Horizontal Scaling vorbereitet
+- **Shopware Updates**: Dedicated Compatibility Team
+- **Performance**: Horizontal Scaling prepared
 - **Security**: Penetration Testing quarterly
 
 ### Business Risks
-- **Shopware Native Feature**: Differenzierung durch Innovation
-- **Konkurrenz**: First-Mover Advantage nutzen
-- **Churn**: Customer Success Team ab Tag 1
+- **Shopware Native Feature**: Differentiation through innovation
+- **Competition**: Leverage First-Mover Advantage
+- **Churn**: Customer Success Team from day 1
 
 ### Mitigation Strategies
-- **Feature Velocity**: 2-Wochen Sprints
-- **Customer Lock-in**: Daten-Export nur in Premium
-- **Partnerschaften**: Exklusive Agency Deals
+- **Feature Velocity**: 2-week sprints
+- **Customer Lock-in**: Data export only in Premium
+- **Partnerships**: Exclusive Agency Deals
 
-## 11. Anhang: Technische Spezifikationen
+## 11. Appendix: Technical Specifications
 
-### Systemanforderungen
+### System Requirements
 - Shopware 6.4.0+
 - PHP 8.1+
 - MySQL 5.7+ / MariaDB 10.3+
-- Redis empfohlen
+- Redis recommended
 - 2GB RAM minimum
 
 ### Installation
@@ -445,8 +445,8 @@ bin/console plugin:activate AdvancedWishlist
 bin/console cache:clear
 ```
 
-### Lizenzierung
+### Licensing
 - **License Key Validation**: Online & Offline
-- **Domain Binding**: Flexible für Staging
+- **Domain Binding**: Flexible for staging
 - **Update Channel**: Stable, Beta, Dev
-- **Support Period**: 12 Monate included
+- **Support Period**: 12 months included
