@@ -33,5 +33,27 @@
             <argument type="service" id="custom_field_set_relation.repository"/>
         </service>
 
+    <service id="AdvancedWishlist\Core\Content\Wishlist\WishlistDefinition">
+            <tag name="shopware.entity.definition" entity="wishlist" />
+        </service>
+
+        <service id="AdvancedWishlist\Core\Content\Wishlist\Aggregate\WishlistItem\WishlistItemDefinition">
+            <tag name="shopware.entity.definition" entity="wishlist_item" />
+        </service>
+
+        <service id="AdvancedWishlist\Core\Content\Wishlist\Aggregate\WishlistShare\WishlistShareDefinition">
+            <tag name="shopware.entity.definition" entity="wishlist_share" />
+        </service>
+
+    <service id="AdvancedWishlist\Core\Service\WishlistService">
+            <argument type="service" id="wishlist.repository"/>
+            <argument type="service" id="AdvancedWishlist\Core\Service\WishlistValidator"/>
+            <argument type="service" id="AdvancedWishlist\Core\Service\WishlistLimitService"/>
+            <argument type="service" id="AdvancedWishlist\Core\Service\WishlistCacheService"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="logger"/>
+            <argument type="service" id="cache.app"/>
+        </service>
+
     </services>
 </container>
