@@ -66,5 +66,29 @@
             </call>
         </service>
 
+    <service id="AdvancedWishlist\Core\Content\GuestWishlist\GuestWishlistDefinition">
+            <tag name="shopware.entity.definition" entity="guest_wishlist" />
+        </service>
+
+        <service id="AdvancedWishlist\Core\Content\GuestWishlistMergeLog\GuestWishlistMergeLogDefinition">
+            <tag name="shopware.entity.definition" entity="guest_wishlist_merge_log" />
+        </service>
+
+    <service id="AdvancedWishlist\Core\Service\GuestIdentifierService">
+            <argument type="service" id="request_stack"/>
+            <argument>secret</argument>
+        </service>
+
+        <service id="AdvancedWishlist\Core\Service\GuestWishlistService">
+            <argument type="service" id="guest_wishlist.repository"/>
+            <argument type="service" id="wishlist.repository"/>
+            <argument type="service" id="AdvancedWishlist\Core\Service\WishlistService"/>
+            <argument type="service" id="AdvancedWishlist\Core\Service\GuestIdentifierService"/>
+            <argument type="service" id="request_stack"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="logger"/>
+            <argument>%env(SHOPWARE_GUEST_WISHLIST_TTL)%</argument>
+        </service>
+
     </services>
 </container>
