@@ -45,7 +45,11 @@
             <tag name="shopware.entity.definition" entity="wishlist_share" />
         </service>
 
-    <service id="AdvancedWishlist\Core\Service\WishlistService">
+    <service id="AdvancedWishlist\Core\Service\WishlistValidator"/>
+        <service id="AdvancedWishlist\Core\Service\WishlistLimitService"/>
+        <service id="AdvancedWishlist\Core\Service\WishlistCacheService"/>
+
+        <service id="AdvancedWishlist\Core\Service\WishlistService">
             <argument type="service" id="wishlist.repository"/>
             <argument type="service" id="AdvancedWishlist\Core\Service\WishlistValidator"/>
             <argument type="service" id="AdvancedWishlist\Core\Service\WishlistLimitService"/>
@@ -53,6 +57,13 @@
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="logger"/>
             <argument type="service" id="cache.app"/>
+        </service>
+
+    <service id="AdvancedWishlist\Storefront\Controller\WishlistController" public="true">
+            <argument type="service" id="AdvancedWishlist\Core\Service\WishlistService"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
         </service>
 
     </services>
