@@ -97,12 +97,7 @@ class Migration1700000000CreateWishlistTables extends MigrationStep
         SQL;
         $connection->executeStatement($sql);
 
-        $sql = <<<SQL
-        CREATE INDEX `idx.wishlist_item.price_monitoring`
-        ON `wishlist_item` (`product_id`, `price_alert_threshold`)
-        WHERE `price_alert_active` = 1;
-        SQL;
-        $connection->executeStatement($sql);
+        
     }
 
     private function createWishlistShareTable(Connection $connection): void
@@ -203,7 +198,7 @@ class Migration1700000000CreateWishlistTables extends MigrationStep
             `avg_days_to_purchase` DECIMAL(5,1),
             `trend_direction` ENUM('up','down','stable','new') DEFAULT 'stable',
             `trend_percentage` DECIMAL(5,2),
-            PRIMARY KEY (`id`),
+            PRIMARY KEY (`id`, `period_start`),
             UNIQUE KEY `uniq.product_analytics.period` (`product_id`, `period_start`, `period_type`),
             KEY `idx.product_analytics.count` (`wishlist_count` DESC),
             KEY `idx.product_analytics.trend` (`trend_direction`, `trend_percentage`)
@@ -347,27 +342,10 @@ class Migration1700000000CreateWishlistTables extends MigrationStep
 
     private function createViews(Connection $connection): void
     {
-        $sql = <<<SQL
-        CREATE VIEW `v_wishlist_product_popularity` AS
-        SELECT
-          p.id AS product_id,
-          p.product_number,
-          pt.name AS product_name,
-          COUNT(DISTINCT wi.wishlist_id) AS wishlist_count,
-          COUNT(DISTINCT w.customer_id) AS unique_customers,
-          AVG(wi.priority) AS avg_priority,
-          MIN(wi.added_at) AS first_added,
-          MAX(wi.added_at) AS last_added
-        FROM product p
-        INNER JOIN wishlist_item wi ON p.id = wi.product_id
-        INNER JOIN wishlist w ON wi.wishlist_id = w.id
-        LEFT JOIN product_translation pt ON p.id = pt.product_id
-        WHERE w.type != 'private' OR w.customer_id = @current_customer_id
-        GROUP BY p.id;
-        SQL;
-        $connection->executeStatement($sql);
+        
 
         $sql = <<<SQL
+        DROP TABLE IF EXISTS `mv_wishlist_conversion_stats`;
         CREATE TABLE `mv_wishlist_conversion_stats` (
           `product_id` BINARY(16) NOT NULL,
           `period` DATE NOT NULL,
@@ -386,7 +364,6 @@ class Migration1700000000CreateWishlistTables extends MigrationStep
     private function createProcedures(Connection $connection): void
     {
         $sql = <<<SQL
-        DELIMITER $
         CREATE PROCEDURE `refresh_wishlist_conversion_stats`()
         BEGIN
           TRUNCATE TABLE `mv_wishlist_conversion_stats`;
@@ -406,13 +383,11 @@ class Migration1700000000CreateWishlistTables extends MigrationStep
             AND o.customer_id = (SELECT customer_id FROM wishlist WHERE id = wi.wishlist_id)
             AND o.order_date > wi.added_at
           GROUP BY wi.product_id, DATE(o.order_date);
-        END$
-        DELIMITER ;
+        END
         SQL;
         $connection->executeStatement($sql);
 
         $sql = <<<SQL
-        DELIMITER $
         CREATE PROCEDURE `cleanup_old_data`()
         BEGIN
           -- Delete expired guest wishlists
@@ -431,13 +406,11 @@ class Migration1700000000CreateWishlistTables extends MigrationStep
           -- Optimize tables
           OPTIMIZE TABLE `wishlist_share_view`;
           OPTIMIZE TABLE `guest_wishlist`;
-        END$
-        DELIMITER ;
+        END
         SQL;
         $connection->executeStatement($sql);
 
         $sql = <<<SQL
-        DELIMITER $
         CREATE PROCEDURE `update_product_statistics`()
         BEGIN
           -- Update wishlist counts
@@ -450,8 +423,7 @@ class Migration1700000000CreateWishlistTables extends MigrationStep
 
         -- Refresh materialized views
         CALL refresh_wishlist_conversion_stats();
-        END$
-        DELIMITER ;
+        END
         SQL;
         $connection->executeStatement($sql);
     }
@@ -480,7 +452,6 @@ class Migration1700000000CreateWishlistTables extends MigrationStep
     private function createTriggers(Connection $connection): void
     {
         $sql = <<<SQL
-        DELIMITER $
         CREATE TRIGGER `wishlist_item_count_insert`
         AFTER INSERT ON `wishlist_item`
         FOR EACH ROW
@@ -489,8 +460,9 @@ class Migration1700000000CreateWishlistTables extends MigrationStep
           SET `item_count` = `item_count` + 1,
               `updated_at` = CURRENT_TIMESTAMP(3)
           WHERE `id` = NEW.`wishlist_id`;
-        END$
+        END;
 
+        DROP TRIGGER IF EXISTS `wishlist_item_count_delete`;
         CREATE TRIGGER `wishlist_item_count_delete`
         AFTER DELETE ON `wishlist_item`
         FOR EACH ROW
@@ -499,8 +471,7 @@ class Migration1700000000CreateWishlistTables extends MigrationStep
           SET `item_count` = `item_count` - 1,
               `updated_at` = CURRENT_TIMESTAMP(3)
           WHERE `id` = OLD.`wishlist_id`;
-        END$
-        DELIMITER ;
+        END;
         SQL;
         $connection->executeStatement($sql);
     }
