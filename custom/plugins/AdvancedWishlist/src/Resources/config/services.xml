@@ -1,0 +1,94 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+
+        <service id="AdvancedWishlist\Command\ExampleCommand">
+            <tag name="console.command"/>
+        </service>
+
+        <service id="AdvancedWishlist\ScheduledTask\ExampleTask">
+            <tag name="shopware.scheduled.task"/>
+        </service>
+
+        <service id="AdvancedWishlist\Subscriber\MySubscriber">
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="AdvancedWishlist\Storefront\Controller\ExampleController" public="true">
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
+
+        <service id="AdvancedWishlist\Core\Content\Example\SalesChannel\ExampleRoute">
+            <argument type="service" id="product.repository"/>
+        </service>
+
+        <service id="AdvancedWishlist\Service\CustomFieldsInstaller">
+            <argument type="service" id="custom_field_set.repository"/>
+            <argument type="service" id="custom_field_set_relation.repository"/>
+        </service>
+
+    <service id="AdvancedWishlist\Core\Content\Wishlist\WishlistDefinition">
+            <tag name="shopware.entity.definition" entity="wishlist" />
+        </service>
+
+        <service id="AdvancedWishlist\Core\Content\Wishlist\Aggregate\WishlistItem\WishlistItemDefinition">
+            <tag name="shopware.entity.definition" entity="wishlist_item" />
+        </service>
+
+        <service id="AdvancedWishlist\Core\Content\Wishlist\Aggregate\WishlistShare\WishlistShareDefinition">
+            <tag name="shopware.entity.definition" entity="wishlist_share" />
+        </service>
+
+    <service id="AdvancedWishlist\Core\Service\WishlistValidator"/>
+        <service id="AdvancedWishlist\Core\Service\WishlistLimitService"/>
+        <service id="AdvancedWishlist\Core\Service\WishlistCacheService"/>
+
+        <service id="AdvancedWishlist\Core\Service\WishlistService">
+            <argument type="service" id="wishlist.repository"/>
+            <argument type="service" id="AdvancedWishlist\Core\Service\WishlistValidator"/>
+            <argument type="service" id="AdvancedWishlist\Core\Service\WishlistLimitService"/>
+            <argument type="service" id="AdvancedWishlist\Core\Service\WishlistCacheService"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="logger"/>
+            <argument type="service" id="cache.app"/>
+        </service>
+
+    <service id="AdvancedWishlist\Storefront\Controller\WishlistController" public="true">
+            <argument type="service" id="AdvancedWishlist\Core\Service\WishlistService"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
+
+    <service id="AdvancedWishlist\Core\Content\GuestWishlist\GuestWishlistDefinition">
+            <tag name="shopware.entity.definition" entity="guest_wishlist" />
+        </service>
+
+        <service id="AdvancedWishlist\Core\Content\GuestWishlistMergeLog\GuestWishlistMergeLogDefinition">
+            <tag name="shopware.entity.definition" entity="guest_wishlist_merge_log" />
+        </service>
+
+    <service id="AdvancedWishlist\Core\Service\GuestIdentifierService">
+            <argument type="service" id="request_stack"/>
+            <argument>secret</argument>
+        </service>
+
+        <service id="AdvancedWishlist\Core\Service\GuestWishlistService">
+            <argument type="service" id="guest_wishlist.repository"/>
+            <argument type="service" id="wishlist.repository"/>
+            <argument type="service" id="AdvancedWishlist\Core\Service\WishlistService"/>
+            <argument type="service" id="AdvancedWishlist\Core\Service\GuestIdentifierService"/>
+            <argument type="service" id="request_stack"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="logger"/>
+            <argument>%env(SHOPWARE_GUEST_WISHLIST_TTL)%</argument>
+        </service>
+
+    </services>
+</container>
