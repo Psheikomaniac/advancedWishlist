@@ -1,0 +1,22 @@
+<template>
+    <sw-page>
+        <template slot="content">
+            <sw-card-view>
+                <sw-card position-identifier="advanced-wishlist-analytics-overview-summary">
+                    <template #title>
+                        {{ $tc('advanced-wishlist-analytics.overview.summaryTitle') }}
+                    </template>
+                    <template #default>
+                        <sw-loader v-if="isLoading"></sw-loader>
+                        <div v-else>
+                            <p>{{ $tc('advanced-wishlist-analytics.overview.totalWishlists') }}: {{ totalWishlists }}</p>
+                            <p>{{ $tc('advanced-wishlist-analytics.overview.totalItems') }}: {{ totalItems }}</p>
+                            <p>{{ $tc('advanced-wishlist-analytics.overview.totalShares') }}: {{ totalShares }}</p>
+                            <p>{{ $tc('advanced-wishlist-analytics.overview.totalConversions') }}: {{ totalConversions }}</p>
+                        </div>
+                    </template>
+                </sw-card>
+            </sw-card-view>
+        </template>
+    </sw-page>
+</template>

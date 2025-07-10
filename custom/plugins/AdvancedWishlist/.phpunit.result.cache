@@ -1,0 +1,1 @@
+{"version":1,"defects":{"AdvancedWishlist\\Tests\\Service\\NotificationServiceTest::testPriceMonitoringTaskHandler":3},"times":{"AdvancedWishlist\\Tests\\Service\\NotificationServiceTest::testPriceMonitoringTaskHandler":0.008,"AdvancedWishlist\\Tests\\Service\\NotificationServiceTest::testSendPriceAlertNotification":0.012}}
