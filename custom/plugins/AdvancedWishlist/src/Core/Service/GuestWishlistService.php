@@ -20,11 +20,11 @@ use AdvancedWishlist\Core\Exception\GuestWishlistLimitException;
 
 class GuestWishlistService
 {
-    private const COOKIE_NAME = 'guest_wishlist_id';
-    private const DEFAULT_TTL = 2592000; // 30 days
-    private const MAX_ITEMS_GUEST = 50;
-    private const CLEANUP_BATCH_SIZE = 100;
-    
+    private const string COOKIE_NAME = 'guest_wishlist_id';
+    private const int DEFAULT_TTL = 2592000; // 30 days
+    private const int MAX_ITEMS_GUEST = 50;
+    private const int CLEANUP_BATCH_SIZE = 100;
+
     public function __construct(
         private EntityRepository $guestWishlistRepository,
         private EntityRepository $wishlistRepository,
@@ -35,7 +35,7 @@ class GuestWishlistService
         private LoggerInterface $logger,
         private int $guestWishlistTtl = self::DEFAULT_TTL
     ) {}
-    
+
     /**
      * Get or create guest wishlist
      */
@@ -46,23 +46,23 @@ class GuestWishlistService
         if ($context->getCustomer()) {
             throw new \LogicException('Guest wishlist not available for logged in users');
         }
-        
+
         // 2. Get guest identifier
         $guestId = $this->identifierService->getOrCreateGuestId($context);
-        
+
         // 3. Try to load existing guest wishlist
         $existingWishlist = $this->findGuestWishlistByIdentifier($guestId, $context);
-        
+
         if ($existingWishlist) {
             // Extend TTL
             $this->extendGuestWishlistTtl($existingWishlist, $context);
             return $existingWishlist;
         }
-        
+
         // 4. Create new guest wishlist
         return $this->createGuestWishlist($guestId, $context);
     }
-    
+
     /**
      * Create new guest wishlist
      */
@@ -71,7 +71,7 @@ class GuestWishlistService
         SalesChannelContext $context
     ): GuestWishlistEntity {
         $wishlistId = Uuid::randomHex();
-        
+
         $data = [
             'id' => $wishlistId,
             'guestId' => $guestId,
@@ -85,24 +85,24 @@ class GuestWishlistService
             'ipAddress' => $this->getIpAddress(),
             'userAgent' => $this->getUserAgent(),
         ];
-        
+
         $this->guestWishlistRepository->create([$data], $context->getContext());
-        
+
         // Set cookie
         // $this->setGuestWishlistCookie($wishlistId);
-        
+
         // Dispatch event
         $event = new GuestWishlistCreatedEvent($wishlistId, $guestId, $context);
         $this->eventDispatcher->dispatch($event);
-        
+
         $this->logger->info('Guest wishlist created', [
             'wishlistId' => $wishlistId,
             'guestId' => $guestId,
         ]);
-        
+
         return $this->loadGuestWishlist($wishlistId, $context->getContext());
     }
-    
+
     /**
      * Add item to guest wishlist
      */
@@ -112,7 +112,7 @@ class GuestWishlistService
         SalesChannelContext $context
     ): void {
         $guestWishlist = $this->getOrCreateGuestWishlist($context);
-        
+
         // Check item limit
         if (count($guestWishlist->getItems()) >= self::MAX_ITEMS_GUEST) {
             throw new GuestWishlistLimitException(
@@ -120,7 +120,7 @@ class GuestWishlistService
                 ['limit' => self::MAX_ITEMS_GUEST]
             );
         }
-        
+
         // Check for duplicate
         $existingItem = $this->findItemInGuestWishlist($guestWishlist, $productId);
         if ($existingItem) {
@@ -133,7 +133,7 @@ class GuestWishlistService
             );
             return;
         }
-        
+
         // Add new item
         $itemId = Uuid::randomHex();
         $items = $guestWishlist->getItems();
@@ -145,7 +145,7 @@ class GuestWishlistService
             'addedAt' => new \DateTime(),
             // 'productSnapshot' => $this->createProductSnapshot($productId, $context),
         ];
-        
+
         $this->guestWishlistRepository->update([
             [
                 'id' => $guestWishlist->getId(),
@@ -153,14 +153,14 @@ class GuestWishlistService
                 'updatedAt' => new \DateTime(),
             ]
         ], $context->getContext());
-        
+
         // Track analytics
         // $this->trackGuestActivity('item_added', [
         //     'productId' => $productId,
         //     'wishlistId' => $guestWishlist->getId(),
         // ]);
     }
-    
+
     /**
      * Remove item from guest wishlist
      */
@@ -169,12 +169,12 @@ class GuestWishlistService
         SalesChannelContext $context
     ): void {
         $guestWishlist = $this->getOrCreateGuestWishlist($context);
-        
+
         $items = array_filter(
             $guestWishlist->getItems(),
             fn($item) => $item['id'] !== $itemId
         );
-        
+
         $this->guestWishlistRepository->update([
             [
                 'id' => $guestWishlist->getId(),
@@ -183,7 +183,7 @@ class GuestWishlistService
             ]
         ], $context->getContext());
     }
-    
+
     /**
      * Merge guest wishlist with customer wishlist after login/registration
      */
@@ -196,22 +196,22 @@ class GuestWishlistService
         if (!$guestId) {
             return; // No guest wishlist to merge
         }
-        
+
         $guestWishlist = $this->findGuestWishlistByIdentifier($guestId, $context);
         if (!$guestWishlist || empty($guestWishlist->getItems())) {
             return; // Nothing to merge
         }
-        
+
         // 2. Get or create customer's default wishlist
         $customerWishlist = $this->wishlistService->getOrCreateDefaultWishlist(
             $customerId,
             $context->getContext()
         );
-        
+
         // 3. Merge items
         $mergedCount = 0;
         $skippedCount = 0;
-        
+
         foreach ($guestWishlist->getItems() as $guestItem) {
             try {
                 // Check if product already in customer wishlist
@@ -219,7 +219,7 @@ class GuestWishlistService
                 //     $skippedCount++;
                 //     continue;
                 // }
-                
+
                 // Add to customer wishlist
                 $this->wishlistService->addItem(
                     new AddItemRequest([
@@ -230,7 +230,7 @@ class GuestWishlistService
                     ]),
                     $context->getContext()
                 );
-                
+
                 $mergedCount++;
             } catch (\Exception $e) {
                 $this->logger->warning('Failed to merge guest wishlist item', [
@@ -239,19 +239,19 @@ class GuestWishlistService
                 ]);
             }
         }
-        
+
         // 4. Store merge record for analytics
         // $this->recordMergeAction($guestWishlist, $customerWishlist, [
         //     'mergedItems' => $mergedCount,
         //     'skippedItems' => $skippedCount,
         // ]);
-        
+
         // 5. Delete guest wishlist
         $this->deleteGuestWishlist($guestWishlist->getId(), $context->getContext());
-        
+
         // 6. Clear guest cookie
         $this->clearGuestWishlistCookie();
-        
+
         // 7. Dispatch event
         $event = new GuestWishlistMergedEvent(
             $guestWishlist->getId(),
@@ -260,7 +260,7 @@ class GuestWishlistService
             $context
         );
         $this->eventDispatcher->dispatch($event);
-        
+
         $this->logger->info('Guest wishlist merged', [
             'guestWishlistId' => $guestWishlist->getId(),
             'customerWishlistId' => $customerWishlist->getId(),
@@ -268,7 +268,7 @@ class GuestWishlistService
             'skippedItems' => $skippedCount,
         ]);
     }
-    
+
     /**
      * Send reminder email to guest
      */
@@ -278,15 +278,15 @@ class GuestWishlistService
         Context $context
     ): void {
         $guestWishlist = $this->loadGuestWishlist($guestWishlistId, $context);
-        
+
         if (!$guestWishlist || empty($guestWishlist->getItems())) {
             throw new \InvalidArgumentException('Guest wishlist not found or empty');
         }
-        
+
         // Generate secure link for guest to access wishlist
         // $token = $this->generateGuestAccessToken($guestWishlistId);
         // $accessUrl = $this->generateGuestAccessUrl($token);
-        
+
         // Send email
         // $this->emailService->sendGuestWishlistReminder(
         //     $email,
@@ -294,7 +294,7 @@ class GuestWishlistService
         //     $accessUrl,
         //     $context
         // );
-        
+
         // Record email sent
         $this->guestWishlistRepository->update([
             [
@@ -304,7 +304,7 @@ class GuestWishlistService
             ]
         ], $context);
     }
-    
+
     /**
      * Clean up expired guest wishlists
      */
@@ -312,7 +312,7 @@ class GuestWishlistService
     {
         $deletedCount = 0;
         $offset = 0;
-        
+
         do {
             $criteria = new Criteria();
             $criteria->addFilter(new RangeFilter('expiresAt', [
@@ -320,43 +320,43 @@ class GuestWishlistService
             ]));
             $criteria->setLimit(self::CLEANUP_BATCH_SIZE);
             $criteria->setOffset($offset);
-            
+
             $expiredWishlists = $this->guestWishlistRepository->search($criteria, $context);
-            
+
             if ($expiredWishlists->count() === 0) {
                 break;
             }
-            
+
             $ids = array_map(
                 fn($wishlist) => ['id' => $wishlist->getId()],
                 $expiredWishlists->getElements()
             );
-            
+
             $this->guestWishlistRepository->delete($ids, $context);
             $deletedCount += count($ids);
-            
+
             $offset += self::CLEANUP_BATCH_SIZE;
-            
+
         } while ($expiredWishlists->count() === self::CLEANUP_BATCH_SIZE);
-        
+
         $this->logger->info('Cleaned up expired guest wishlists', [
             'count' => $deletedCount,
         ]);
-        
+
         return $deletedCount;
     }
-    
+
     /**
      * Helper: Set guest wishlist cookie
      */
     private function setGuestWishlistCookie(string $wishlistId): void
     {
         $response = $this->requestStack->getCurrentRequest()->attributes->get('_response');
-        
+
         if (!$response) {
             return;
         }
-        
+
         $cookie = Cookie::create(self::COOKIE_NAME)
             ->withValue($wishlistId)
             ->withExpires(time() + $this->guestWishlistTtl)
@@ -364,10 +364,10 @@ class GuestWishlistService
             ->withSecure(true)
             ->withHttpOnly(true)
             ->withSameSite('Lax');
-            
+
         $response->headers->setCookie($cookie);
     }
-    
+
     /**
      * Helper: Calculate expiry date
      */
@@ -377,7 +377,7 @@ class GuestWishlistService
             new \DateInterval('PT' . $this->guestWishlistTtl . 'S')
         );
     }
-    
+
     /**
      * Helper: Create product snapshot for offline viewing
      */
@@ -389,11 +389,11 @@ class GuestWishlistService
         //     new Criteria([$productId]),
         //     $context
         // )->first();
-        
+
         // if (!$product) {
         //     return [];
         // }
-        
+
         return [
             // 'name' => $product->getTranslated()['name'],
             // 'productNumber' => $product->getProductNumber(),
