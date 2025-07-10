@@ -1,0 +1,901 @@
+openapi: 3.0.3
+info:
+  title: Advanced Wishlist API - Enterprise Edition
+  description: |
+    The most advanced wishlist management API for Shopware 6, featuring PHP 8.4 
+    property hooks, asymmetric visibility, lazy loading, and enterprise-grade features.
+    
+    ## Key Features
+    - 🚀 **PHP 8.4 Optimized**: Property hooks, asymmetric visibility, lazy objects
+    - 🔒 **Enterprise Security**: Rate limiting, CSRF protection, comprehensive validation
+    - 📊 **Advanced Analytics**: Real-time insights, predictive analytics, business intelligence
+    - 🎯 **API Versioning**: Backward compatible with automatic migration support
+    - ⚡ **Performance Optimized**: Multi-level caching, lazy loading, bulk operations
+    - 💼 **Business Ready**: Premium features, licensing, multi-tenant support
+    
+    ## Authentication
+    All endpoints require valid customer authentication through Shopware's session system.
+    
+    ## Rate Limiting
+    - **Read operations**: 200 requests/hour
+    - **Write operations**: 50 requests/hour  
+    - **Bulk operations**: 10 requests/hour
+    
+    ## Versioning
+    - **v1**: Legacy API (deprecated, removal planned for v3.0)
+    - **v2**: Current API with all modern features
+    
+    Use the `API-Version` header or URL path versioning (`/store-api/v2/wishlist`).
+    
+  version: 2.0.0
+  contact:
+    name: Advanced Wishlist Support
+    url: https://your-website.com/support
+    email: support@your-website.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+servers:
+  - url: https://your-shop.com
+    description: Production server
+  - url: https://staging.your-shop.com
+    description: Staging server
+  - url: http://localhost:8000
+    description: Development server
+
+security:
+  - CookieAuth: []
+  - CsrfToken: []
+
+paths:
+  /store-api/v2/wishlist:
+    get:
+      tags: [Wishlists]
+      summary: List customer wishlists
+      description: |
+        Retrieve a paginated list of wishlists for the authenticated customer.
+        Supports advanced filtering, lazy loading, and computed properties.
+      parameters:
+        - $ref: '#/components/parameters/ApiVersion'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Sort'
+        - $ref: '#/components/parameters/Fields'
+        - $ref: '#/components/parameters/Include'
+        - name: lazy
+          in: query
+          description: Enable lazy loading for better performance
+          schema:
+            type: boolean
+            default: true
+        - name: filter
+          in: query
+          description: Advanced filtering options
+          schema:
+            type: string
+            example: "type:private,isDefault:true"
+      responses:
+        '200':
+          description: List of wishlists retrieved successfully
+          headers:
+            API-Version:
+              $ref: '#/components/headers/ApiVersion'
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/RateLimitLimit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/RateLimitRemaining'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WishlistListResponse'
+              examples:
+                lazy_loading:
+                  summary: Response with lazy loading enabled
+                  value:
+                    data:
+                      - id: "wishlist-123"
+                        name: "My Holiday Wishlist"
+                        type: "private"
+                        isDefault: true
+                        itemCount: 5
+                        totalValue: 299.99
+                        displayName: "My Holiday Wishlist (Default) [Private]"
+                        isShared: false
+                    meta:
+                      total: 3
+                      page: 1
+                      limit: 10
+                      lazy_loaded: true
+                      performance:
+                        load_time: "12ms"
+                        memory_saved: "2.3MB"
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+
+    post:
+      tags: [Wishlists]
+      summary: Create new wishlist
+      description: |
+        Create a new wishlist with advanced validation and business rules.
+        Supports bulk creation in V2 API.
+      parameters:
+        - $ref: '#/components/parameters/ApiVersion'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/CreateWishlistRequest'
+                - $ref: '#/components/schemas/BulkCreateWishlistRequest'
+            examples:
+              single_create:
+                summary: Create single wishlist
+                value:
+                  name: "My Dream Gadgets"
+                  description: "Latest tech gadgets I want"
+                  type: "private"
+                  isDefault: false
+                  _csrf_token: "csrf-token-here"
+              bulk_create:
+                summary: Create multiple wishlists
+                value:
+                  data:
+                    - name: "Work Equipment"
+                      type: "private"
+                    - name: "Home Decor"
+                      type: "shared"
+                  _csrf_token: "csrf-token-here"
+      responses:
+        '201':
+          description: Wishlist created successfully
+          headers:
+            API-Version:
+              $ref: '#/components/headers/ApiVersion'
+            Location:
+              description: URL of the created wishlist
+              schema:
+                type: string
+                format: uri
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WishlistResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /store-api/v2/wishlist/{id}:
+    get:
+      tags: [Wishlists]
+      summary: Get wishlist details
+      description: |
+        Retrieve detailed information about a specific wishlist including
+        computed properties, items, and sharing information.
+      parameters:
+        - $ref: '#/components/parameters/WishlistId'
+        - $ref: '#/components/parameters/ApiVersion'
+        - $ref: '#/components/parameters/Include'
+        - name: lazy
+          in: query
+          description: Enable lazy loading for items
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: Wishlist details retrieved successfully
+          headers:
+            API-Version:
+              $ref: '#/components/headers/ApiVersion'
+            Cache-Control:
+              description: Cache control header
+              schema:
+                type: string
+                example: "public, max-age=300"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WishlistDetailResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    patch:
+      tags: [Wishlists]
+      summary: Update wishlist
+      description: |
+        Update wishlist properties with optimistic locking support.
+        Only provided fields will be updated (partial updates).
+      parameters:
+        - $ref: '#/components/parameters/WishlistId'
+        - $ref: '#/components/parameters/ApiVersion'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateWishlistRequest'
+            examples:
+              partial_update:
+                summary: Update only name and description
+                value:
+                  name: "Updated Wishlist Name"
+                  description: "New description"
+                  meta:
+                    version: 5
+                  _csrf_token: "csrf-token-here"
+      responses:
+        '200':
+          description: Wishlist updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WishlistResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Conflict - Optimistic lock failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    delete:
+      tags: [Wishlists]
+      summary: Delete wishlist
+      description: |
+        Delete a wishlist with optional item transfer and soft delete support.
+      parameters:
+        - $ref: '#/components/parameters/WishlistId'
+        - $ref: '#/components/parameters/ApiVersion'
+        - name: transferTo
+          in: query
+          description: Transfer items to another wishlist before deletion
+          schema:
+            type: string
+            format: uuid
+        - name: soft
+          in: query
+          description: Perform soft delete (mark as deleted but keep data)
+          schema:
+            type: boolean
+            default: false
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                _csrf_token:
+                  type: string
+      responses:
+        '204':
+          description: Wishlist deleted successfully
+          headers:
+            API-Version:
+              $ref: '#/components/headers/ApiVersion'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /store-api/v2/wishlist/bulk:
+    post:
+      tags: [Wishlists, Bulk Operations]
+      summary: Bulk operations
+      description: |
+        Perform multiple operations in a single request for improved performance.
+        Supports create, update, delete, and custom operations.
+      parameters:
+        - $ref: '#/components/parameters/ApiVersion'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BulkOperationRequest'
+      responses:
+        '200':
+          description: Bulk operations completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BulkOperationResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /store-api/v2/wishlist/{id}/analytics:
+    get:
+      tags: [Analytics]
+      summary: Get wishlist analytics
+      description: |
+        Advanced analytics and insights for a specific wishlist including
+        performance metrics, conversion data, and predictive analytics.
+      parameters:
+        - $ref: '#/components/parameters/WishlistId'
+        - $ref: '#/components/parameters/ApiVersion'
+        - name: period
+          in: query
+          description: Analytics period
+          schema:
+            type: string
+            enum: [day, week, month, quarter, year]
+            default: week
+      responses:
+        '200':
+          description: Analytics data retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WishlistAnalyticsResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+components:
+  securitySchemes:
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: session-cookie
+    CsrfToken:
+      type: apiKey
+      in: header
+      name: X-CSRF-Token
+
+  parameters:
+    ApiVersion:
+      name: API-Version
+      in: header
+      description: API version to use
+      schema:
+        type: string
+        enum: [v1, v2]
+        default: v2
+    WishlistId:
+      name: id
+      in: path
+      required: true
+      description: Wishlist UUID
+      schema:
+        type: string
+        format: uuid
+    Limit:
+      name: limit
+      in: query
+      description: Number of items to return (max 100)
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 10
+    Page:
+      name: page
+      in: query
+      description: Page number
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+    Sort:
+      name: sort
+      in: query
+      description: Sorting options (field:direction)
+      schema:
+        type: string
+        example: "createdAt:DESC,name:ASC"
+    Fields:
+      name: fields
+      in: query
+      description: Fields to include in response
+      schema:
+        type: string
+        example: "id,name,type,itemCount"
+    Include:
+      name: include
+      in: query
+      description: Related resources to include
+      schema:
+        type: string
+        example: "items,shareInfo,customer"
+
+  headers:
+    ApiVersion:
+      description: Current API version
+      schema:
+        type: string
+    RateLimitLimit:
+      description: Request limit per hour
+      schema:
+        type: integer
+    RateLimitRemaining:
+      description: Remaining requests in current window
+      schema:
+        type: integer
+
+  schemas:
+    Wishlist:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier
+        name:
+          type: string
+          minLength: 2
+          maxLength: 255
+          description: Wishlist name (using PHP 8.4 property hooks for validation)
+        description:
+          type: string
+          maxLength: 1000
+          nullable: true
+          description: Optional description
+        type:
+          type: string
+          enum: [private, public, shared]
+          description: Wishlist visibility type
+        isDefault:
+          type: boolean
+          description: Whether this is the default wishlist
+        itemCount:
+          type: integer
+          minimum: 0
+          description: Computed property - number of items (PHP 8.4 property hook)
+        totalValue:
+          type: number
+          format: float
+          minimum: 0
+          description: Computed property - total value of all items
+        displayName:
+          type: string
+          description: Virtual property - formatted display name
+        isShared:
+          type: boolean
+          description: Virtual property - whether wishlist has active shares
+        createdAt:
+          type: string
+          format: date-time
+          description: Creation timestamp (asymmetric visibility - private set)
+        updatedAt:
+          type: string
+          format: date-time
+          description: Last update timestamp
+      required:
+        - id
+        - name
+        - type
+        - isDefault
+        - itemCount
+        - totalValue
+        - createdAt
+
+    WishlistItem:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        productId:
+          type: string
+          format: uuid
+        quantity:
+          type: integer
+          minimum: 1
+          maximum: 999
+          description: Quantity with validation hooks
+        note:
+          type: string
+          maxLength: 500
+          nullable: true
+          description: Customer note with length validation
+        priority:
+          type: integer
+          minimum: 1
+          maximum: 5
+          nullable: true
+          description: Priority level (1-5 scale)
+        priorityDisplay:
+          type: string
+          description: Virtual property - human-readable priority
+        priceAtAddition:
+          type: number
+          format: float
+          nullable: true
+          description: Price when item was added
+        priceAlertThreshold:
+          type: number
+          format: float
+          nullable: true
+          description: Price alert threshold
+        priceAlertActive:
+          type: boolean
+          description: Whether price alerts are active
+        priceDrop:
+          type: number
+          format: float
+          nullable: true
+          description: Virtual property - current price drop amount
+        priceDropPercentage:
+          type: number
+          format: float
+          nullable: true
+          description: Virtual property - price drop percentage
+        totalValue:
+          type: number
+          format: float
+          description: Virtual property - quantity × current price
+        shouldTriggerPriceAlert:
+          type: boolean
+          description: Virtual property - whether alert should trigger
+        promotions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Promotion'
+          description: Available promotions for this item
+
+    Promotion:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [price_drop, bulk_discount, priority_item]
+        discount:
+          type: number
+          format: float
+          nullable: true
+        quantity:
+          type: integer
+          nullable: true
+        message:
+          type: string
+
+    CreateWishlistRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 2
+          maxLength: 255
+        description:
+          type: string
+          maxLength: 1000
+          nullable: true
+        type:
+          type: string
+          enum: [private, public, shared]
+          default: private
+        isDefault:
+          type: boolean
+          default: false
+        _csrf_token:
+          type: string
+      required:
+        - name
+        - _csrf_token
+
+    BulkCreateWishlistRequest:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/CreateWishlistRequest'
+          minItems: 1
+          maxItems: 10
+        _csrf_token:
+          type: string
+      required:
+        - data
+        - _csrf_token
+
+    UpdateWishlistRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 2
+          maxLength: 255
+        description:
+          type: string
+          maxLength: 1000
+          nullable: true
+        type:
+          type: string
+          enum: [private, public, shared]
+        isDefault:
+          type: boolean
+        meta:
+          type: object
+          properties:
+            version:
+              type: integer
+              description: Version for optimistic locking
+        _csrf_token:
+          type: string
+      required:
+        - _csrf_token
+
+    BulkOperationRequest:
+      type: object
+      properties:
+        operations:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+                enum: [create, update, delete]
+              id:
+                type: string
+                format: uuid
+                description: Required for update/delete operations
+              data:
+                type: object
+                description: Operation-specific data
+          minItems: 1
+          maxItems: 50
+        _csrf_token:
+          type: string
+      required:
+        - operations
+        - _csrf_token
+
+    WishlistListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Wishlist'
+        meta:
+          type: object
+          properties:
+            total:
+              type: integer
+            page:
+              type: integer
+            limit:
+              type: integer
+            lazy_loaded:
+              type: boolean
+            performance:
+              type: object
+              properties:
+                load_time:
+                  type: string
+                memory_saved:
+                  type: string
+        links:
+          type: object
+          properties:
+            self:
+              type: string
+              format: uri
+            next:
+              type: string
+              format: uri
+              nullable: true
+            prev:
+              type: string
+              format: uri
+              nullable: true
+
+    WishlistResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/Wishlist'
+        meta:
+          type: object
+          properties:
+            created_at:
+              type: integer
+              description: Unix timestamp
+            updated_at:
+              type: integer
+              description: Unix timestamp
+
+    WishlistDetailResponse:
+      type: object
+      properties:
+        data:
+          allOf:
+            - $ref: '#/components/schemas/Wishlist'
+            - type: object
+              properties:
+                items:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/WishlistItem'
+                shareInfo:
+                  type: array
+                  items:
+                    type: object
+        included:
+          type: array
+          items:
+            type: object
+          description: Related resources
+        meta:
+          type: object
+
+    WishlistAnalyticsResponse:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            overview:
+              type: object
+              properties:
+                views:
+                  type: integer
+                shares:
+                  type: integer
+                conversions:
+                  type: integer
+                conversion_rate:
+                  type: number
+                  format: float
+            trends:
+              type: object
+              properties:
+                daily_views:
+                  type: array
+                  items:
+                    type: object
+                item_additions:
+                  type: array
+                  items:
+                    type: object
+            predictions:
+              type: object
+              properties:
+                likely_purchases:
+                  type: array
+                  items:
+                    type: string
+                optimal_timing:
+                  type: string
+
+    BulkOperationResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              operation_id:
+                type: string
+              type:
+                type: string
+              success:
+                type: boolean
+              result:
+                type: object
+                nullable: true
+              error:
+                type: string
+                nullable: true
+        meta:
+          type: object
+          properties:
+            total_operations:
+              type: integer
+            successful:
+              type: integer
+            failed:
+              type: integer
+
+    ErrorResponse:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              code:
+                type: string
+              title:
+                type: string
+              detail:
+                type: string
+              status:
+                type: string
+              meta:
+                type: object
+                nullable: true
+
+  responses:
+    Unauthorized:
+      description: Authentication required
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            errors:
+              - code: "UNAUTHORIZED"
+                title: "Unauthorized"
+                detail: "Customer not logged in"
+                status: "401"
+
+    Forbidden:
+      description: Access denied
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+    BadRequest:
+      description: Invalid request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+    RateLimited:
+      description: Rate limit exceeded
+      headers:
+        Retry-After:
+          description: Seconds to wait before retrying
+          schema:
+            type: integer
+        X-RateLimit-Reset:
+          description: Unix timestamp when rate limit resets
+          schema:
+            type: integer
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+tags:
+  - name: Wishlists
+    description: Core wishlist management operations
+  - name: Analytics
+    description: Advanced analytics and business intelligence
+  - name: Bulk Operations
+    description: High-performance bulk operations
+
+externalDocs:
+  description: Complete developer documentation
+  url: https://your-website.com/docs
