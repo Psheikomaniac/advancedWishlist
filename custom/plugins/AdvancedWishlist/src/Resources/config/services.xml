@@ -313,5 +313,87 @@
             <argument type="service" id="AdvancedWishlist\Core\Security\SecurityMonitoringService"/>
             <tag name="kernel.event_subscriber"/>
         </service>
+
+        <!-- PHP 8.4 Enterprise Features -->
+        
+        <!-- Rate Limiting Service -->
+        <service id="AdvancedWishlist\Core\Security\RateLimitService">
+            <argument type="service" id="cache.default"/>
+            <argument type="service" id="logger"/>
+            <argument type="service" id="request_stack"/>
+        </service>
+
+        <!-- Rate Limiting Middleware -->
+        <service id="AdvancedWishlist\Core\Security\RateLimitMiddleware">
+            <argument type="service" id="AdvancedWishlist\Core\Security\RateLimitService"/>
+            <argument type="service" id="AdvancedWishlist\Core\Security\SecurityMonitoringService"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <!-- Security Headers Subscriber -->
+        <service id="AdvancedWishlist\Core\Security\SecurityHeadersSubscriber">
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <!-- PHP 8.4 Lazy Objects Service -->
+        <service id="AdvancedWishlist\Core\Performance\LazyObjectService">
+            <argument type="service" id="wishlist.repository"/>
+            <argument type="service" id="logger"/>
+        </service>
+
+        <!-- Enhanced Performance Monitoring -->
+        <service id="AdvancedWishlist\Core\Performance\PerformanceMonitoringService">
+            <argument type="service" id="logger"/>
+            <argument type="service" id="stopwatch"/>
+        </service>
+
+        <service id="AdvancedWishlist\Core\Performance\PerformanceMonitoringSubscriber">
+            <argument type="service" id="AdvancedWishlist\Core\Performance\PerformanceMonitoringService"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <!-- Enterprise Analytics Service -->
+        <service id="AdvancedWishlist\Core\Analytics\EnterpriseAnalyticsService">
+            <argument type="service" id="wishlist.repository"/>
+            <argument type="service" id="wishlist_item.repository"/>
+            <argument type="service" id="AdvancedWishlist\Core\Performance\LazyObjectService"/>
+            <argument type="service" id="cache.default"/>
+            <argument type="service" id="logger"/>
+        </service>
+
+        <!-- API Versioning Services -->
+        <service id="AdvancedWishlist\Core\Routing\ApiVersionResolver">
+            <argument type="service" id="request_stack"/>
+        </service>
+
+        <!-- V2 Controllers for API Versioning -->
+        <service id="AdvancedWishlist\Storefront\Controller\V2\WishlistControllerV2" public="true">
+            <argument type="service" id="AdvancedWishlist\Core\Service\WishlistCrudService"/>
+            <argument type="service" id="security.csrf.token_manager"/>
+            <argument type="service" id="AdvancedWishlist\Core\Routing\ApiVersionResolver"/>
+            <argument type="service" id="AdvancedWishlist\Core\Performance\LazyObjectService"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
+
+        <!-- Premium Features Services -->
+        <service id="AdvancedWishlist\Core\Premium\LicenseService">
+            <argument type="service" id="cache.default"/>
+            <argument type="service" id="logger"/>
+        </service>
+
+        <service id="AdvancedWishlist\Core\Premium\FeatureGateService">
+            <argument type="service" id="AdvancedWishlist\Core\Premium\LicenseService"/>
+            <argument type="service" id="logger"/>
+        </service>
+
+        <!-- Multi-tenant Support -->
+        <service id="AdvancedWishlist\Core\Tenant\TenantService">
+            <argument type="service" id="request_stack"/>
+            <argument type="service" id="cache.default"/>
+            <argument type="service" id="logger"/>
+        </service>
+
     </services>
 </container>
