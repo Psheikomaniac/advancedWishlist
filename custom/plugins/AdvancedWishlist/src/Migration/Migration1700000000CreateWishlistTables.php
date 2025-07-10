@@ -364,6 +364,7 @@ class Migration1700000000CreateWishlistTables extends MigrationStep
     private function createProcedures(Connection $connection): void
     {
         $sql = <<<SQL
+        DROP PROCEDURE IF EXISTS `refresh_wishlist_conversion_stats`;
         CREATE PROCEDURE `refresh_wishlist_conversion_stats`()
         BEGIN
           TRUNCATE TABLE `mv_wishlist_conversion_stats`;
@@ -388,6 +389,7 @@ class Migration1700000000CreateWishlistTables extends MigrationStep
         $connection->executeStatement($sql);
 
         $sql = <<<SQL
+        DROP PROCEDURE IF EXISTS `cleanup_old_data`;
         CREATE PROCEDURE `cleanup_old_data`()
         BEGIN
           -- Delete expired guest wishlists
@@ -411,6 +413,7 @@ class Migration1700000000CreateWishlistTables extends MigrationStep
         $connection->executeStatement($sql);
 
         $sql = <<<SQL
+        DROP PROCEDURE IF EXISTS `update_product_statistics`;
         CREATE PROCEDURE `update_product_statistics`()
         BEGIN
           -- Update wishlist counts
@@ -431,6 +434,7 @@ class Migration1700000000CreateWishlistTables extends MigrationStep
     private function createEvents(Connection $connection): void
     {
         $sql = <<<SQL
+        DROP EVENT IF EXISTS `cleanup_expired_guest_wishlists`;
         CREATE EVENT `cleanup_expired_guest_wishlists`
         ON SCHEDULE EVERY 1 DAY
         DO
@@ -441,6 +445,7 @@ class Migration1700000000CreateWishlistTables extends MigrationStep
         $connection->executeStatement($sql);
 
         $sql = <<<SQL
+        DROP EVENT IF EXISTS `weekly_wishlist_cleanup`;
         CREATE EVENT `weekly_wishlist_cleanup`
         ON SCHEDULE EVERY 1 WEEK
         STARTS '2024-01-07 03:00:00'
@@ -452,6 +457,7 @@ class Migration1700000000CreateWishlistTables extends MigrationStep
     private function createTriggers(Connection $connection): void
     {
         $sql = <<<SQL
+        DROP TRIGGER IF EXISTS `wishlist_item_count_insert`;
         CREATE TRIGGER `wishlist_item_count_insert`
         AFTER INSERT ON `wishlist_item`
         FOR EACH ROW

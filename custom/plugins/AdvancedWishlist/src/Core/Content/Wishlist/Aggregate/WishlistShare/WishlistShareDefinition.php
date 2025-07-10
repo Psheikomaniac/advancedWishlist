@@ -38,22 +38,23 @@ class WishlistShareDefinition extends EntityDefinition
 
     protected function defineFields(): FieldCollection
     {
+        // Using PHP 8.4 new without parentheses feature
         return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new Required(), new PrimaryKey()),
-            (new FkField('wishlist_id', 'wishlistId', WishlistDefinition::class))->addFlags(new Required()),
-            (new StringField('token', 'token'))->addFlags(new Required()),
-            (new StringField('type', 'type'))->addFlags(new Required()),
+            new IdField('id', 'id')->addFlags(new Required(), new PrimaryKey()),
+            new FkField('wishlist_id', 'wishlistId', WishlistDefinition::class)->addFlags(new Required()),
+            new LongTextField('token', 'token')->addFlags(new Required()),
+            new StringField('type', 'type')->addFlags(new Required()),
             new StringField('platform', 'platform'),
-            (new BoolField('active', 'active'))->addFlags(new Required()),
+            new BoolField('active', 'active')->addFlags(new Required()),
             new StringField('password', 'password'),
             new DateTimeField('expires_at', 'expiresAt'),
             new JsonField('settings', 'settings'),
-            (new IntField('views', 'views'))->addFlags(new Required()),
-            (new IntField('unique_views', 'uniqueViews'))->addFlags(new Required()),
-            (new IntField('conversions', 'conversions'))->addFlags(new Required()),
+            new IntField('views', 'views')->addFlags(new Required()),
+            new IntField('unique_views', 'uniqueViews')->addFlags(new Required()),
+            new IntField('conversions', 'conversions')->addFlags(new Required()),
             new DateTimeField('last_viewed_at', 'lastViewedAt'),
             new FkField('created_by', 'createdBy', WishlistDefinition::class), // Assuming created_by refers to a customer or admin
-            (new DateTimeField('created_at', 'createdAt'))->addFlags(new Required()),
+            new DateTimeField('created_at', 'createdAt')->addFlags(new Required()),
             new DateTimeField('revoked_at', 'revokedAt'),
 
             new ManyToOneAssociationField('wishlist', 'wishlist_id', WishlistDefinition::class, 'id', false)
