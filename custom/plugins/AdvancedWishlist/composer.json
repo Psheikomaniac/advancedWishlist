@@ -1,23 +1,30 @@
 {
     "name": "advanced-wishlist/advanced-wishlist",
-    "description": "advanced-wishlist/advanced-wishlist",
+    "description": "Advanced Wishlist System for Shopware 6",
     "type": "shopware-platform-plugin",
     "version": "1.0.0",
     "license": "MIT",
     "require": {
-        "shopware/core": "~6.7.0"
+        "php": ">=8.3",
+        "shopware/core": "~6.7.0",
+        "symfony/framework-bundle": "~7.2",
+        "symfony/validator": "~7.2",
+        "doctrine/orm": "^3.0"
     },
     "extra": {
         "shopware-plugin-class": "AdvancedWishlist\\AdvancedWishlist",
         "label": {
-            "de-DE": "Skeleton plugin",
-            "en-GB": "Skeleton plugin"
+            "de-DE": "Erweitertes Wunschlisten-System",
+            "en-GB": "Advanced Wishlist System"
         }
     },
     "autoload": {
         "psr-4": {
             "AdvancedWishlist\\": "src/"
-        }
+        },
+        "files": [
+            "../../vendor/shopware/core/Framework/DataAbstractionLayer/Field/CustomFieldsField.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {
