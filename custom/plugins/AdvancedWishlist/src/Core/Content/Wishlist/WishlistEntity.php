@@ -12,9 +12,21 @@ use AdvancedWishlist\Core\Content\Wishlist\Aggregate\WishlistShare\WishlistShare
 
 class WishlistEntity extends Entity
 {
-    protected string $customerId;
+    // Properties with asymmetric visibility - public read, protected write
+    public protected(set) string $customerId;
     protected ?CustomerEntity $customer = null;
-    protected string $name;
+
+    // Property with validation hook
+    public string $name {
+        get => $this->name;
+        set {
+            if (strlen($value) < 3) {
+                throw new \InvalidArgumentException('Name too short');
+            }
+            $this->name = $value;
+        }
+    }
+
     protected ?string $description = null;
     protected string $type;
     protected bool $isDefault;
@@ -22,8 +34,24 @@ class WishlistEntity extends Entity
     protected ?SalesChannelEntity $salesChannel = null;
     protected ?string $languageId = null;
     protected ?LanguageEntity $language = null;
-    protected int $itemCount;
-    protected float $totalValue;
+
+    // Computed property for item count
+    public int $itemCount {
+        get => $this->items?->count() ?? 0;
+        set => $this->itemCount = $value;
+    }
+
+    // Property with validation hook
+    public float $totalValue {
+        get => $this->totalValue;
+        set {
+            if ($value < 0) {
+                throw new \InvalidArgumentException('Total value cannot be negative');
+            }
+            $this->totalValue = $value;
+        }
+    }
+
     protected ?array $customFields = null;
     protected ?WishlistItemCollection $items = null;
     protected ?WishlistShareCollection $shareInfo = null;

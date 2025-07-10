@@ -9,18 +9,35 @@ use Shopware\Core\System\Currency\CurrencyEntity;
 
 class GuestWishlistEntity extends Entity
 {
-    protected string $guestId;
+    // Properties with asymmetric visibility - public read, protected write
+    public protected(set) string $guestId;
     protected ?string $sessionId = null;
-    protected string $salesChannelId;
+    public protected(set) string $salesChannelId;
     protected ?SalesChannelEntity $salesChannel = null;
-    protected string $languageId;
+    public protected(set) string $languageId;
     protected ?LanguageEntity $language = null;
-    protected string $currencyId;
+    public protected(set) string $currencyId;
     protected ?CurrencyEntity $currency = null;
-    protected ?string $name = null;
-    protected array $items;
-    protected ?int $itemCount = null;
-    protected \DateTimeInterface $expiresAt;
+
+    // Property with validation hook
+    public ?string $name {
+        get => $this->name;
+        set {
+            if ($value !== null && strlen($value) < 3) {
+                throw new \InvalidArgumentException('Name must be at least 3 characters long');
+            }
+            $this->name = $value;
+        }
+    }
+
+    // Items array with computed property for count
+    public array $items;
+    public int $itemCount {
+        get => count($this->items ?? []);
+        set => $this->itemCount = $value;
+    }
+
+    public protected(set) \DateTimeInterface $expiresAt;
     protected ?string $ipAddress = null;
     protected ?string $userAgent = null;
     protected ?string $deviceFingerprint = null;

@@ -39,19 +39,20 @@ class WishlistItemDefinition extends EntityDefinition
 
     protected function defineFields(): FieldCollection
     {
+        // Using PHP 8.4 new without parentheses feature
         return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new Required(), new PrimaryKey()),
-            (new FkField('wishlist_id', 'wishlistId', WishlistDefinition::class))->addFlags(new Required()),
-            (new FkField('product_id', 'productId', ProductDefinition::class))->addFlags(new Required()),
-            (new StringField('product_version_id', 'productVersionId'))->addFlags(new Required()),
-            (new IntField('quantity', 'quantity'))->addFlags(new Required()),
+            new IdField('id', 'id')->addFlags(new Required(), new PrimaryKey()),
+            new FkField('wishlist_id', 'wishlistId', WishlistDefinition::class)->addFlags(new Required()),
+            new FkField('product_id', 'productId', ProductDefinition::class)->addFlags(new Required()),
+            new StringField('product_version_id', 'productVersionId')->addFlags(new Required()),
+            new IntField('quantity', 'quantity')->addFlags(new Required()),
             new StringField('note', 'note', 500),
             new IntField('priority', 'priority'),
             new FloatField('price_at_addition', 'priceAtAddition'),
             new FloatField('price_alert_threshold', 'priceAlertThreshold'),
             new BoolField('price_alert_active', 'priceAlertActive'),
             new CustomFieldsField(),
-            (new DateTimeField('added_at', 'addedAt'))->addFlags(new Required()),
+            new DateTimeField('added_at', 'addedAt')->addFlags(new Required()),
             new DateTimeField('updated_at', 'updatedAt'),
 
             new ManyToOneAssociationField('wishlist', 'wishlist_id', WishlistDefinition::class, 'id', false),

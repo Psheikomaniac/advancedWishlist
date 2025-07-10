@@ -9,18 +9,39 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 
 class GuestWishlistMergeLogEntity extends Entity
 {
-    protected string $guestWishlistId;
+    // Properties with asymmetric visibility - public read, protected write
+    public protected(set) string $guestWishlistId;
     protected ?GuestWishlistEntity $guestWishlist = null;
-    protected string $customerWishlistId;
+    public protected(set) string $customerWishlistId;
     protected ?WishlistEntity $customerWishlist = null;
-    protected string $customerId;
+    public protected(set) string $customerId;
     protected ?CustomerEntity $customer = null;
-    protected string $guestId;
-    protected int $itemsMerged;
-    protected int $itemsSkipped;
+    public protected(set) string $guestId;
+
+    // Properties with validation hooks
+    public int $itemsMerged {
+        get => $this->itemsMerged;
+        set {
+            if ($value < 0) {
+                throw new \InvalidArgumentException('Items merged cannot be negative');
+            }
+            $this->itemsMerged = $value;
+        }
+    }
+
+    public int $itemsSkipped {
+        get => $this->itemsSkipped;
+        set {
+            if ($value < 0) {
+                throw new \InvalidArgumentException('Items skipped cannot be negative');
+            }
+            $this->itemsSkipped = $value;
+        }
+    }
+
     protected ?string $mergeStrategy = null;
     protected ?array $mergeData = null;
-    protected \DateTimeInterface $mergedAt;
+    public protected(set) \DateTimeInterface $mergedAt;
 
     public function getGuestWishlistId(): string
     {

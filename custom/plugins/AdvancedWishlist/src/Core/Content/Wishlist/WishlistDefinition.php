@@ -45,26 +45,27 @@ class WishlistDefinition extends EntityDefinition
 
     protected function defineFields(): FieldCollection
     {
+        // Using PHP 8.4 new without parentheses feature
         return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new Required(), new PrimaryKey()),
-            (new FkField('customer_id', 'customerId', CustomerDefinition::class))->addFlags(new Required()),
-            (new StringField('name', 'name'))->addFlags(new Required()),
+            new IdField('id', 'id')->addFlags(new Required(), new PrimaryKey()),
+            new FkField('customer_id', 'customerId', CustomerDefinition::class)->addFlags(new Required()),
+            new StringField('name', 'name')->addFlags(new Required()),
             new LongTextField('description', 'description'),
-            (new StringField('type', 'type'))->addFlags(new Required()),
-            (new BoolField('is_default', 'isDefault'))->addFlags(new Required()),
+            new StringField('type', 'type')->addFlags(new Required()),
+            new BoolField('is_default', 'isDefault')->addFlags(new Required()),
             new FkField('sales_channel_id', 'salesChannelId', SalesChannelDefinition::class),
             new FkField('language_id', 'languageId', LanguageDefinition::class),
-            (new IntField('item_count', 'itemCount'))->addFlags(new Required()),
+            new IntField('item_count', 'itemCount')->addFlags(new Required()),
             new FloatField('total_value', 'totalValue'),
             new CustomFieldsField(),
-            (new DateTimeField('created_at', 'createdAt'))->addFlags(new Required()),
+            new DateTimeField('created_at', 'createdAt')->addFlags(new Required()),
             new DateTimeField('updated_at', 'updatedAt'),
 
             new ManyToOneAssociationField('customer', 'customer_id', CustomerDefinition::class, 'id', false),
             new ManyToOneAssociationField('salesChannel', 'sales_channel_id', SalesChannelDefinition::class, 'id', false),
             new ManyToOneAssociationField('language', 'language_id', LanguageDefinition::class, 'id', false),
-            (new OneToManyAssociationField('items', WishlistItemDefinition::class, 'wishlist_id', 'id')), 
-            (new OneToManyAssociationField('shareInfo', WishlistShareDefinition::class, 'wishlist_id', 'id'))
+            new OneToManyAssociationField('items', WishlistItemDefinition::class, 'wishlist_id', 'id'), 
+            new OneToManyAssociationField('shareInfo', WishlistShareDefinition::class, 'wishlist_id', 'id')
         ]);
     }
 }

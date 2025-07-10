@@ -8,16 +8,39 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 
 class WishlistItemEntity extends Entity
 {
-    protected string $wishlistId;
+    // Properties with asymmetric visibility - public read, protected write
+    public protected(set) string $wishlistId;
     protected ?WishlistEntity $wishlist = null;
-    protected string $productId;
-    protected string $productVersionId;
+    public protected(set) string $productId;
+    public protected(set) string $productVersionId;
     protected ?ProductEntity $product = null;
-    protected int $quantity;
+
+    // Property with validation hook
+    public int $quantity {
+        get => $this->quantity;
+        set {
+            if ($value < 1) {
+                throw new \InvalidArgumentException('Quantity must be at least 1');
+            }
+            $this->quantity = $value;
+        }
+    }
+
     protected ?string $note = null;
     protected ?int $priority = null;
     protected ?float $priceAtAddition = null;
-    protected ?float $priceAlertThreshold = null;
+
+    // Property with validation hook
+    public ?float $priceAlertThreshold {
+        get => $this->priceAlertThreshold;
+        set {
+            if ($value !== null && $value <= 0) {
+                throw new \InvalidArgumentException('Price alert threshold must be greater than 0');
+            }
+            $this->priceAlertThreshold = $value;
+        }
+    }
+
     protected ?bool $priceAlertActive = null;
     protected ?array $customFields = null;
 

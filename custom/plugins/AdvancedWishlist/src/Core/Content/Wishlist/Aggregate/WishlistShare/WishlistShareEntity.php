@@ -7,18 +7,65 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 
 class WishlistShareEntity extends Entity
 {
-    protected string $wishlistId;
+    // Public read, protected write for ID fields
+    public protected(set) string $wishlistId;
     protected ?WishlistEntity $wishlist = null;
-    protected string $token;
-    protected string $type;
+
+    // Token should be read-only after creation
+    public private(set) ?string $token;
+
+    // Property with validation hook
+    public string $type {
+        get => $this->type;
+        set {
+            $allowedTypes = ['public', 'private', 'shared', 'temporary'];
+            if (!in_array($value, $allowedTypes)) {
+                throw new \InvalidArgumentException('Invalid share type. Allowed types: ' . implode(', ', $allowedTypes));
+            }
+            $this->type = $value;
+        }
+    }
+
     protected ?string $platform = null;
-    protected bool $active;
-    protected ?string $password = null;
-    protected ?\DateTimeInterface $expiresAt = null;
+
+    // Property with validation hook
+    public bool $active {
+        get => $this->active;
+        set => $this->active = $value;
+    }
+
+    // Password should be write-only
+    private ?string $password = null;
+
+    // Property with validation hook for expiration date
+    public ?\DateTimeInterface $expiresAt {
+        get => $this->expiresAt;
+        set {
+            if ($value !== null && $value < new \DateTime()) {
+                throw new \InvalidArgumentException('Expiration date cannot be in the past');
+            }
+            $this->expiresAt = $value;
+        }
+    }
+
     protected ?array $settings = null;
-    protected int $views;
-    protected int $uniqueViews;
-    protected int $conversions;
+
+    // Views can be read publicly but only modified internally
+    public protected(set) int $views {
+        get => $this->views;
+        set => $this->views = $value;
+    }
+
+    public protected(set) int $uniqueViews {
+        get => $this->uniqueViews;
+        set => $this->uniqueViews = $value;
+    }
+
+    public protected(set) int $conversions {
+        get => $this->conversions;
+        set => $this->conversions = $value;
+    }
+
     protected ?\DateTimeInterface $lastViewedAt = null;
     protected ?string $createdBy = null;
     protected ?\DateTimeInterface $revokedAt = null;
