@@ -1,0 +1,119 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  php-tests:
+    runs-on: ubuntu-latest
+    
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: shopware_test
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.4'
+        extensions: mbstring, intl, pdo_mysql, zip
+        coverage: xdebug
+        
+    - name: Validate composer.json and composer.lock
+      run: composer validate --strict
+      
+    - name: Cache Composer packages
+      id: composer-cache
+      uses: actions/cache@v3
+      with:
+        path: vendor
+        key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-php-
+          
+    - name: Install dependencies
+      run: composer install --prefer-dist --no-progress
+      
+    - name: Check code style
+      run: vendor/bin/php-cs-fixer fix --dry-run --diff
+      
+    - name: Run static analysis
+      run: vendor/bin/phpstan analyse src tests --level=8
+      
+    - name: Run unit tests
+      run: vendor/bin/phpunit --testsuite Unit
+      
+    - name: Run integration tests
+      run: vendor/bin/phpunit --testsuite Integration
+      
+    - name: Run functional tests
+      run: vendor/bin/phpunit --testsuite Functional
+      
+    - name: Generate code coverage report
+      run: |
+        XDEBUG_MODE=coverage vendor/bin/phpunit --coverage-clover=coverage.xml
+        
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage.xml
+        fail_ci_if_error: true
+  
+  e2e-tests:
+    runs-on: ubuntu-latest
+    needs: php-tests
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        
+    - name: Cache Node.js modules
+      uses: actions/cache@v3
+      with:
+        path: ~/.npm
+        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-
+          
+    - name: Install Cypress and dependencies
+      run: npm ci
+      
+    - name: Start Shopware
+      run: |
+        docker-compose up -d
+        sleep 30  # Wait for Shopware to start
+        
+    - name: Run Cypress tests
+      uses: cypress-io/github-action@v5
+      with:
+        browser: chrome
+        config-file: custom/plugins/AdvancedWishlist/tests/E2E/cypress.config.js
+        
+    - name: Upload Cypress screenshots on failure
+      uses: actions/upload-artifact@v3
+      if: failure()
+      with:
+        name: cypress-screenshots
+        path: custom/plugins/AdvancedWishlist/tests/E2E/screenshots
+        
+    - name: Upload Cypress videos
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: cypress-videos
+        path: custom/plugins/AdvancedWishlist/tests/E2E/videos

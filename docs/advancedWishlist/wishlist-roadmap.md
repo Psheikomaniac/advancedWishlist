@@ -43,36 +43,36 @@
 
 ### Phase 1: Foundation (Sprint 1-2)
 - [x] Project setup and structure
-- [ ] Implement [database schema](./docs/database/schema.md)
-- [ ] Create [base DTOs](./docs/dtos/request-dtos.md)
-- [ ] Build [repository layer](./docs/backend/repositories.md)
+- [x] Implement [database schema](./docs/database/schema.md)
+- [x] Create [base DTOs](./docs/dtos/request-dtos.md)
+- [x] Build [repository layer](./docs/backend/repositories.md)
 
 ### Phase 2: Core Features (Sprint 3-4)
-- [ ] [Wishlist Management](./docs/features/wishlist-management.md)
-  - [ ] CRUD operations
-  - [ ] [WishlistService](./docs/backend/services.md#wishlistservice)
-  - [ ] [API Endpoints](./docs/api/store-api.md#wishlist-endpoints)
-- [ ] [Guest Wishlist](./docs/features/guest-wishlist.md)
-  - [ ] Cookie-based storage
-  - [ ] Migration after login
+- [x] [Wishlist Management](./docs/features/wishlist-management.md)
+  - [x] CRUD operations
+  - [x] [WishlistService](./docs/backend/services.md#wishlistservice)
+  - [x] [API Endpoints](./docs/api/store-api.md#wishlist-endpoints)
+- [x] [Guest Wishlist](./docs/features/guest-wishlist.md)
+  - [x] Cookie-based storage
+  - [x] Migration after login
 
 ### Phase 3: Social Features (Sprint 5-6)
-- [ ] [Social Sharing](./docs/features/social-sharing.md)
-  - [ ] Share-token generation
-  - [ ] Privacy settings
-  - [ ] [ShareService](./docs/backend/services.md#shareservice)
-- [ ] [Frontend Components](./docs/frontend/components.md)
-  - [ ] Wishlist button
-  - [ ] Share modal
-  - [ ] List manager
+- [x] [Social Sharing](./docs/features/social-sharing.md)
+  - [x] Share-token generation
+  - [x] Privacy settings
+  - [x] [ShareService](./docs/backend/services.md#shareservice)
+- [x] [Frontend Components](./docs/frontend/components.md)
+  - [x] Wishlist button
+  - [x] Share modal
+  - [x] List manager
 
 ### Phase 4: Advanced Features (Sprint 7-8)
-- [ ] [Price Monitoring](./docs/features/price-monitoring.md)
-  - [ ] Price alert system
-  - [ ] [NotificationService](./docs/backend/services.md#notificationservice)
-- [ ] [Analytics Dashboard](./docs/features/analytics.md)
-  - [ ] Admin widgets
-  - [ ] Reporting API
+- [x] [Price Monitoring](./docs/features/price-monitoring.md)
+  - [x] Price alert system
+  - [x] [NotificationService](./docs/backend/services.md#notificationservice)
+- [x] [Analytics Dashboard](./docs/features/analytics.md)
+  - [x] Admin widgets
+  - [x] Reporting API
 
 ### Phase 5: Testing & Launch (Sprint 9-10)
 - [ ] Unit tests (min. 80% coverage)
@@ -159,7 +159,7 @@ main
 ## 🚨 Current Blockers
 
 1. **Performance**: Virtual scrolling for large wishlists
-2. **Security**: Share-token encryption strategy
+2. **Security**: Share-token encryption strategy [x]
 3. **UX**: Mobile responsive design
 
 ## 📞 Team Contacts
