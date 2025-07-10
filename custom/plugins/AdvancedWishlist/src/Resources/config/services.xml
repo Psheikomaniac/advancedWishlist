@@ -14,6 +14,18 @@
             <tag name="shopware.scheduled.task"/>
         </service>
 
+        <service id="AdvancedWishlist\ScheduledTask\PriceMonitoringTask">
+            <tag name="shopware.scheduled.task"/>
+        </service>
+
+        <service id="AdvancedWishlist\ScheduledTask\PriceMonitoringTaskHandler">
+            <argument type="service" id="scheduled_task.repository"/>
+            <argument type="service" id="AdvancedWishlist\Service\NotificationService"/>
+            <argument type="service" id="product.repository"/>
+            <argument type="service" id="logger"/>
+            <tag name="messenger.message_handler"/>
+        </service>
+
         <service id="AdvancedWishlist\Subscriber\MySubscriber">
             <tag name="kernel.event_subscriber"/>
         </service>
@@ -45,9 +57,44 @@
             <tag name="shopware.entity.definition" entity="wishlist_share" />
         </service>
 
+        <service id="AdvancedWishlist\Core\Content\WishlistShareView\WishlistShareViewDefinition">
+            <tag name="shopware.entity.definition" entity="wishlist_share_view" />
+        </service>
+
+        <service id="AdvancedWishlist\Core\Content\WishlistAnalytics\WishlistAnalyticsDefinition">
+            <tag name="shopware.entity.definition" entity="wishlist_analytics" />
+        </service>
+
     <service id="AdvancedWishlist\Core\Service\WishlistValidator"/>
-        <service id="AdvancedWishlist\Core\Service\WishlistLimitService"/>
-        <service id="AdvancedWishlist\Core\Service\WishlistCacheService"/>
+
+        <service id="AdvancedWishlist\Core\Service\WishlistLimitService">
+            <argument type="service" id="wishlist.repository"/>
+            <argument type="service" id="wishlist_item.repository"/>
+            <argument type="service" id="logger"/>
+        </service>
+
+        <!-- Redis Cache Adapter -->
+        <service id="AdvancedWishlist\Core\Cache\RedisCacheAdapter">
+            <argument>%env(REDIS_URL)%</argument>
+            <argument>wishlist_cache</argument>
+            <argument>3600</argument>
+            <argument type="service" id="logger"/>
+        </service>
+
+        <service id="AdvancedWishlist\Core\Service\WishlistCacheService">
+            <argument type="service" id="AdvancedWishlist\Core\Cache\RedisCacheAdapter"/>
+            <argument type="service" id="logger"/>
+        </service>
+
+        <service id="AdvancedWishlist\Core\Service\WishlistCrudService">
+            <argument type="service" id="wishlist.repository"/>
+            <argument type="service" id="AdvancedWishlist\Core\Service\WishlistValidator"/>
+            <argument type="service" id="AdvancedWishlist\Core\Service\WishlistLimitService"/>
+            <argument type="service" id="AdvancedWishlist\Core\Service\WishlistCacheService"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="logger"/>
+            <argument type="service" id="AdvancedWishlist\Service\ShareService"/>
+        </service>
 
         <service id="AdvancedWishlist\Core\Service\WishlistService">
             <argument type="service" id="wishlist.repository"/>
@@ -57,13 +104,24 @@
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="logger"/>
             <argument type="service" id="cache.app"/>
+            <argument type="service" id="AdvancedWishlist\Service\ShareService"/>
+            <deprecated package="advanced-wishlist" version="1.0">The "%service_id%" service is deprecated. Use "AdvancedWishlist\Core\Service\WishlistCrudService" instead.</deprecated>
         </service>
 
     <service id="AdvancedWishlist\Storefront\Controller\WishlistController" public="true">
-            <argument type="service" id="AdvancedWishlist\Core\Service\WishlistService"/>
+            <argument type="service" id="AdvancedWishlist\Core\Service\WishlistCrudService"/>
+            <argument type="service" id="security.csrf.token_manager"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
+        </service>
+
+        <service id="AdvancedWishlist\Administration\Controller\AnalyticsController" public="true">
+            <argument type="service" id="AdvancedWishlist\Service\AnalyticsService"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+            <tag name="controller.service_arguments"/>
         </service>
 
     <service id="AdvancedWishlist\Core\Content\GuestWishlist\GuestWishlistDefinition">
@@ -90,5 +148,170 @@
             <argument>%env(SHOPWARE_GUEST_WISHLIST_TTL)%</argument>
         </service>
 
+        <service id="AdvancedWishlist\Service\NotificationService">
+            <argument type="service" id="logger"/>
+        </service>
+
+        <service id="AdvancedWishlist\Service\AnalyticsService">
+            <argument type="service" id="wishlist.repository"/>
+            <argument type="service" id="wishlist_share_view.repository"/>
+            <argument type="service" id="wishlist_analytics.repository"/>
+        </service>
+
+        <service id="AdvancedWishlist\Service\EncryptionService">
+            <argument>%env(WISHLIST_ENCRYPTION_KEY)%</argument>
+        </service>
+
+        <service id="AdvancedWishlist\Service\ShareTokenService">
+            <argument>%env(WISHLIST_ENCRYPTION_KEY)%</argument>
+            <deprecated package="advanced-wishlist" version="1.0">The "%service_id%" service is deprecated. Use "AdvancedWishlist\Service\EncryptionService" instead.</deprecated>
+        </service>
+
+        <service id="AdvancedWishlist\Service\ShareService">
+            <argument type="service" id="wishlist_share.repository"/>
+            <argument type="service" id="AdvancedWishlist\Service\EncryptionService"/>
+        </service>
+
+        <!-- Factory Pattern Implementation -->
+        <service id="AdvancedWishlist\Core\Factory\WishlistFactory" />
+
+        <!-- Strategy Pattern Implementation -->
+        <service id="AdvancedWishlist\Core\Domain\Strategy\PrivateWishlistVisibilityStrategy" />
+        <service id="AdvancedWishlist\Core\Domain\Strategy\PublicWishlistVisibilityStrategy" />
+        <service id="AdvancedWishlist\Core\Domain\Strategy\SharedWishlistVisibilityStrategy" />
+        <service id="AdvancedWishlist\Core\Factory\WishlistVisibilityStrategyFactory" />
+
+        <!-- Domain Services -->
+        <service id="AdvancedWishlist\Core\Domain\Service\WishlistVisibilityService">
+            <argument type="service" id="AdvancedWishlist\Core\Factory\WishlistVisibilityStrategyFactory" />
+        </service>
+
+        <!-- CQRS Pattern Implementation -->
+        <!-- Command Bus -->
+        <service id="AdvancedWishlist\Core\CQRS\Command\CommandBus">
+            <argument type="service" id="service_container" />
+        </service>
+
+        <service id="AdvancedWishlist\Core\CQRS\Command\CreateWishlistCommandHandler">
+            <argument type="service" id="wishlist.repository" />
+            <argument type="service" id="AdvancedWishlist\Core\Builder\WishlistBuilder" />
+            <argument type="service" id="event_dispatcher" />
+            <tag name="messenger.message_handler" />
+        </service>
+
+        <!-- Query Bus -->
+        <service id="AdvancedWishlist\Core\CQRS\Query\QueryBus">
+            <argument type="service" id="service_container" />
+        </service>
+
+        <service id="AdvancedWishlist\Core\CQRS\Query\GetWishlistQueryHandler">
+            <argument type="service" id="wishlist.repository" />
+        </service>
+
+        <!-- Builder Pattern Implementation -->
+        <service id="AdvancedWishlist\Core\Builder\WishlistBuilder" />
+
+        <!-- OAuth2 Integration -->
+        <service id="AdvancedWishlist\Core\OAuth\Repository\ClientRepository" public="true" />
+
+        <service id="AdvancedWishlist\Core\OAuth\Repository\ScopeRepository" public="true" />
+
+        <service id="AdvancedWishlist\Core\OAuth\Repository\AccessTokenRepository" public="true" />
+
+        <service id="AdvancedWishlist\Core\OAuth\Repository\RefreshTokenRepository" public="true" />
+
+        <service id="AdvancedWishlist\Core\OAuth\Service\OAuth2Service" public="true">
+            <argument type="service" id="AdvancedWishlist\Core\OAuth\Repository\ClientRepository" />
+            <argument type="service" id="AdvancedWishlist\Core\OAuth\Repository\AccessTokenRepository" />
+            <argument type="service" id="AdvancedWishlist\Core\OAuth\Repository\ScopeRepository" />
+            <argument type="service" id="AdvancedWishlist\Core\OAuth\Repository\RefreshTokenRepository" />
+            <argument>%kernel.project_dir%/config/jwt/private.pem</argument>
+            <argument>%kernel.project_dir%/config/jwt/public.pem</argument>
+            <argument>%env(OAUTH2_ENCRYPTION_KEY)%</argument>
+            <argument type="service" id="logger" />
+        </service>
+
+        <service id="AdvancedWishlist\Core\OAuth\Controller\OAuth2Controller" public="true">
+            <argument type="service" id="AdvancedWishlist\Core\OAuth\Service\OAuth2Service" />
+            <argument type="service" id="Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory" />
+            <argument type="service" id="Symfony\Bridge\PsrHttpMessage\Factory\HttpFoundationFactory" />
+            <argument type="service" id="logger" />
+            <tag name="controller.service_arguments" />
+        </service>
+
+        <!-- OAuth2 Middleware -->
+        <service id="AdvancedWishlist\Core\OAuth\Middleware\OAuth2Middleware">
+            <argument type="service" id="AdvancedWishlist\Core\OAuth\Service\OAuth2Service" />
+            <argument type="service" id="Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory" />
+            <argument type="service" id="Symfony\Bridge\PsrHttpMessage\Factory\HttpFoundationFactory" />
+            <argument type="service" id="logger" />
+        </service>
+
+        <!-- OAuth2 Subscriber -->
+        <service id="AdvancedWishlist\Core\OAuth\Subscriber\OAuth2Subscriber">
+            <argument type="service" id="AdvancedWishlist\Core\OAuth\Middleware\OAuth2Middleware" />
+            <tag name="kernel.event_subscriber" />
+        </service>
+
+        <!-- CDN Integration -->
+        <service id="AdvancedWishlist\Core\Service\CdnService">
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="logger"/>
+        </service>
+
+        <!-- Asset URL Decorator -->
+        <service id="AdvancedWishlist\Core\Asset\AssetUrlDecorator" decorates="Shopware\Core\Framework\Adapter\Asset\FallbackUrlPackage">
+            <argument type="service" id="AdvancedWishlist\Core\Asset\AssetUrlDecorator.inner"/>
+            <argument type="service" id="AdvancedWishlist\Core\Service\CdnService"/>
+            <argument type="service" id="logger"/>
+        </service>
+
+        <!-- Database Read Replica -->
+        <service id="AdvancedWishlist\Core\Database\ReadReplicaConnectionDecorator">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="read_replica.connection" on-invalid="null"/>
+            <argument type="service" id="logger"/>
+        </service>
+
+        <!-- Read Replica Connection Factory -->
+        <service id="read_replica.connection.factory" class="Doctrine\DBAL\Connection">
+            <factory class="Doctrine\DBAL\DriverManager" method="getConnection"/>
+            <argument>%env(json:READ_REPLICA_CONNECTION)%</argument>
+        </service>
+
+        <!-- Read Replica Connection -->
+        <service id="read_replica.connection" class="Doctrine\DBAL\Connection">
+            <factory service="read_replica.connection.factory" method="getConnection"/>
+        </service>
+
+        <!-- Query Optimizer -->
+        <service id="AdvancedWishlist\Core\Database\QueryOptimizer">
+            <argument type="service" id="cache.app"/>
+            <argument type="service" id="logger"/>
+        </service>
+
+        <!-- Async Processor -->
+        <service id="AdvancedWishlist\Core\Async\AsyncProcessor">
+            <argument type="service" id="messenger.bus.shopware"/>
+            <argument type="service" id="logger"/>
+        </service>
+
+        <!-- Cache Header Subscriber -->
+        <service id="AdvancedWishlist\Core\Http\CacheHeaderSubscriber">
+            <argument type="service" id="logger"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <!-- Security Monitoring -->
+        <service id="AdvancedWishlist\Core\Security\SecurityMonitoringService">
+            <argument type="service" id="logger"/>
+            <argument type="service" id="request_stack"/>
+            <argument type="service" id="security.token_storage"/>
+        </service>
+
+        <service id="AdvancedWishlist\Core\Security\SecurityMonitoringSubscriber">
+            <argument type="service" id="AdvancedWishlist\Core\Security\SecurityMonitoringService"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
     </services>
 </container>

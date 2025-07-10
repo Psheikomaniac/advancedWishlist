@@ -1,0 +1,4 @@
+advanced_wishlist.analytics.summary:
+    path: /api/_action/advanced-wishlist/analytics/summary
+    methods: [GET]
+    controller: AdvancedWishlist\Administration\Controller\AnalyticsController::getAnalyticsSummary
