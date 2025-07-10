@@ -1,8 +1,16 @@
 {
-    "swag-example": {
-        "general": {
-            "mainMenuItemGeneral": "My custom module",
-            "descriptionTextModule": "Manage this custom module here"
-        }
+  "advanced-wishlist-analytics": {
+    "general": {
+      "mainMenuItem": "Wishlist Analytics",
+      "description": "Analytics for Advanced Wishlist System"
+    },
+    "overview": {
+      "summaryTitle": "Wishlist Summary",
+      "totalWishlists": "Total Wishlists",
+      "totalItems": "Total Items",
+      "totalShares": "Total Shares",
+      "totalConversions": "Total Conversions",
+      "errorTitle": "Error loading analytics data"
     }
+  }
 }
