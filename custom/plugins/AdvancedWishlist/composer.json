@@ -47,10 +47,10 @@
     ],
     "require": {
         "php": "^8.4",
-        "shopware/core": "~6.7.0",
-        "shopware/administration": "~6.7.0",
-        "shopware/storefront": "~6.7.0",
-        "shopware/elasticsearch": "~6.7.0",
+        "shopware/core": "^6.7.0",
+        "shopware/administration": "^6.7.0",
+        "shopware/storefront": "^6.7.0",
+        "shopware/elasticsearch": "^6.7.0",
         "symfony/framework-bundle": "~7.2.0",
         "symfony/validator": "~7.2.0",
         "symfony/rate-limiter": "~7.2.0",
@@ -71,9 +71,6 @@
         "elasticsearch/elasticsearch": "For enhanced search capabilities in large product catalogs",
         "predis/predis": "For Redis caching support and improved performance",
         "monolog/monolog": "For advanced logging and debugging capabilities"
-    },
-    "conflict": {
-        "shopware/core": "<6.7.0"
     },
     "extra": {
         "shopware-plugin-class": "AdvancedWishlist\\AdvancedWishlist",

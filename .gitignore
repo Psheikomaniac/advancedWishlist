@@ -18,3 +18,4 @@
 /install.lock
 public/asset-manifest.json
 ###< shopware/core ###
+/custom/plugins/AdvancedWishlist/vendor/
