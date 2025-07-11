@@ -3,7 +3,7 @@
 namespace AdvancedWishlist\Core\Asset;
 
 use AdvancedWishlist\Core\Service\CdnService;
-use Shopware\Core\Framework\Adapter\Asset\AssetPackageInterface;
+use Symfony\Component\Asset\PackageInterface;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -12,15 +12,15 @@ use Psr\Log\LoggerInterface;
  * This class decorates the Shopware asset package to use the CDN for static assets
  * when CDN is enabled in the plugin configuration.
  */
-class AssetUrlDecorator implements AssetPackageInterface
+class AssetUrlDecorator implements PackageInterface
 {
     /**
-     * @param AssetPackageInterface $decorated The decorated asset package
+     * @param PackageInterface $decorated The decorated asset package
      * @param CdnService $cdnService The CDN service
      * @param LoggerInterface $logger Logger for logging asset URL generation
      */
     public function __construct(
-        private readonly AssetPackageInterface $decorated,
+        private readonly PackageInterface $decorated,
         private readonly CdnService $cdnService,
         private readonly LoggerInterface $logger
     ) {
