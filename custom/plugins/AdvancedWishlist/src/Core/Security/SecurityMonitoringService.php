@@ -4,7 +4,8 @@ namespace AdvancedWishlist\Core\Security;
 
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Api\Context\AdminApiSource;
 
 class SecurityMonitoringService
 {
@@ -12,7 +13,6 @@ class SecurityMonitoringService
     
     private LoggerInterface $logger;
     private RequestStack $requestStack;
-    private TokenStorageInterface $tokenStorage;
     private array $suspiciousPatterns = [
         'sql_injection' => [
             '/(\%27)|(\')|(\-\-)|(\%23)|(#)/i',
@@ -36,16 +36,13 @@ class SecurityMonitoringService
      *
      * @param LoggerInterface $logger
      * @param RequestStack $requestStack
-     * @param TokenStorageInterface $tokenStorage
      */
     public function __construct(
         LoggerInterface $logger,
-        RequestStack $requestStack,
-        TokenStorageInterface $tokenStorage
+        RequestStack $requestStack
     ) {
         $this->logger = $logger;
         $this->requestStack = $requestStack;
-        $this->tokenStorage = $tokenStorage;
     }
     
     /**
@@ -53,16 +50,17 @@ class SecurityMonitoringService
      *
      * @param string $event The security event type
      * @param array $context Additional context information
+     * @param Context|null $shopwareContext Optional Shopware context for user identification
      */
-    public function logSecurityEvent(string $event, array $context = []): void
+    public function logSecurityEvent(string $event, array $context = [], ?Context $shopwareContext = null): void
     {
         $request = $this->requestStack->getCurrentRequest();
-        $token = $this->tokenStorage->getToken();
+        $userId = $this->getUserId($shopwareContext);
         
         $logContext = array_merge($context, [
             'event' => $event,
             'ip' => $request ? $request->getClientIp() : 'unknown',
-            'user_id' => $token && $token->getUser() ? $token->getUser()->getId() : 'anonymous',
+            'user_id' => $userId ?? 'anonymous',
             'uri' => $request ? $request->getUri() : 'unknown',
             'method' => $request ? $request->getMethod() : 'unknown',
             'timestamp' => (new \DateTime())->format('Y-m-d H:i:s'),
@@ -109,12 +107,13 @@ class SecurityMonitoringService
      * Log failed authentication attempts.
      *
      * @param string $username The username that failed to authenticate
+     * @param Context|null $context Optional Shopware context for user identification
      */
-    public function logFailedAuthentication(string $username): void
+    public function logFailedAuthentication(string $username, ?Context $context = null): void
     {
         $this->logSecurityEvent('failed_authentication', [
             'username' => $username,
-        ]);
+        ], $context);
     }
     
     /**
@@ -122,13 +121,14 @@ class SecurityMonitoringService
      *
      * @param string $resource The resource that was attempted to be accessed
      * @param string $action The action that was attempted
+     * @param Context|null $context Optional Shopware context for user identification
      */
-    public function logUnauthorizedAccess(string $resource, string $action): void
+    public function logUnauthorizedAccess(string $resource, string $action, ?Context $context = null): void
     {
         $this->logSecurityEvent('unauthorized_access', [
             'resource' => $resource,
             'action' => $action,
-        ]);
+        ], $context);
     }
     
     /**
@@ -136,13 +136,14 @@ class SecurityMonitoringService
      *
      * @param string $endpoint The API endpoint
      * @param array $params The request parameters
+     * @param Context|null $context Optional Shopware context for user identification
      */
-    public function logSuspiciousApiRequest(string $endpoint, array $params): void
+    public function logSuspiciousApiRequest(string $endpoint, array $params, ?Context $context = null): void
     {
         $this->logSecurityEvent('suspicious_api_request', [
             'endpoint' => $endpoint,
             'params' => $params,
-        ]);
+        ], $context);
     }
     
     /**
@@ -173,5 +174,22 @@ class SecurityMonitoringService
                 }
             }
         }
+    }
+    
+    /**
+     * Extract user ID from Shopware context.
+     *
+     * @param Context|null $context The Shopware context
+     * @return string|null The user ID if available, null otherwise
+     */
+    private function getUserId(?Context $context): ?string
+    {
+        if (!$context) {
+            return null;
+        }
+        
+        $contextSource = $context->getSource();
+        
+        return $contextSource instanceof AdminApiSource ? $contextSource->getUserId() : null;
     }
 }

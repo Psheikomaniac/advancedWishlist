@@ -260,7 +260,7 @@
         </service>
 
         <!-- Asset URL Decorator -->
-        <service id="AdvancedWishlist\Core\Asset\AssetUrlDecorator" decorates="Shopware\Core\Framework\Adapter\Asset\FallbackUrlPackage">
+        <service id="AdvancedWishlist\Core\Asset\AssetUrlDecorator" decorates="shopware.asset.asset">
             <argument type="service" id="AdvancedWishlist\Core\Asset\AssetUrlDecorator.inner"/>
             <argument type="service" id="AdvancedWishlist\Core\Service\CdnService"/>
             <argument type="service" id="logger"/>
@@ -306,7 +306,6 @@
         <service id="AdvancedWishlist\Core\Security\SecurityMonitoringService">
             <argument type="service" id="logger"/>
             <argument type="service" id="request_stack"/>
-            <argument type="service" id="security.token_storage"/>
         </service>
 
         <service id="AdvancedWishlist\Core\Security\SecurityMonitoringSubscriber">
