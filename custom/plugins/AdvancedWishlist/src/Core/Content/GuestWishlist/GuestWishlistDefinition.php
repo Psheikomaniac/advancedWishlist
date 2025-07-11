@@ -39,25 +39,24 @@ class GuestWishlistDefinition extends EntityDefinition
 
     protected function defineFields(): FieldCollection
     {
-        // Using PHP 8.4 new without parentheses feature
         return new FieldCollection([
-            new IdField('id', 'id')->addFlags(new Required(), new PrimaryKey()),
-            new StringField('guest_id', 'guestId')->addFlags(new Required()),
+            (new IdField('id', 'id'))->addFlags(new Required(), new PrimaryKey()),
+            (new StringField('guest_id', 'guestId'))->addFlags(new Required()),
             new StringField('session_id', 'sessionId'),
-            new FkField('sales_channel_id', 'salesChannelId', SalesChannelDefinition::class)->addFlags(new Required()),
-            new FkField('language_id', 'languageId', LanguageDefinition::class)->addFlags(new Required()),
-            new FkField('currency_id', 'currencyId', CurrencyDefinition::class)->addFlags(new Required()),
+            (new FkField('sales_channel_id', 'salesChannelId', SalesChannelDefinition::class))->addFlags(new Required()),
+            (new FkField('language_id', 'languageId', LanguageDefinition::class))->addFlags(new Required()),
+            (new FkField('currency_id', 'currencyId', CurrencyDefinition::class))->addFlags(new Required()),
             new StringField('name', 'name'),
-            new JsonField('items', 'items')->addFlags(new Required()),
+            (new JsonField('items', 'items'))->addFlags(new Required()),
             new IntField('item_count', 'itemCount'),
-            new DateTimeField('expires_at', 'expiresAt')->addFlags(new Required()),
+            (new DateTimeField('expires_at', 'expiresAt'))->addFlags(new Required()),
             new StringField('ip_address', 'ipAddress'),
             new StringField('user_agent', 'userAgent'),
             new StringField('device_fingerprint', 'deviceFingerprint'),
             new DateTimeField('reminder_sent_at', 'reminderSentAt'),
             new StringField('reminder_email', 'reminderEmail'),
             new JsonField('conversion_tracking', 'conversionTracking'),
-            new DateTimeField('created_at', 'createdAt')->addFlags(new Required()),
+            (new DateTimeField('created_at', 'createdAt'))->addFlags(new Required()),
             new DateTimeField('updated_at', 'updatedAt'),
 
             new ManyToOneAssociationField('salesChannel', 'sales_channel_id', SalesChannelDefinition::class, 'id', false),

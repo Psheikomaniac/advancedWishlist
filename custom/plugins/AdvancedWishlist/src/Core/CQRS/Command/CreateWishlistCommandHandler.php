@@ -32,6 +32,17 @@ class CreateWishlistCommandHandler implements CommandHandlerInterface
     }
 
     /**
+     * Required __invoke method for Symfony Messenger.
+     * 
+     * @param CreateWishlistCommand $command The command to handle
+     * @return string The ID of the created wishlist
+     */
+    public function __invoke(CreateWishlistCommand $command): string
+    {
+        return $this->handle($command);
+    }
+
+    /**
      * Handle the CreateWishlistCommand by creating a new wishlist.
      * 
      * @param object $command The command to handle
