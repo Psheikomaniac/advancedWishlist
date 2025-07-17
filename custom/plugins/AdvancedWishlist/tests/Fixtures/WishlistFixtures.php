@@ -1,15 +1,16 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace AdvancedWishlist\Tests\Fixtures;
 
-use Doctrine\Common\DataFixtures\Fixture;
-use Doctrine\Persistence\ObjectManager;
-use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Framework\Context;
-use AdvancedWishlist\Core\Content\Wishlist\WishlistEntity;
 use AdvancedWishlist\Core\Content\Wishlist\WishlistType;
 use AdvancedWishlist\Tests\Factory\WishlistFactory;
 use AdvancedWishlist\Tests\Factory\WishlistItemFactory;
+use Doctrine\Common\DataFixtures\Fixture;
+use Doctrine\Persistence\ObjectManager;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 class WishlistFixtures extends Fixture
 {
@@ -18,7 +19,7 @@ class WishlistFixtures extends Fixture
 
     public function __construct(
         WishlistFactory $wishlistFactory,
-        WishlistItemFactory $wishlistItemFactory
+        WishlistItemFactory $wishlistItemFactory,
     ) {
         $this->wishlistFactory = $wishlistFactory;
         $this->wishlistItemFactory = $wishlistItemFactory;
@@ -27,7 +28,7 @@ class WishlistFixtures extends Fixture
     public function load(ObjectManager $manager): void
     {
         $context = Context::createDefaultContext();
-        
+
         // Create test wishlists
         $this->createPrivateWishlist($context);
         $this->createPublicWishlist($context);
@@ -43,7 +44,7 @@ class WishlistFixtures extends Fixture
             'customerId' => $customerId,
             'type' => WishlistType::PRIVATE,
         ], $context);
-        
+
         $this->addReference('private-wishlist', $wishlistId);
         $this->addReference('private-wishlist-customer', $customerId);
     }
@@ -56,7 +57,7 @@ class WishlistFixtures extends Fixture
             'customerId' => $customerId,
             'type' => WishlistType::PUBLIC,
         ], $context);
-        
+
         $this->addReference('public-wishlist', $wishlistId);
         $this->addReference('public-wishlist-customer', $customerId);
     }
@@ -69,7 +70,7 @@ class WishlistFixtures extends Fixture
             'customerId' => $customerId,
             'type' => WishlistType::SHARED,
         ], $context);
-        
+
         $this->addReference('shared-wishlist', $wishlistId);
         $this->addReference('shared-wishlist-customer', $customerId);
     }
@@ -82,7 +83,7 @@ class WishlistFixtures extends Fixture
             'customerId' => $customerId,
             'type' => WishlistType::PRIVATE,
         ], $context);
-        
+
         // Add items to the wishlist
         $this->wishlistItemFactory->createWishlistItem([
             'wishlistId' => $wishlistId,
@@ -90,14 +91,14 @@ class WishlistFixtures extends Fixture
             'productVersionId' => Uuid::randomHex(),
             'quantity' => 1,
         ], $context);
-        
+
         $this->wishlistItemFactory->createWishlistItem([
             'wishlistId' => $wishlistId,
             'productId' => Uuid::randomHex(),
             'productVersionId' => Uuid::randomHex(),
             'quantity' => 2,
         ], $context);
-        
+
         $this->addReference('wishlist-with-items', $wishlistId);
         $this->addReference('wishlist-with-items-customer', $customerId);
     }

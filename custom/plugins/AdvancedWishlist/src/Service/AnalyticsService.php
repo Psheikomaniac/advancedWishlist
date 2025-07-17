@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace AdvancedWishlist\Service;
 
@@ -16,9 +18,8 @@ class AnalyticsService
     public function __construct(
         EntityRepository $wishlistRepository,
         EntityRepository $wishlistShareViewRepository,
-        EntityRepository $wishlistAnalyticsRepository
-    )
-    {
+        EntityRepository $wishlistAnalyticsRepository,
+    ) {
         $this->wishlistRepository = $wishlistRepository;
         $this->wishlistShareViewRepository = $wishlistShareViewRepository;
         $this->wishlistAnalyticsRepository = $wishlistAnalyticsRepository;
@@ -26,7 +27,7 @@ class AnalyticsService
 
     /**
      * Track wishlist creation for analytics
-     * This method is called asynchronously via Symfony Messenger
+     * This method is called asynchronously via Symfony Messenger.
      */
     public function trackWishlistCreation(string $wishlistId, string $customerId, Context $context): void
     {
@@ -42,7 +43,7 @@ class AnalyticsService
                     'source' => 'api',
                     'timestamp' => time(),
                 ]),
-            ]
+            ],
         ], $context);
     }
 

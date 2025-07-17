@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace AdvancedWishlist\Tests\Security;
 
@@ -12,7 +14,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\User\UserEntity;
 
 class WishlistValidatorTest extends TestCase
@@ -36,7 +37,7 @@ class WishlistValidatorTest extends TestCase
 
         // This should not throw an exception
         $this->wishlistValidator->validateCreateRequest($request, Context::createDefaultContext());
-        
+
         // Assert that no exception was thrown
         $this->assertTrue(true);
     }
@@ -106,7 +107,7 @@ class WishlistValidatorTest extends TestCase
 
         // This should not throw an exception
         $this->wishlistValidator->validateUpdateRequest($request, $wishlist, Context::createDefaultContext());
-        
+
         // Assert that no exception was thrown
         $this->assertTrue(true);
     }
@@ -162,19 +163,19 @@ class WishlistValidatorTest extends TestCase
     public function testValidateOwnershipWithCorrectOwner(): void
     {
         $customerId = Uuid::randomHex();
-        
+
         $wishlist = new WishlistEntity();
         $wishlist->setId(Uuid::randomHex());
         $wishlist->setCustomerId($customerId);
-        
+
         $context = $this->createMock(Context::class);
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
         $salesChannelContext->method('getContext')->willReturn($context);
         $salesChannelContext->method('getCustomer')->willReturn($this->createCustomerEntity($customerId));
-        
+
         // This should not throw an exception
         $this->wishlistValidator->validateOwnership($wishlist, $salesChannelContext);
-        
+
         // Assert that no exception was thrown
         $this->assertTrue(true);
     }
@@ -184,34 +185,34 @@ class WishlistValidatorTest extends TestCase
         $wishlist = new WishlistEntity();
         $wishlist->setId(Uuid::randomHex());
         $wishlist->setCustomerId(Uuid::randomHex());
-        
+
         $context = $this->createMock(Context::class);
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
         $salesChannelContext->method('getContext')->willReturn($context);
         $salesChannelContext->method('getCustomer')->willReturn($this->createCustomerEntity(Uuid::randomHex()));
-        
+
         $this->expectException(WishlistException::class);
         $this->expectExceptionMessage('You do not have permission to access this wishlist');
-        
+
         $this->wishlistValidator->validateOwnership($wishlist, $salesChannelContext);
     }
 
     public function testCanViewWishlistAsOwner(): void
     {
         $customerId = Uuid::randomHex();
-        
+
         $wishlist = new WishlistEntity();
         $wishlist->setId(Uuid::randomHex());
         $wishlist->setCustomerId($customerId);
         $wishlist->setType('private');
-        
+
         $context = $this->createMock(Context::class);
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
         $salesChannelContext->method('getContext')->willReturn($context);
         $salesChannelContext->method('getCustomer')->willReturn($this->createCustomerEntity($customerId));
-        
+
         $result = $this->wishlistValidator->canViewWishlist($wishlist, $salesChannelContext);
-        
+
         $this->assertTrue($result);
     }
 
@@ -221,14 +222,14 @@ class WishlistValidatorTest extends TestCase
         $wishlist->setId(Uuid::randomHex());
         $wishlist->setCustomerId(Uuid::randomHex());
         $wishlist->setType('public');
-        
+
         $context = $this->createMock(Context::class);
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
         $salesChannelContext->method('getContext')->willReturn($context);
         $salesChannelContext->method('getCustomer')->willReturn($this->createCustomerEntity(Uuid::randomHex()));
-        
+
         $result = $this->wishlistValidator->canViewWishlist($wishlist, $salesChannelContext);
-        
+
         $this->assertTrue($result);
     }
 
@@ -238,14 +239,14 @@ class WishlistValidatorTest extends TestCase
         $wishlist->setId(Uuid::randomHex());
         $wishlist->setCustomerId(Uuid::randomHex());
         $wishlist->setType('private');
-        
+
         $context = $this->createMock(Context::class);
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
         $salesChannelContext->method('getContext')->willReturn($context);
         $salesChannelContext->method('getCustomer')->willReturn($this->createCustomerEntity(Uuid::randomHex()));
-        
+
         $result = $this->wishlistValidator->canViewWishlist($wishlist, $salesChannelContext);
-        
+
         $this->assertFalse($result);
     }
 
@@ -253,6 +254,7 @@ class WishlistValidatorTest extends TestCase
     {
         $customer = new UserEntity();
         $customer->setId($customerId);
+
         return $customer;
     }
 }

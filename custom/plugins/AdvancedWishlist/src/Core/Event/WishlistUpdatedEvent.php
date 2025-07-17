@@ -1,11 +1,13 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace AdvancedWishlist\Core\Event;
 
 use AdvancedWishlist\Core\Content\Wishlist\WishlistEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\EntityType;
+use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
 use Symfony\Contracts\EventDispatcher\Event;
 
@@ -14,7 +16,7 @@ class WishlistUpdatedEvent extends Event
     public function __construct(
         private readonly WishlistEntity $originalWishlist,
         private readonly WishlistEntity $updatedWishlist,
-        private readonly Context $context
+        private readonly Context $context,
     ) {
     }
 

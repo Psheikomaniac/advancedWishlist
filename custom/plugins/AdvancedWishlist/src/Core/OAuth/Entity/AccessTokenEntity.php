@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace AdvancedWishlist\Core\OAuth\Entity;
 
@@ -11,12 +13,12 @@ use League\OAuth2\Server\Entities\Traits\TokenEntityTrait;
 
 class AccessTokenEntity implements AccessTokenEntityInterface
 {
-    use AccessTokenTrait, EntityTrait, TokenEntityTrait;
+    use AccessTokenTrait;
+    use EntityTrait;
+    use TokenEntityTrait;
 
     /**
      * Set the client that the token was issued to.
-     *
-     * @param ClientEntityInterface $client
      */
     public function setClient(ClientEntityInterface $client): void
     {
@@ -25,8 +27,6 @@ class AccessTokenEntity implements AccessTokenEntityInterface
 
     /**
      * Associate a scope with the token.
-     *
-     * @param ScopeEntityInterface $scope
      */
     public function addScope(ScopeEntityInterface $scope): void
     {

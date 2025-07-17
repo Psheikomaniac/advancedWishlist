@@ -1,22 +1,24 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace AdvancedWishlist\Tests\Functional\Controller;
 
+use AdvancedWishlist\Storefront\Controller\WishlistController;
+use AdvancedWishlist\Tests\Factory\WishlistFactory;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
-use Shopware\Core\Checkout\Customer\CustomerEntity;
-use AdvancedWishlist\Storefront\Controller\WishlistController;
-use AdvancedWishlist\Tests\Factory\WishlistFactory;
 
 /**
- * Functional tests for the WishlistController
- * 
+ * Functional tests for the WishlistController.
+ *
  * These tests verify that the controller endpoints work correctly from a user perspective.
  */
 class WishlistControllerTest extends TestCase
@@ -198,7 +200,7 @@ class WishlistControllerTest extends TestCase
                 'wishlistId' => $wishlistId,
                 'productId' => $productId,
                 'productVersionId' => Uuid::randomHex(),
-            ]
+            ],
         ], $this->context)->getPrimaryKeys()['wishlist_item'][0];
 
         // Create a request to remove the item from the wishlist
@@ -221,7 +223,7 @@ class WishlistControllerTest extends TestCase
     }
 
     /**
-     * Create a sales channel context with a customer
+     * Create a sales channel context with a customer.
      */
     private function createSalesChannelContextWithCustomer(string $customerId): SalesChannelContext
     {
@@ -238,7 +240,7 @@ class WishlistControllerTest extends TestCase
     }
 
     /**
-     * Create a sales channel context
+     * Create a sales channel context.
      */
     private function createSalesChannelContext(): SalesChannelContext
     {

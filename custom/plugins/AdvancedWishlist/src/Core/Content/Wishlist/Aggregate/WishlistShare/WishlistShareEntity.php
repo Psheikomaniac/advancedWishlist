@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace AdvancedWishlist\Core\Content\Wishlist\Aggregate\WishlistShare;
 
@@ -20,7 +22,7 @@ class WishlistShareEntity extends Entity
         set {
             $allowedTypes = ['public', 'private', 'shared', 'temporary'];
             if (!in_array($value, $allowedTypes)) {
-                throw new \InvalidArgumentException('Invalid share type. Allowed types: ' . implode(', ', $allowedTypes));
+                throw new \InvalidArgumentException('Invalid share type. Allowed types: '.implode(', ', $allowedTypes));
             }
             $this->type = $value;
         }
@@ -41,7 +43,7 @@ class WishlistShareEntity extends Entity
     public ?\DateTimeInterface $expiresAt {
         get => $this->expiresAt;
         set {
-            if ($value !== null && $value < new \DateTime()) {
+            if (null !== $value && $value < new \DateTime()) {
                 throw new \InvalidArgumentException('Expiration date cannot be in the past');
             }
             $this->expiresAt = $value;

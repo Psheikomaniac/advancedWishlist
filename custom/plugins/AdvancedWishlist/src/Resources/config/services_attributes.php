@@ -1,22 +1,21 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Symfony\Component\DependencyInjection\Loader\Configurator;
 
-use AdvancedWishlist\Core\Adapter\Repository\WishlistRepositoryAdapter;
+use AdvancedWishlist\Administration\Controller\AnalyticsController;
 use AdvancedWishlist\Core\Builder\WishlistBuilder;
 use AdvancedWishlist\Core\Cache\CacheConfiguration;
 use AdvancedWishlist\Core\CQRS\Query\Wishlist\GetWishlistsQueryHandler;
 use AdvancedWishlist\Core\Message\Handler\WishlistCreatedHandler;
-use AdvancedWishlist\Core\Port\WishlistRepositoryInterface;
-use AdvancedWishlist\Core\Service\WishlistCrudService;
 use AdvancedWishlist\Core\Service\WishlistCacheService;
-use AdvancedWishlist\Core\Service\WishlistValidator;
+use AdvancedWishlist\Core\Service\WishlistCrudService;
 use AdvancedWishlist\Core\Service\WishlistLimitService;
+use AdvancedWishlist\Core\Service\WishlistValidator;
 use AdvancedWishlist\Storefront\Controller\WishlistController;
-use AdvancedWishlist\Administration\Controller\AnalyticsController;
-use Symfony\Component\DependencyInjection\ContainerBuilder;
 
-/**
+/*
  * Attribute-based service configuration for Symfony 7 compatibility
  */
 return static function (ContainerConfigurator $configurator): void {
@@ -64,6 +63,6 @@ return static function (ContainerConfigurator $configurator): void {
     $services->set(WishlistBuilder::class)
         ->public()
         ->args([
-            service('wishlist.repository')
+            service('wishlist.repository'),
         ]);
 };

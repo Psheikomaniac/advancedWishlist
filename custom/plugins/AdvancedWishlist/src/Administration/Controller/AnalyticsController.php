@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace AdvancedWishlist\Administration\Controller;
 
@@ -6,8 +8,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\Routing\Annotation\Route;
-
 
 class AnalyticsController extends AbstractController
 {
@@ -19,8 +19,8 @@ class AnalyticsController extends AbstractController
     }
 
     /**
- * @RouteScope(scopes={"administration"})
- */
+     * @RouteScope(scopes={"administration"})
+     */
     public function getAnalyticsSummary(Context $context): JsonResponse
     {
         // TODO: Implement logic to fetch and return analytics summary data

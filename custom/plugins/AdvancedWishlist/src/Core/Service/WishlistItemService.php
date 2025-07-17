@@ -1,24 +1,26 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace AdvancedWishlist\Core\Service;
 
+use AdvancedWishlist\Core\Content\Wishlist\WishlistEntity;
 use AdvancedWishlist\Core\DTO\Request\AddItemRequest;
 use AdvancedWishlist\Core\DTO\Request\UpdateItemRequest;
 use AdvancedWishlist\Core\DTO\Response\WishlistItemResponse;
 use AdvancedWishlist\Core\Event\WishlistItemAddedEvent;
-use AdvancedWishlist\Core\Event\WishlistItemRemovedEvent;
 use AdvancedWishlist\Core\Event\WishlistItemMovedEvent;
+use AdvancedWishlist\Core\Event\WishlistItemRemovedEvent;
 use AdvancedWishlist\Core\Exception\DuplicateWishlistItemException;
 use AdvancedWishlist\Core\Exception\WishlistItemNotFoundException;
 use AdvancedWishlist\Core\Exception\WishlistLimitExceededException;
-use AdvancedWishlist\Core\Content\Wishlist\WishlistEntity;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Psr\Log\LoggerInterface;
 
 class WishlistItemService
 {
@@ -32,15 +34,16 @@ class WishlistItemService
         // private ProductAvailabilityService $availabilityService,
         // private PriceAlertService $priceAlertService,
         private EventDispatcherInterface $eventDispatcher,
-        private LoggerInterface $logger
-    ) {}
+        private LoggerInterface $logger,
+    ) {
+    }
 
     /**
-     * Add item to wishlist with duplicate check
+     * Add item to wishlist with duplicate check.
      */
     public function addItem(
         AddItemRequest $request,
-        Context $context
+        Context $context,
     ): WishlistItemResponse {
         // 1. Load and validate wishlist
         $wishlist = $this->loadWishlist($request->getWishlistId(), $context);
@@ -54,13 +57,7 @@ class WishlistItemService
 
         // 4. Check for duplicates
         if ($this->isDuplicate($wishlist, $request->getProductId())) {
-            throw new DuplicateWishlistItemException(
-                'Product already in wishlist',
-                [
-                    'productId' => $request->getProductId(),
-                    'wishlistId' => $request->getWishlistId(),
-                ]
-            );
+            throw new DuplicateWishlistItemException('Product already in wishlist', ['productId' => $request->getProductId(), 'wishlistId' => $request->getWishlistId()]);
         }
 
         // 5. Create item
@@ -97,15 +94,16 @@ class WishlistItemService
 
         // 9. Load and return
         $item = $this->loadWishlistItem($itemId, $context);
+
         return WishlistItemResponse::fromEntity($item);
     }
 
     /**
-     * Update wishlist item
+     * Update wishlist item.
      */
     public function updateItem(
         UpdateItemRequest $request,
-        Context $context
+        Context $context,
     ): WishlistItemResponse {
         // 1. Load item with wishlist
         $item = $this->loadWishlistItem($request->getItemId(), $context);
@@ -140,16 +138,17 @@ class WishlistItemService
 
         // 6. Reload and return
         $updatedItem = $this->loadWishlistItem($request->getItemId(), $context);
+
         return WishlistItemResponse::fromEntity($updatedItem);
     }
 
     /**
-     * Remove item from wishlist
+     * Remove item from wishlist.
      */
     public function removeItem(
         string $wishlistId,
         string $itemId,
-        Context $context
+        Context $context,
     ): void {
         // 1. Validate
         $wishlist = $this->loadWishlist($wishlistId, $context);
@@ -158,10 +157,7 @@ class WishlistItemService
         // 2. Check item belongs to wishlist
         $item = $wishlist->getItems()->get($itemId);
         if (!$item) {
-            throw new WishlistItemNotFoundException(
-                'Item not found in wishlist',
-                ['itemId' => $itemId, 'wishlistId' => $wishlistId]
-            );
+            throw new WishlistItemNotFoundException('Item not found in wishlist', ['itemId' => $itemId, 'wishlistId' => $wishlistId]);
         }
 
         // 3. Remove price alert if exists
@@ -184,14 +180,14 @@ class WishlistItemService
     }
 
     /**
-     * Move item between wishlists
+     * Move item between wishlists.
      */
     public function moveItem(
         string $sourceWishlistId,
         string $targetWishlistId,
         string $itemId,
         bool $copy,
-        Context $context
+        Context $context,
     ): WishlistItemResponse {
         // 1. Validate both wishlists
         $sourceWishlist = $this->loadWishlist($sourceWishlistId, $context);
@@ -208,9 +204,7 @@ class WishlistItemService
 
         // 3. Check for duplicate in target
         if ($this->isDuplicate($targetWishlist, $item->getProductId())) {
-            throw new DuplicateWishlistItemException(
-                'Product already exists in target wishlist'
-            );
+            throw new DuplicateWishlistItemException('Product already exists in target wishlist');
         }
 
         // 4. Check target wishlist limit
@@ -239,7 +233,7 @@ class WishlistItemService
                     'id' => $itemId,
                     'wishlistId' => $targetWishlistId,
                     'priority' => $this->getNextPriority($targetWishlist),
-                ]
+                ],
             ], $context);
             $movedItem = $this->loadWishlistItem($itemId, $context);
         }
@@ -258,12 +252,12 @@ class WishlistItemService
     }
 
     /**
-     * Bulk add items
+     * Bulk add items.
      */
     public function bulkAddItems(
         string $wishlistId,
         array $items,
-        Context $context
+        Context $context,
     ): array {
         $wishlist = $this->loadWishlist($wishlistId, $context);
         $this->validator->validateOwnership($wishlist, $context);
@@ -291,7 +285,7 @@ class WishlistItemService
                                 'productId' => $item['productId'],
                                 'error' => 'Duplicate product',
                             ];
-                            $failed++;
+                            ++$failed;
                             continue;
                         }
                     }
@@ -310,15 +304,14 @@ class WishlistItemService
                         'itemId' => $itemId,
                         'productId' => $item['productId'],
                     ];
-                    $successful++;
-
+                    ++$successful;
                 } catch (\Exception $e) {
                     $results[] = [
                         'success' => false,
                         'productId' => $item['productId'],
                         'error' => $e->getMessage(),
                     ];
-                    $failed++;
+                    ++$failed;
                 }
             }
 
@@ -332,37 +325,34 @@ class WishlistItemService
             'total' => count($items),
             'successful' => $successful,
             'failed' => $failed,
-            'results' => $results
+            'results' => $results,
         ];
     }
 
     /**
-     * Helper: Check if product already in wishlist
+     * Helper: Check if product already in wishlist.
      */
     private function isDuplicate(
         WishlistEntity $wishlist,
-        string $productId
+        string $productId,
     ): bool {
         return $wishlist->getItems()->filter(
-            fn($item) => $item->getProductId() === $productId
+            fn ($item) => $item->getProductId() === $productId
         )->count() > 0;
     }
 
     /**
-     * Helper: Check item limit
+     * Helper: Check item limit.
      */
     private function checkItemLimit(WishlistEntity $wishlist): void
     {
         if ($wishlist->getItems()->count() >= WishlistService::MAX_ITEMS_PER_WISHLIST) {
-            throw new WishlistLimitExceededException(
-                'Wishlist item limit reached',
-                ['limit' => WishlistService::MAX_ITEMS_PER_WISHLIST]
-            );
+            throw new WishlistLimitExceededException('Wishlist item limit reached', ['limit' => WishlistService::MAX_ITEMS_PER_WISHLIST]);
         }
     }
 
     /**
-     * Helper: Get next priority number
+     * Helper: Get next priority number.
      */
     private function getNextPriority(WishlistEntity $wishlist): int
     {
@@ -384,10 +374,7 @@ class WishlistItemService
         $wishlist = $this->wishlistRepository->search($criteria, $context)->first();
 
         if (!$wishlist) {
-            throw new WishlistNotFoundException(
-                'Wishlist not found',
-                ['wishlistId' => $wishlistId]
-            );
+            throw new WishlistNotFoundException('Wishlist not found', ['wishlistId' => $wishlistId]);
         }
 
         return $wishlist;
@@ -398,10 +385,7 @@ class WishlistItemService
         $product = $this->productRepository->search(new Criteria([$productId]), $context)->first();
 
         if (!$product) {
-            throw new WishlistItemNotFoundException(
-                'Product not found',
-                ['productId' => $productId]
-            );
+            throw new WishlistItemNotFoundException('Product not found', ['productId' => $productId]);
         }
 
         return $product;
@@ -419,7 +403,7 @@ class WishlistItemService
             'priority' => $request->getPriority() ?? 0,
             'priceAtAddition' => $product->getCheapestPrice()?->getGross(),
             'priceAlertThreshold' => $request->getPriceAlertThreshold(),
-            'priceAlertActive' => $request->getPriceAlertThreshold() !== null,
+            'priceAlertActive' => null !== $request->getPriceAlertThreshold(),
             'customFields' => $request->getCustomFields(),
         ];
     }
@@ -433,10 +417,7 @@ class WishlistItemService
         $item = $this->wishlistItemRepository->search($criteria, $context)->first();
 
         if (!$item) {
-            throw new WishlistItemNotFoundException(
-                'Wishlist item not found',
-                ['itemId' => $itemId]
-            );
+            throw new WishlistItemNotFoundException('Wishlist item not found', ['itemId' => $itemId]);
         }
 
         return $item;
@@ -448,20 +429,20 @@ class WishlistItemService
             'id' => $request->getItemId(),
         ];
 
-        if ($request->getQuantity() !== null) {
+        if (null !== $request->getQuantity()) {
             $updateData['quantity'] = $request->getQuantity();
         }
-        if ($request->getNote() !== null) {
+        if (null !== $request->getNote()) {
             $updateData['note'] = $request->getNote();
         }
-        if ($request->getPriority() !== null) {
+        if (null !== $request->getPriority()) {
             $updateData['priority'] = $request->getPriority();
         }
-        if ($request->getPriceAlertThreshold() !== null) {
+        if (null !== $request->getPriceAlertThreshold()) {
             $updateData['priceAlertThreshold'] = $request->getPriceAlertThreshold();
-            $updateData['priceAlertActive'] = $request->getPriceAlertThreshold() !== null;
+            $updateData['priceAlertActive'] = null !== $request->getPriceAlertThreshold();
         }
-        if ($request->getPriceAlertActive() !== null) {
+        if (null !== $request->getPriceAlertActive()) {
             $updateData['priceAlertActive'] = $request->getPriceAlertActive();
         }
 

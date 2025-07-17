@@ -1,9 +1,13 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace AdvancedWishlist\Core\Service;
 
 use AdvancedWishlist\Core\Entity\WishlistItem\WishlistItemEntity;
 use AdvancedWishlist\Core\Event\PriceDropDetectedEvent;
+use Psr\Cache\CacheItemPoolInterface;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -11,8 +15,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Psr\Log\LoggerInterface;
-use Psr\Cache\CacheItemPoolInterface;
 
 class PriceMonitorService
 {
@@ -26,11 +28,12 @@ class PriceMonitorService
         // private PriceHistoryService $priceHistoryService,
         private EventDispatcherInterface $eventDispatcher,
         private LoggerInterface $logger,
-        private CacheItemPoolInterface $cache
-    ) {}
+        private CacheItemPoolInterface $cache,
+    ) {
+    }
 
     /**
-     * Check all active price alerts
+     * Check all active price alerts.
      */
     public function checkPriceAlerts(Context $context): array
     {
@@ -43,7 +46,7 @@ class PriceMonitorService
             $criteria = new Criteria();
             $criteria->addFilter(new EqualsFilter('priceAlertActive', true));
             $criteria->addFilter(new RangeFilter('priceAlertThreshold', [
-                RangeFilter::GT => 0
+                RangeFilter::GT => 0,
             ]));
             $criteria->addAssociation('product.prices');
             $criteria->addAssociation('wishlist.customer');
@@ -55,9 +58,9 @@ class PriceMonitorService
             foreach ($items as $item) {
                 try {
                     if ($this->checkPriceDrop($item, $context)) {
-                        $triggered++;
+                        ++$triggered;
                     }
-                    $processed++;
+                    ++$processed;
                 } catch (\Exception $e) {
                     $this->logger->error('Failed to check price alert', [
                         'itemId' => $item->getId(),
@@ -67,8 +70,7 @@ class PriceMonitorService
             }
 
             $offset += self::BATCH_SIZE;
-
-        } while ($items->count() === self::BATCH_SIZE);
+        } while (self::BATCH_SIZE === $items->count());
 
         $this->logger->info('Price alerts checked', [
             'processed' => $processed,
@@ -82,11 +84,11 @@ class PriceMonitorService
     }
 
     /**
-     * Check single item for price drop
+     * Check single item for price drop.
      */
     public function checkPriceDrop(
         WishlistItemEntity $item,
-        Context $context
+        Context $context,
     ): bool {
         $product = $item->getProduct();
         if (!$product) {
@@ -139,13 +141,13 @@ class PriceMonitorService
     }
 
     /**
-     * Setup price alert for item
+     * Setup price alert for item.
      */
     public function setupAlert(
         string $itemId,
         ProductEntity $product,
         float $threshold,
-        Context $context
+        Context $context,
     ): void {
         // Validate threshold
         $currentPrice = $this->getCurrentPrice($product, $context);
@@ -155,9 +157,7 @@ class PriceMonitorService
         }
 
         if ($threshold <= $currentPrice) {
-            throw new \InvalidArgumentException(
-                'Threshold must be higher than current price'
-            );
+            throw new \InvalidArgumentException('Threshold must be higher than current price');
         }
 
         // Update item
@@ -167,7 +167,7 @@ class PriceMonitorService
                 'priceAlertThreshold' => $threshold,
                 'priceAlertActive' => true,
                 'priceAtAlert' => $currentPrice,
-            ]
+            ],
         ], $context);
 
         // Record initial price
@@ -186,12 +186,12 @@ class PriceMonitorService
     }
 
     /**
-     * Get price statistics for product
+     * Get price statistics for product.
      */
     public function getPriceStatistics(
         string $productId,
         \DateTimeInterface $since,
-        Context $context
+        Context $context,
     ): array {
         // $history = $this->priceHistoryService->getHistory(
         //     $productId,
@@ -201,14 +201,14 @@ class PriceMonitorService
         // );
 
         // if (empty($history)) {
-            return [
-                'current' => 0,
-                'min' => 0,
-                'max' => 0,
-                'average' => 0,
-                'trend' => 'stable',
-                'volatility' => 0,
-            ];
+        return [
+            'current' => 0,
+            'min' => 0,
+            'max' => 0,
+            'average' => 0,
+            'trend' => 'stable',
+            'volatility' => 0,
+        ];
         // }
 
         // $prices = array_column($history, 'price');
@@ -251,25 +251,23 @@ class PriceMonitorService
     }
 
     /**
-     * Helper: Get current price for product
+     * Helper: Get current price for product.
      */
     private function getCurrentPrice(
         ProductEntity $product,
-        Context $context
+        Context $context,
     ): float {
         $price = $product->getCheapestPrice();
 
         if (!$price) {
-            throw new \RuntimeException(
-                'No price found for product: ' . $product->getId()
-            );
+            throw new \RuntimeException('No price found for product: '.$product->getId());
         }
 
         return $price->getGross();
     }
 
     /**
-     * Helper: Check if recently notified
+     * Helper: Check if recently notified.
      */
     private function wasRecentlyNotified(string $itemId): bool
     {
@@ -279,7 +277,7 @@ class PriceMonitorService
     }
 
     /**
-     * Helper: Record notification sent
+     * Helper: Record notification sent.
      */
     private function recordNotification(string $itemId, float $price): void
     {

@@ -1,10 +1,12 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace AdvancedWishlist\Core\Content\WishlistAnalytics;
 
+use AdvancedWishlist\Core\Content\Wishlist\WishlistEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
-use AdvancedWishlist\Core\Content\Wishlist\WishlistEntity;
 
 class WishlistAnalyticsEntity extends Entity
 {

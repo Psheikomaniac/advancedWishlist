@@ -17,7 +17,8 @@ class WishlistPermissionService
 {
     public function __construct(
         private readonly LoggerInterface $logger,
-    ) {}
+    ) {
+    }
 
     /**
      * Prüft, ob ein Benutzer eine bestimmte Berechtigung für eine Wunschliste hat.
@@ -30,12 +31,12 @@ class WishlistPermissionService
         }
 
         // Bei privaten Wunschlisten hat nur der Besitzer Rechte
-        if ($wishlist->getType() === WishlistType::PRIVATE) {
+        if (WishlistType::PRIVATE === $wishlist->getType()) {
             return false;
         }
 
         // Bei öffentlichen Wunschlisten sind bestimmte Rechte für alle verfügbar
-        if ($wishlist->getType() === WishlistType::PUBLIC) {
+        if (WishlistType::PUBLIC === $wishlist->getType()) {
             // Bei öffentlichen Listen kann jeder kommentieren und exportieren
             if (in_array($permission, [WishlistPermission::ADD_COMMENT, WishlistPermission::EXPORT_WISHLIST], true)) {
                 return true;
@@ -53,11 +54,12 @@ class WishlistPermissionService
 
         // Rolle aus Mitgliederdaten extrahieren
         $memberRole = WishlistRole::tryFrom($members[$userId]['role'] ?? '');
-        if ($memberRole === null) {
+        if (null === $memberRole) {
             $this->logger->warning('Ungültige Rolle für Benutzer {userId} in Wunschliste {wishlistId}', [
                 'userId' => $userId,
                 'wishlistId' => $wishlist->getId(),
             ]);
+
             return false;
         }
 
@@ -67,7 +69,7 @@ class WishlistPermissionService
 
     /**
      * Gibt alle Berechtigungen zurück, die ein Benutzer für eine Wunschliste hat.
-     * 
+     *
      * @return array<WishlistPermission>
      */
     public function getUserPermissions(WishlistEntity $wishlist, string $userId): array
@@ -78,12 +80,12 @@ class WishlistPermissionService
         }
 
         // Bei privaten Wunschlisten hat nur der Besitzer Rechte
-        if ($wishlist->getType() === WishlistType::PRIVATE) {
+        if (WishlistType::PRIVATE === $wishlist->getType()) {
             return [];
         }
 
         // Bei öffentlichen Wunschlisten haben alle Benutzer bestimmte Rechte
-        if ($wishlist->getType() === WishlistType::PUBLIC) {
+        if (WishlistType::PUBLIC === $wishlist->getType()) {
             return [WishlistPermission::ADD_COMMENT, WishlistPermission::EXPORT_WISHLIST];
         }
 
@@ -95,11 +97,12 @@ class WishlistPermissionService
 
         // Rolle aus Mitgliederdaten extrahieren
         $memberRole = WishlistRole::tryFrom($members[$userId]['role'] ?? '');
-        if ($memberRole === null) {
+        if (null === $memberRole) {
             $this->logger->warning('Ungültige Rolle für Benutzer {userId} in Wunschliste {wishlistId}', [
                 'userId' => $userId,
                 'wishlistId' => $wishlist->getId(),
             ]);
+
             return [];
         }
 
@@ -120,8 +123,8 @@ class WishlistPermissionService
     public function canEditWishlist(WishlistEntity $wishlist, string $userId): bool
     {
         // Prüfe, ob der Benutzer die notwendigen Berechtigungen hat
-        return $this->hasPermission($wishlist, $userId, WishlistPermission::ADD_PRODUCT) && 
-               $this->hasPermission($wishlist, $userId, WishlistPermission::REMOVE_PRODUCT);
+        return $this->hasPermission($wishlist, $userId, WishlistPermission::ADD_PRODUCT)
+               && $this->hasPermission($wishlist, $userId, WishlistPermission::REMOVE_PRODUCT);
     }
 
     /**

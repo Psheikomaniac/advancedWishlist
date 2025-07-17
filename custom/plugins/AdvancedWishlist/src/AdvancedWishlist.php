@@ -1,19 +1,20 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace AdvancedWishlist;
 
+use AdvancedWishlist\ScheduledTask\PriceMonitoringTask;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskDefinition;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\Context\ActivateContext;
 use Shopware\Core\Framework\Plugin\Context\DeactivateContext;
 use Shopware\Core\Framework\Plugin\Context\InstallContext;
 use Shopware\Core\Framework\Plugin\Context\UninstallContext;
 use Shopware\Core\Framework\Plugin\Context\UpdateContext;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskDefinition;
-use AdvancedWishlist\ScheduledTask\PriceMonitoringTask;
-
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
@@ -25,8 +26,9 @@ class AdvancedWishlist extends Plugin
     #[\Override]
     public function configureRoutes(RoutingConfigurator $routes, string $environment): void
     {
-        $routes->import(__DIR__ . '/Resources/config/routes.yaml', 'yaml');
+        $routes->import(__DIR__.'/Resources/config/routes.yaml', 'yaml');
     }
+
     #[\Override]
     public function install(InstallContext $installContext): void
     {
@@ -124,7 +126,7 @@ class AdvancedWishlist extends Plugin
 
     /**
      * Build the plugin's container extension
-     * Loads both XML and PHP-based service configurations
+     * Loads both XML and PHP-based service configurations.
      */
     #[\Override]
     public function build(ContainerBuilder $container): void
@@ -132,11 +134,11 @@ class AdvancedWishlist extends Plugin
         parent::build($container);
 
         // Load traditional XML configuration
-        $xmlLoader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/Resources/config'));
+        $xmlLoader = new XmlFileLoader($container, new FileLocator(__DIR__.'/Resources/config'));
         $xmlLoader->load('services.xml');
 
         // Load modern attribute-based configuration
-        $phpLoader = new PhpFileLoader($container, new FileLocator(__DIR__ . '/Resources/config'));
+        $phpLoader = new PhpFileLoader($container, new FileLocator(__DIR__.'/Resources/config'));
         $phpLoader->load('services_attributes.php');
     }
 }

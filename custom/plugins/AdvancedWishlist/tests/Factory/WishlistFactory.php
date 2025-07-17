@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace AdvancedWishlist\Tests\Factory;
 
@@ -10,23 +12,24 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * Factory for creating test wishlist entities
+ * Factory for creating test wishlist entities.
  */
 class WishlistFactory extends TestEntityFactory
 {
     public function __construct(
-        private EntityRepository $wishlistRepository
-    ) {}
+        private EntityRepository $wishlistRepository,
+    ) {
+    }
 
     /**
-     * Create a wishlist with the given data
+     * Create a wishlist with the given data.
      */
     public function createWishlist(
         array $data,
-        Context $context
+        Context $context,
     ): string {
         $defaults = [
-            'name' => 'Test Wishlist ' . Uuid::randomHex(),
+            'name' => 'Test Wishlist '.Uuid::randomHex(),
             'description' => 'Test wishlist description',
             'type' => 'private',
             'isDefault' => false,
@@ -40,11 +43,11 @@ class WishlistFactory extends TestEntityFactory
     }
 
     /**
-     * Create a default wishlist for a customer
+     * Create a default wishlist for a customer.
      */
     public function createDefaultWishlist(
         string $customerId,
-        Context $context
+        Context $context,
     ): string {
         return $this->createWishlist([
             'customerId' => $customerId,
@@ -54,34 +57,34 @@ class WishlistFactory extends TestEntityFactory
     }
 
     /**
-     * Get a wishlist by ID
+     * Get a wishlist by ID.
      */
     public function getWishlist(
         string $id,
         Context $context,
-        array $associations = ['items', 'customer', 'shareInfo']
+        array $associations = ['items', 'customer', 'shareInfo'],
     ): ?WishlistEntity {
         return parent::get($this->wishlistRepository, $id, $context, $associations);
     }
 
     /**
-     * Find a wishlist by customer ID
+     * Find a wishlist by customer ID.
      */
     public function findByCustomer(
         string $customerId,
         Context $context,
-        array $associations = ['items', 'customer', 'shareInfo']
+        array $associations = ['items', 'customer', 'shareInfo'],
     ): ?WishlistEntity {
         return parent::findOneBy($this->wishlistRepository, 'customerId', $customerId, $context, $associations);
     }
 
     /**
-     * Find the default wishlist for a customer
+     * Find the default wishlist for a customer.
      */
     public function findDefaultWishlist(
         string $customerId,
         Context $context,
-        array $associations = ['items', 'customer', 'shareInfo']
+        array $associations = ['items', 'customer', 'shareInfo'],
     ): ?WishlistEntity {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('customerId', $customerId));
@@ -96,36 +99,37 @@ class WishlistFactory extends TestEntityFactory
     }
 
     /**
-     * Delete a wishlist
+     * Delete a wishlist.
      */
     public function deleteWishlist(
         string $id,
-        Context $context
+        Context $context,
     ): void {
         parent::delete($this->wishlistRepository, $id, $context);
     }
 
     /**
-     * Generate random wishlist data
+     * Generate random wishlist data.
      */
     public function getRandomData(): array
     {
         return [
             'customerId' => Uuid::randomHex(),
-            'name' => 'Random Wishlist ' . Uuid::randomHex(),
-            'description' => 'Random wishlist description ' . Uuid::randomHex(),
+            'name' => 'Random Wishlist '.Uuid::randomHex(),
+            'description' => 'Random wishlist description '.Uuid::randomHex(),
             'type' => array_rand(['private' => 1, 'public' => 1, 'shared' => 1]),
             'isDefault' => false,
         ];
     }
 
     /**
-     * Generate random wishlist data for a specific customer
+     * Generate random wishlist data for a specific customer.
      */
     public function getRandomDataForCustomer(string $customerId): array
     {
         $data = $this->getRandomData();
         $data['customerId'] = $customerId;
+
         return $data;
     }
 }

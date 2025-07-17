@@ -1,11 +1,13 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace AdvancedWishlist\Core\Event;
 
 use AdvancedWishlist\Core\Content\Wishlist\Aggregate\WishlistItem\WishlistItemEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\EntityType;
+use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
 use Symfony\Contracts\EventDispatcher\Event;
 
@@ -15,7 +17,7 @@ class PriceDropDetectedEvent extends Event
         private readonly WishlistItemEntity $wishlistItem,
         private readonly float $oldPrice,
         private readonly float $newPrice,
-        private readonly Context $context
+        private readonly Context $context,
     ) {
     }
 

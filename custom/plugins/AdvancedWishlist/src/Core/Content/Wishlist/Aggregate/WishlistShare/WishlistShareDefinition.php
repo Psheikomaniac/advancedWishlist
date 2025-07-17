@@ -1,11 +1,12 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace AdvancedWishlist\Core\Content\Wishlist\Aggregate\WishlistShare;
 
 use AdvancedWishlist\Core\Content\Wishlist\WishlistDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
@@ -13,9 +14,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 class WishlistShareDefinition extends EntityDefinition
@@ -57,7 +58,7 @@ class WishlistShareDefinition extends EntityDefinition
             (new DateTimeField('created_at', 'createdAt'))->addFlags(new Required()),
             new DateTimeField('revoked_at', 'revokedAt'),
 
-            new ManyToOneAssociationField('wishlist', 'wishlist_id', WishlistDefinition::class, 'id', false)
+            new ManyToOneAssociationField('wishlist', 'wishlist_id', WishlistDefinition::class, 'id', false),
         ]);
     }
 }

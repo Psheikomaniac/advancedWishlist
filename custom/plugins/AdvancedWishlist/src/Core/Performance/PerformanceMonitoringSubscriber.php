@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace AdvancedWishlist\Core\Performance;
 
@@ -8,18 +10,15 @@ use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
- * Event subscriber for performance monitoring
+ * Event subscriber for performance monitoring.
  */
 class PerformanceMonitoringSubscriber implements EventSubscriberInterface
 {
-    
     public function __construct(
-        private readonly PerformanceMonitoringService $performanceMonitoring
-    ) {}
-    
-    /**
-     * {@inheritdoc}
-     */
+        private readonly PerformanceMonitoringService $performanceMonitoring,
+    ) {
+    }
+
     public static function getSubscribedEvents(): array
     {
         return [
@@ -27,21 +26,20 @@ class PerformanceMonitoringSubscriber implements EventSubscriberInterface
             KernelEvents::RESPONSE => ['onKernelResponse', -256], // Low priority to end as late as possible
         ];
     }
-    
+
     /**
-     * Handle request event
+     * Handle request event.
      */
     public function onKernelRequest(RequestEvent $event): void
     {
         $this->performanceMonitoring->onKernelRequest($event);
     }
-    
+
     /**
-     * Handle response event
+     * Handle response event.
      */
     public function onKernelResponse(ResponseEvent $event): void
     {
         $this->performanceMonitoring->onKernelResponse($event);
     }
-    
 }

@@ -1,21 +1,23 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace AdvancedWishlist\Tests\Integration;
 
-use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Uuid\Uuid;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use AdvancedWishlist\Core\Content\Wishlist\Event\WishlistCreatedEvent;
 use AdvancedWishlist\Core\Content\Wishlist\Event\WishlistDeletedEvent;
 use AdvancedWishlist\Core\Content\Wishlist\Event\WishlistItemAddedEvent;
 use AdvancedWishlist\Core\Content\Wishlist\WishlistEntity;
 use AdvancedWishlist\Core\Service\WishlistService;
-use AdvancedWishlist\Tests\Fixtures\WishlistFixtures;
 use AdvancedWishlist\Tests\Factory\WishlistFactory;
 use AdvancedWishlist\Tests\Factory\WishlistItemFactory;
+use AdvancedWishlist\Tests\Fixtures\WishlistFixtures;
 use AdvancedWishlist\Tests\Utilities\WishlistTestTrait;
+use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class WishlistEventTest extends TestCase
 {
@@ -51,6 +53,7 @@ class WishlistEventTest extends TestCase
                 $this->assertInstanceOf(WishlistCreatedEvent::class, $event);
                 $this->assertInstanceOf(WishlistEntity::class, $event->getWishlist());
                 $this->assertEquals('Test Event Wishlist', $event->getWishlist()->getName());
+
                 return $event;
             });
 
@@ -86,6 +89,7 @@ class WishlistEventTest extends TestCase
                 $this->assertInstanceOf(WishlistItemAddedEvent::class, $event);
                 $this->assertEquals($wishlistId, $event->getWishlistId());
                 $this->assertEquals($productId, $event->getProductId());
+
                 return $event;
             });
 
@@ -121,6 +125,7 @@ class WishlistEventTest extends TestCase
             ->willReturnCallback(function ($event) use ($wishlistId) {
                 $this->assertInstanceOf(WishlistDeletedEvent::class, $event);
                 $this->assertEquals($wishlistId, $event->getWishlistId());
+
                 return $event;
             });
 

@@ -1,8 +1,9 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace AdvancedWishlist\Service;
 
-use AdvancedWishlist\Core\Content\Wishlist\Aggregate\WishlistShare\WishlistShareDefinition;
 use AdvancedWishlist\Core\Content\Wishlist\Aggregate\WishlistShare\WishlistShareEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -16,9 +17,8 @@ class ShareService
 
     public function __construct(
         EntityRepository $wishlistShareRepository,
-        EncryptionService $encryptionService
-    )
-    {
+        EncryptionService $encryptionService,
+    ) {
         $this->wishlistShareRepository = $wishlistShareRepository;
         $this->encryptionService = $encryptionService;
     }

@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace AdvancedWishlist\Migration;
 
@@ -96,8 +98,6 @@ class Migration1700000000CreateWishlistTables extends MigrationStep
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         SQL;
         $connection->executeStatement($sql);
-
-        
     }
 
     private function createWishlistShareTable(Connection $connection): void
@@ -342,8 +342,6 @@ class Migration1700000000CreateWishlistTables extends MigrationStep
 
     private function createViews(Connection $connection): void
     {
-        
-
         $sql = <<<SQL
         DROP TABLE IF EXISTS `mv_wishlist_conversion_stats`;
         CREATE TABLE `mv_wishlist_conversion_stats` (

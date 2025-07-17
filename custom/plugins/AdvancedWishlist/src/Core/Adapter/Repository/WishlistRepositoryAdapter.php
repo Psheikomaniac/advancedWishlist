@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace AdvancedWishlist\Core\Adapter\Repository;
 
@@ -14,17 +16,18 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 /**
  * Adapter for wishlist repository operations
  * Implements the WishlistRepositoryInterface using Shopware's EntityRepository
- * Part of the hexagonal architecture implementation
+ * Part of the hexagonal architecture implementation.
  */
 class WishlistRepositoryAdapter implements WishlistRepositoryInterface
 {
     public function __construct(
         #[Autowire(service: 'wishlist.repository')]
-        private readonly EntityRepository $repository
-    ) {}
+        private readonly EntityRepository $repository,
+    ) {
+    }
 
     /**
-     * Find a wishlist by ID
+     * Find a wishlist by ID.
      */
     public function find(string $id, Context $context): ?WishlistEntity
     {
@@ -33,44 +36,44 @@ class WishlistRepositoryAdapter implements WishlistRepositoryInterface
         $criteria->addAssociation('items.product.prices');
         $criteria->addAssociation('customer');
         $criteria->addAssociation('shareInfo');
-        
+
         return $this->repository->search($criteria, $context)->first();
     }
-    
+
     /**
-     * Search for wishlists using criteria
+     * Search for wishlists using criteria.
      */
     public function search(Criteria $criteria, Context $context): EntitySearchResult
     {
         return $this->repository->search($criteria, $context);
     }
-    
+
     /**
-     * Create a new wishlist
+     * Create a new wishlist.
      */
     public function create(array $data, Context $context): void
     {
         $this->repository->create([$data], $context);
     }
-    
+
     /**
-     * Update an existing wishlist
+     * Update an existing wishlist.
      */
     public function update(array $data, Context $context): void
     {
         $this->repository->update($data, $context);
     }
-    
+
     /**
-     * Delete a wishlist
+     * Delete a wishlist.
      */
     public function delete(array $ids, Context $context): void
     {
         $this->repository->delete($ids, $context);
     }
-    
+
     /**
-     * Count wishlists for a customer
+     * Count wishlists for a customer.
      */
     public function countForCustomer(string $customerId, Context $context): int
     {
@@ -78,12 +81,12 @@ class WishlistRepositoryAdapter implements WishlistRepositoryInterface
         $criteria->addFilter(new EqualsFilter('customerId', $customerId));
         $criteria->setLimit(1);
         $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
-        
+
         return $this->repository->search($criteria, $context)->getTotal();
     }
-    
+
     /**
-     * Find default wishlist for a customer
+     * Find default wishlist for a customer.
      */
     public function findDefaultForCustomer(string $customerId, Context $context): ?WishlistEntity
     {
@@ -91,28 +94,28 @@ class WishlistRepositoryAdapter implements WishlistRepositoryInterface
         $criteria->addFilter(new EqualsFilter('customerId', $customerId));
         $criteria->addFilter(new EqualsFilter('isDefault', true));
         $criteria->setLimit(1);
-        
+
         return $this->repository->search($criteria, $context)->first();
     }
-    
+
     /**
-     * Begin a transaction
+     * Begin a transaction.
      */
     public function beginTransaction(): void
     {
         $this->repository->beginTransaction();
     }
-    
+
     /**
-     * Commit a transaction
+     * Commit a transaction.
      */
     public function commit(): void
     {
         $this->repository->commit();
     }
-    
+
     /**
-     * Rollback a transaction
+     * Rollback a transaction.
      */
     public function rollback(): void
     {

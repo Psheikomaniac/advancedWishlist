@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace AdvancedWishlist\Core\CQRS\Query\Wishlist;
 
@@ -6,17 +8,17 @@ use JsonSerializable;
 
 /**
  * Response model for the GetWishlistsQuery
- * Contains the wishlists and pagination information
+ * Contains the wishlists and pagination information.
  */
-final readonly class GetWishlistsQueryResponse implements JsonSerializable
+final readonly class GetWishlistsQueryResponse implements \JsonSerializable
 {
     /**
-     * @param int $total Total number of wishlists
-     * @param int $page Current page number
-     * @param int $limit Items per page
-     * @param int $pages Total number of pages
-     * @param array $wishlists Array of wishlist data
-     * @param string|null $error Error message if any
+     * @param int         $total     Total number of wishlists
+     * @param int         $page      Current page number
+     * @param int         $limit     Items per page
+     * @param int         $pages     Total number of pages
+     * @param array       $wishlists Array of wishlist data
+     * @param string|null $error     Error message if any
      */
     public function __construct(
         public int $total,
@@ -24,11 +26,12 @@ final readonly class GetWishlistsQueryResponse implements JsonSerializable
         public int $limit,
         public int $pages,
         public array $wishlists,
-        public ?string $error = null
-    ) {}
+        public ?string $error = null,
+    ) {
+    }
 
     /**
-     * Create a response from an error
+     * Create a response from an error.
      */
     public static function fromError(string $error, int $limit = 10): self
     {
@@ -43,7 +46,7 @@ final readonly class GetWishlistsQueryResponse implements JsonSerializable
     }
 
     /**
-     * Implement JsonSerializable interface
+     * Implement JsonSerializable interface.
      */
     public function jsonSerialize(): array
     {

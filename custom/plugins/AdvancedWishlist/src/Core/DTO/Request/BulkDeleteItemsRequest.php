@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace AdvancedWishlist\Core\DTO\Request;
 
@@ -9,11 +11,11 @@ class BulkDeleteItemsRequest extends AbstractRequestDTO
     #[Assert\Uuid]
     #[Assert\NotBlank]
     private string $wishlistId;
-    
+
     #[Assert\Type('array')]
     #[Assert\Count(min: 1, max: 100)]
     #[Assert\All([
-        new Assert\Uuid()
+        new Assert\Uuid(),
     ])]
     private array $itemIds;
 

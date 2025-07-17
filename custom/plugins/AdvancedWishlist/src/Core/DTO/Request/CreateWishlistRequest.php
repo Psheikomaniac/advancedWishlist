@@ -1,9 +1,11 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace AdvancedWishlist\Core\DTO\Request;
 
-use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[MapRequestPayload]
 class CreateWishlistRequest extends AbstractRequestDTO

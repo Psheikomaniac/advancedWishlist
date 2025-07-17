@@ -1,10 +1,12 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace AdvancedWishlist\Core\Service;
 
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Cookie;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 class GuestIdentifierService
 {
@@ -14,11 +16,12 @@ class GuestIdentifierService
 
     public function __construct(
         private RequestStack $requestStack,
-        private string $secret
-    ) {}
+        private string $secret,
+    ) {
+    }
 
     /**
-     * Get or create guest identifier
+     * Get or create guest identifier.
      */
     public function getOrCreateGuestId(SalesChannelContext $context): string
     {
@@ -37,7 +40,7 @@ class GuestIdentifierService
     }
 
     /**
-     * Generate unique guest identifier
+     * Generate unique guest identifier.
      */
     private function generateGuestId(SalesChannelContext $context): string
     {
@@ -55,12 +58,12 @@ class GuestIdentifierService
     }
 
     /**
-     * Validate guest ID format and signature
+     * Validate guest ID format and signature.
      */
     private function validateGuestId(string $guestId): bool
     {
         // Check length
-        if (strlen($guestId) !== self::ID_LENGTH) {
+        if (self::ID_LENGTH !== strlen($guestId)) {
             return false;
         }
 
@@ -73,7 +76,7 @@ class GuestIdentifierService
     }
 
     /**
-     * Get guest ID from cookie
+     * Get guest ID from cookie.
      */
     public function getGuestIdFromCookie(): ?string
     {
@@ -87,7 +90,7 @@ class GuestIdentifierService
     }
 
     /**
-     * Set guest ID cookie
+     * Set guest ID cookie.
      */
     private function setGuestIdCookie(string $guestId): void
     {
@@ -109,7 +112,7 @@ class GuestIdentifierService
     }
 
     /**
-     * Clear guest ID cookie
+     * Clear guest ID cookie.
      */
     public function clearGuestIdCookie(): void
     {

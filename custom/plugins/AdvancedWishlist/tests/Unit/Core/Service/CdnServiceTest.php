@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace AdvancedWishlist\Tests\Unit\Core\Service;
 
@@ -8,7 +10,7 @@ use Psr\Log\LoggerInterface;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 /**
- * Unit tests for the CdnService class
+ * Unit tests for the CdnService class.
  */
 class CdnServiceTest extends TestCase
 {

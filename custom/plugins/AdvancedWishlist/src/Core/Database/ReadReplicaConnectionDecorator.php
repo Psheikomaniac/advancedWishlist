@@ -1,15 +1,17 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace AdvancedWishlist\Core\Database;
 
+use Doctrine\DBAL\Cache\QueryCacheProfile;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Result;
-use Doctrine\DBAL\Cache\QueryCacheProfile;
 use Psr\Log\LoggerInterface;
 
 /**
- * Connection factory for database read replicas
- * 
+ * Connection factory for database read replicas.
+ *
  * This class provides a factory for creating database connections that route read queries
  * to a read replica and write queries to the master database.
  */
@@ -36,14 +38,14 @@ class ReadReplicaConnectionDecorator
     private bool $useReplica = true;
 
     /**
-     * @param Connection $masterConnection The master connection for write operations
-     * @param Connection $replicaConnection The replica connection for read operations
-     * @param LoggerInterface $logger Logger for logging connection usage
+     * @param Connection      $masterConnection  The master connection for write operations
+     * @param Connection      $replicaConnection The replica connection for read operations
+     * @param LoggerInterface $logger            Logger for logging connection usage
      */
     public function __construct(
         Connection $masterConnection,
         Connection $replicaConnection,
-        LoggerInterface $logger
+        LoggerInterface $logger,
     ) {
         $this->masterConnection = $masterConnection;
         $this->replicaConnection = $replicaConnection;
@@ -51,7 +53,7 @@ class ReadReplicaConnectionDecorator
     }
 
     /**
-     * Enable or disable the use of the replica
+     * Enable or disable the use of the replica.
      */
     public function setUseReplica(bool $useReplica): void
     {
@@ -59,28 +61,32 @@ class ReadReplicaConnectionDecorator
     }
 
     /**
-     * Get the appropriate connection for the given operation
-     * 
+     * Get the appropriate connection for the given operation.
+     *
      * @param bool $isReadOperation Whether the operation is a read operation
+     *
      * @return Connection The appropriate connection
      */
     public function getConnection(bool $isReadOperation = true): Connection
     {
         if ($isReadOperation && $this->useReplica) {
             $this->logger->debug('Using read replica connection');
+
             return $this->replicaConnection;
         }
 
         $this->logger->debug('Using master connection');
+
         return $this->masterConnection;
     }
 
     /**
-     * Execute a query and return the result
-     * 
-     * @param string $sql The SQL query
-     * @param array $params The query parameters
-     * @param array $types The parameter types
+     * Execute a query and return the result.
+     *
+     * @param string $sql    The SQL query
+     * @param array  $params The query parameters
+     * @param array  $types  The parameter types
+     *
      * @return Result The query result
      */
     public function executeQuery(string $sql, array $params = [], array $types = [], ?QueryCacheProfile $qcp = null): Result
@@ -92,11 +98,12 @@ class ReadReplicaConnectionDecorator
     }
 
     /**
-     * Execute a statement and return the number of affected rows
-     * 
-     * @param string $sql The SQL statement
-     * @param array $params The statement parameters
-     * @param array $types The parameter types
+     * Execute a statement and return the number of affected rows.
+     *
+     * @param string $sql    The SQL statement
+     * @param array  $params The statement parameters
+     * @param array  $types  The parameter types
+     *
      * @return int The number of affected rows
      */
     public function executeStatement(string $sql, array $params = [], array $types = []): int
@@ -106,9 +113,10 @@ class ReadReplicaConnectionDecorator
     }
 
     /**
-     * Determine if the given SQL is a read operation
-     * 
+     * Determine if the given SQL is a read operation.
+     *
      * @param string $sql The SQL to check
+     *
      * @return bool Whether the SQL is a read operation
      */
     private function isReadOperation(string $sql): bool

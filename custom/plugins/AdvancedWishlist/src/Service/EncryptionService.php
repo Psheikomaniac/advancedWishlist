@@ -1,11 +1,13 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace AdvancedWishlist\Service;
 
 use Defuse\Crypto\Crypto;
-use Defuse\Crypto\Key;
 use Defuse\Crypto\Exception\EnvironmentIsBrokenException;
 use Defuse\Crypto\Exception\WrongKeyOrModifiedCiphertextException;
+use Defuse\Crypto\Key;
 
 class EncryptionService
 {
@@ -13,6 +15,7 @@ class EncryptionService
 
     /**
      * @param string $encryptionKeyString The encryption key as a string
+     *
      * @throws EnvironmentIsBrokenException If the cryptographic environment is broken
      */
     public function __construct(string $encryptionKeyString)
@@ -21,10 +24,12 @@ class EncryptionService
     }
 
     /**
-     * Encrypts data using authenticated encryption
+     * Encrypts data using authenticated encryption.
      *
      * @param string $data The data to encrypt
+     *
      * @return string The encrypted data
+     *
      * @throws EnvironmentIsBrokenException If the cryptographic environment is broken
      */
     public function encrypt(string $data): string
@@ -33,11 +38,13 @@ class EncryptionService
     }
 
     /**
-     * Decrypts data that was encrypted using the encrypt() method
+     * Decrypts data that was encrypted using the encrypt() method.
      *
      * @param string $encryptedData The encrypted data
+     *
      * @return string The decrypted data
-     * @throws EnvironmentIsBrokenException If the cryptographic environment is broken
+     *
+     * @throws EnvironmentIsBrokenException          If the cryptographic environment is broken
      * @throws WrongKeyOrModifiedCiphertextException If the ciphertext has been modified or the wrong key was used
      */
     public function decrypt(string $encryptedData): string
@@ -46,9 +53,10 @@ class EncryptionService
     }
 
     /**
-     * Generates a new encryption key
+     * Generates a new encryption key.
      *
      * @return string The new encryption key as a string
+     *
      * @throws EnvironmentIsBrokenException If the cryptographic environment is broken
      */
     public static function generateEncryptionKey(): string
@@ -57,7 +65,7 @@ class EncryptionService
     }
 
     /**
-     * Generates a random token for sharing
+     * Generates a random token for sharing.
      *
      * @return string The generated token
      */

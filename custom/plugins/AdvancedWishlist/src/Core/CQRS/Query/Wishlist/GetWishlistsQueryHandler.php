@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace AdvancedWishlist\Core\CQRS\Query\Wishlist;
 
@@ -10,7 +12,7 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 /**
  * Handler for the GetWishlistsQuery
- * Retrieves wishlists for a customer with pagination, sorting, and filtering
+ * Retrieves wishlists for a customer with pagination, sorting, and filtering.
  */
 final readonly class GetWishlistsQueryHandler
 {
@@ -18,11 +20,12 @@ final readonly class GetWishlistsQueryHandler
         #[Autowire(service: 'wishlist.repository')]
         private EntityRepository $wishlistRepository,
         private WishlistCacheService $cacheService,
-        private LoggerInterface $logger
-    ) {}
+        private LoggerInterface $logger,
+    ) {
+    }
 
     /**
-     * Handle the query and return the response
+     * Handle the query and return the response.
      */
     public function __invoke(GetWishlistsQuery $query): GetWishlistsQueryResponse
     {
@@ -30,11 +33,11 @@ final readonly class GetWishlistsQueryHandler
         $startTime = microtime(true);
 
         // Generate cache key based on customer ID and criteria
-        $cacheKey = "customer_wishlists_{$query->customerId}_" . $this->generateCriteriaHash($query->criteria);
+        $cacheKey = "customer_wishlists_{$query->customerId}_".$this->generateCriteriaHash($query->criteria);
 
         try {
             // Try to get from cache first
-            return $this->cacheService->get($cacheKey, function() use ($query, $startTime) {
+            return $this->cacheService->get($cacheKey, function () use ($query, $startTime) {
                 // Add customer filter
                 $query->criteria->addFilter(new EqualsFilter('customerId', $query->customerId));
 
@@ -57,13 +60,13 @@ final readonly class GetWishlistsQueryHandler
                         $wishlistData = [];
                         foreach ($query->criteria->getFields() as $field) {
                             // Handle nested fields like 'items.count'
-                            if (strpos($field, 'items.count') !== false) {
+                            if (false !== strpos($field, 'items.count')) {
                                 $wishlistData['itemCount'] = $wishlist->getItems() ? $wishlist->getItems()->count() : 0;
                                 continue;
                             }
 
                             // Handle standard fields
-                            $getter = 'get' . ucfirst($field);
+                            $getter = 'get'.ucfirst($field);
                             if (method_exists($wishlist, $getter)) {
                                 $value = $wishlist->$getter();
                                 // Format dates
@@ -101,12 +104,12 @@ final readonly class GetWishlistsQueryHandler
                         'totalTimeMs' => round($totalTime * 1000, 2),
                         'searchTimeMs' => round($searchTime * 1000, 2),
                         'transformTimeMs' => round($transformTime * 1000, 2),
-                    ]
+                    ],
                 ]);
 
                 // Prepare pagination information
-                $page = (int)($query->criteria->getOffset() / $query->criteria->getLimit() + 1);
-                $pages = (int)ceil($result->getTotal() / $query->criteria->getLimit());
+                $page = (int) ($query->criteria->getOffset() / $query->criteria->getLimit() + 1);
+                $pages = (int) ceil($result->getTotal() / $query->criteria->getLimit());
 
                 return new GetWishlistsQueryResponse(
                     total: $result->getTotal(),
@@ -121,7 +124,7 @@ final readonly class GetWishlistsQueryHandler
             $this->logger->error('Failed to retrieve wishlists', [
                 'customerId' => $query->customerId,
                 'error' => $e->getMessage(),
-                'executionTimeMs' => round((microtime(true) - $startTime) * 1000, 2)
+                'executionTimeMs' => round((microtime(true) - $startTime) * 1000, 2),
             ]);
 
             // Return error response
@@ -133,7 +136,7 @@ final readonly class GetWishlistsQueryHandler
     }
 
     /**
-     * Generate a hash for a criteria object to use as part of a cache key
+     * Generate a hash for a criteria object to use as part of a cache key.
      */
     private function generateCriteriaHash($criteria): string
     {

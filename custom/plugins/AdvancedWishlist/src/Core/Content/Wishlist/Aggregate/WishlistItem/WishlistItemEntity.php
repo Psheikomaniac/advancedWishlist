@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace AdvancedWishlist\Core\Content\Wishlist\Aggregate\WishlistItem;
 
@@ -8,7 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 
 /**
  * Enterprise WishlistItemEntity with PHP 8.4 Property Hooks and Asymmetric Visibility
- * Demonstrates advanced wishlist item management with validation and computed properties
+ * Demonstrates advanced wishlist item management with validation and computed properties.
  */
 class WishlistItemEntity extends Entity
 {
@@ -45,7 +47,7 @@ class WishlistItemEntity extends Entity
     public ?string $note {
         get => $this->_note;
         set {
-            if ($value !== null) {
+            if (null !== $value) {
                 $trimmed = trim($value);
                 if (mb_strlen($trimmed) > 500) {
                     throw new \InvalidArgumentException('Note cannot exceed 500 characters');
@@ -63,7 +65,7 @@ class WishlistItemEntity extends Entity
     public ?int $priority {
         get => $this->_priority;
         set {
-            if ($value !== null && ($value < 1 || $value > 5)) {
+            if (null !== $value && ($value < 1 || $value > 5)) {
                 throw new \InvalidArgumentException('Priority must be between 1 and 5');
             }
             $this->_priority = $value;
@@ -79,7 +81,7 @@ class WishlistItemEntity extends Entity
     public ?float $priceAlertThreshold {
         get => $this->_priceAlertThreshold;
         set {
-            if ($value !== null && $value <= 0) {
+            if (null !== $value && $value <= 0) {
                 throw new \InvalidArgumentException('Price alert threshold must be greater than 0');
             }
             $this->_priceAlertThreshold = $value;
@@ -106,6 +108,7 @@ class WishlistItemEntity extends Entity
                 return null;
             }
             $currentPrice = $this->product->getPrice()->getGross();
+
             return max(0, $this->priceAtAddition - $currentPrice);
         }
     }
@@ -116,6 +119,7 @@ class WishlistItemEntity extends Entity
             if (!$this->priceAtAddition || !$this->priceDrop) {
                 return null;
             }
+
             return round(($this->priceDrop / $this->priceAtAddition) * 100, 2);
         }
     }
@@ -126,6 +130,7 @@ class WishlistItemEntity extends Entity
             if (!$this->priceAlertActive || !$this->priceAlertThreshold || !$this->product?->getPrice()) {
                 return false;
             }
+
             return $this->product->getPrice()->getGross() <= $this->priceAlertThreshold;
         }
     }
@@ -136,6 +141,7 @@ class WishlistItemEntity extends Entity
             if (!$this->product?->getPrice()) {
                 return 0.0;
             }
+
             return round($this->quantity * $this->product->getPrice()->getGross(), 2);
         }
     }
@@ -144,11 +150,11 @@ class WishlistItemEntity extends Entity
     public string $priorityDisplay {
         get => match ($this->priority) {
             1 => 'Very Low',
-            2 => 'Low', 
+            2 => 'Low',
             3 => 'Medium',
             4 => 'High',
             5 => 'Very High',
-            default => 'No Priority'
+            default => 'No Priority',
         };
     }
 
@@ -173,7 +179,7 @@ class WishlistItemEntity extends Entity
     public function setProduct(?ProductEntity $product): void
     {
         $this->product = $product;
-        
+
         // Auto-capture price when product is set for the first time
         if ($product && !$this->priceAtAddition && $product->getPrice()) {
             $this->priceAtAddition = $product->getPrice()->getGross();
@@ -191,14 +197,14 @@ class WishlistItemEntity extends Entity
     }
 
     /**
-     * Factory method for creating new wishlist items
+     * Factory method for creating new wishlist items.
      */
     public static function create(
         string $id,
         string $wishlistId,
         string $productId,
         string $productVersionId,
-        int $quantity = 1
+        int $quantity = 1,
     ): self {
         $item = new self();
         $item->id = $id;
@@ -208,48 +214,48 @@ class WishlistItemEntity extends Entity
         $item->quantity = $quantity;
         $item->createdAt = new \DateTime();
         $item->updatedAt = new \DateTime();
-        
+
         return $item;
     }
 
     /**
-     * Check if this item qualifies for any discounts or promotions
+     * Check if this item qualifies for any discounts or promotions.
      */
     public function checkPromotionEligibility(): array
     {
         $promotions = [];
-        
+
         // Price drop promotion
         if ($this->priceDropPercentage && $this->priceDropPercentage >= 10) {
             $promotions[] = [
                 'type' => 'price_drop',
                 'discount' => $this->priceDropPercentage,
-                'message' => "Price dropped by {$this->priceDropPercentage}%!"
+                'message' => "Price dropped by {$this->priceDropPercentage}%!",
             ];
         }
-        
+
         // Quantity discount
         if ($this->quantity >= 5) {
             $promotions[] = [
                 'type' => 'bulk_discount',
                 'quantity' => $this->quantity,
-                'message' => 'Eligible for bulk discount!'
+                'message' => 'Eligible for bulk discount!',
             ];
         }
-        
+
         // High priority item
-        if ($this->priority === 5) {
+        if (5 === $this->priority) {
             $promotions[] = [
                 'type' => 'priority_item',
-                'message' => 'High priority item - consider purchasing soon!'
+                'message' => 'High priority item - consider purchasing soon!',
             ];
         }
-        
+
         return $promotions;
     }
 
     /**
-     * Generate analytics data for this item
+     * Generate analytics data for this item.
      */
     public function getAnalyticsData(): array
     {
@@ -272,13 +278,13 @@ class WishlistItemEntity extends Entity
     }
 
     /**
-     * Update quantity with business logic
+     * Update quantity with business logic.
      */
     public function updateQuantity(int $newQuantity): void
     {
         $oldQuantity = $this->quantity;
         $this->quantity = $newQuantity; // Uses property hook validation
-        
+
         // Log quantity change for analytics
         if ($oldQuantity !== $newQuantity) {
             $this->customFields = array_merge($this->customFields ?? [], [
@@ -286,13 +292,13 @@ class WishlistItemEntity extends Entity
                     'old' => $oldQuantity,
                     'new' => $newQuantity,
                     'changed_at' => (new \DateTime())->format('Y-m-d H:i:s'),
-                ]
+                ],
             ]);
         }
     }
 
     /**
-     * Activate price alert with automatic threshold setting
+     * Activate price alert with automatic threshold setting.
      */
     public function activatePriceAlert(?float $threshold = null): void
     {
@@ -303,12 +309,12 @@ class WishlistItemEntity extends Entity
             $currentPrice = $this->product->getPrice()->getGross();
             $this->priceAlertThreshold = round($currentPrice * 0.9, 2);
         }
-        
+
         $this->priceAlertActive = true;
     }
 
     /**
-     * Convert to array for API responses (with virtual properties)
+     * Convert to array for API responses (with virtual properties).
      */
     public function toApiArray(): array
     {

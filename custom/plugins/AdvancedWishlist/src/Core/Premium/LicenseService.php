@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace AdvancedWishlist\Core\Premium;
 
@@ -7,39 +9,40 @@ use Psr\Log\LoggerInterface;
 
 /**
  * Enterprise License Service for Premium Features
- * Manages licensing, feature gates, and premium functionality
+ * Manages licensing, feature gates, and premium functionality.
  */
 class LicenseService
 {
     public function __construct(
         private CacheItemPoolInterface $cache,
-        private LoggerInterface $logger
-    ) {}
+        private LoggerInterface $logger,
+    ) {
+    }
 
     /**
-     * Check if license is valid for premium features
+     * Check if license is valid for premium features.
      */
     public function isLicenseValid(): bool
     {
         $cacheKey = 'license_status';
         $item = $this->cache->getItem($cacheKey);
-        
+
         if ($item->isHit()) {
             return $item->get();
         }
 
         // In a real implementation, this would validate against a license server
         $isValid = $this->validateLicense();
-        
+
         $item->set($isValid);
         $item->expiresAfter(3600); // Cache for 1 hour
         $this->cache->save($item);
-        
+
         return $isValid;
     }
 
     /**
-     * Get available premium features based on license
+     * Get available premium features based on license.
      */
     public function getAvailableFeatures(): array
     {
@@ -62,7 +65,7 @@ class LicenseService
     }
 
     /**
-     * Get free tier features
+     * Get free tier features.
      */
     private function getFreeTierFeatures(): array
     {
@@ -75,7 +78,7 @@ class LicenseService
     }
 
     /**
-     * Validate license (placeholder implementation)
+     * Validate license (placeholder implementation).
      */
     private function validateLicense(): bool
     {
@@ -84,7 +87,7 @@ class LicenseService
         // 2. Validating domain/installation
         // 3. Checking expiration dates
         // 4. Verifying usage limits
-        
+
         return true; // For demo purposes
     }
 }

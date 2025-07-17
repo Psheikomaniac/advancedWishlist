@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace AdvancedWishlist\Core\Content\GuestWishlistMergeLog;
 
@@ -6,7 +8,6 @@ use AdvancedWishlist\Core\Content\GuestWishlist\GuestWishlistDefinition;
 use AdvancedWishlist\Core\Content\Wishlist\WishlistDefinition;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
@@ -53,7 +54,7 @@ class GuestWishlistMergeLogDefinition extends EntityDefinition
 
             new ManyToOneAssociationField('guestWishlist', 'guest_wishlist_id', GuestWishlistDefinition::class, 'id', false),
             new ManyToOneAssociationField('customerWishlist', 'customer_wishlist_id', WishlistDefinition::class, 'id', false),
-            new ManyToOneAssociationField('customer', 'customer_id', CustomerDefinition::class, 'id', false)
+            new ManyToOneAssociationField('customer', 'customer_id', CustomerDefinition::class, 'id', false),
         ]);
     }
 }

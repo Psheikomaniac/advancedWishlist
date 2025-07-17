@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace AdvancedWishlist\Tests\Unit\Core\CQRS\Query;
 
@@ -9,7 +11,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 
 /**
- * Unit tests for the QueryBus class
+ * Unit tests for the QueryBus class.
  */
 class QueryBusTest extends TestCase
 {
@@ -40,12 +42,12 @@ class QueryBusTest extends TestCase
         // Configure the container to return the handler
         $this->container->expects($this->once())
             ->method('has')
-            ->with($queryClass . 'Handler')
+            ->with($queryClass.'Handler')
             ->willReturn(true);
 
         $this->container->expects($this->once())
             ->method('get')
-            ->with($queryClass . 'Handler')
+            ->with($queryClass.'Handler')
             ->willReturn($handler);
 
         // Dispatch the query
@@ -66,12 +68,12 @@ class QueryBusTest extends TestCase
         // Configure the container to not have the handler
         $this->container->expects($this->once())
             ->method('has')
-            ->with($queryClass . 'Handler')
+            ->with($queryClass.'Handler')
             ->willReturn(false);
 
         // Expect an exception
         $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('No handler found for query ' . $queryClass);
+        $this->expectExceptionMessage('No handler found for query '.$queryClass);
 
         // Dispatch the query
         $this->queryBus->dispatch($query);
@@ -91,17 +93,17 @@ class QueryBusTest extends TestCase
         // Configure the container to return the handler
         $this->container->expects($this->once())
             ->method('has')
-            ->with($queryClass . 'Handler')
+            ->with($queryClass.'Handler')
             ->willReturn(true);
 
         $this->container->expects($this->once())
             ->method('get')
-            ->with($queryClass . 'Handler')
+            ->with($queryClass.'Handler')
             ->willReturn($handler);
 
         // Expect an exception
         $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('Handler stdClass must implement ' . QueryHandlerInterface::class);
+        $this->expectExceptionMessage('Handler stdClass must implement '.QueryHandlerInterface::class);
 
         // Dispatch the query
         $this->queryBus->dispatch($query);

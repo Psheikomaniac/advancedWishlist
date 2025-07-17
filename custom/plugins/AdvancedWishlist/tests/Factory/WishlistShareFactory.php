@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace AdvancedWishlist\Tests\Factory;
 
@@ -10,20 +12,21 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * Factory for creating test wishlist share entities
+ * Factory for creating test wishlist share entities.
  */
 class WishlistShareFactory extends TestEntityFactory
 {
     public function __construct(
-        private EntityRepository $wishlistShareRepository
-    ) {}
+        private EntityRepository $wishlistShareRepository,
+    ) {
+    }
 
     /**
-     * Create a wishlist share with the given data
+     * Create a wishlist share with the given data.
      */
     public function createWishlistShare(
         array $data,
-        Context $context
+        Context $context,
     ): string {
         $defaults = [
             'token' => bin2hex(random_bytes(32)),
@@ -40,12 +43,12 @@ class WishlistShareFactory extends TestEntityFactory
     }
 
     /**
-     * Create a wishlist share with expiration
+     * Create a wishlist share with expiration.
      */
     public function createWishlistShareWithExpiration(
         string $wishlistId,
         \DateTimeInterface $expiresAt,
-        Context $context
+        Context $context,
     ): string {
         return $this->createWishlistShare([
             'wishlistId' => $wishlistId,
@@ -54,12 +57,12 @@ class WishlistShareFactory extends TestEntityFactory
     }
 
     /**
-     * Create a password-protected wishlist share
+     * Create a password-protected wishlist share.
      */
     public function createPasswordProtectedShare(
         string $wishlistId,
         string $password,
-        Context $context
+        Context $context,
     ): string {
         return $this->createWishlistShare([
             'wishlistId' => $wishlistId,
@@ -68,34 +71,34 @@ class WishlistShareFactory extends TestEntityFactory
     }
 
     /**
-     * Get a wishlist share by ID
+     * Get a wishlist share by ID.
      */
     public function getWishlistShare(
         string $id,
         Context $context,
-        array $associations = ['wishlist']
+        array $associations = ['wishlist'],
     ): ?WishlistShareEntity {
         return parent::get($this->wishlistShareRepository, $id, $context, $associations);
     }
 
     /**
-     * Find a wishlist share by token
+     * Find a wishlist share by token.
      */
     public function findByToken(
         string $token,
         Context $context,
-        array $associations = ['wishlist']
+        array $associations = ['wishlist'],
     ): ?WishlistShareEntity {
         return parent::findOneBy($this->wishlistShareRepository, 'token', $token, $context, $associations);
     }
 
     /**
-     * Find wishlist shares by wishlist ID
+     * Find wishlist shares by wishlist ID.
      */
     public function findByWishlist(
         string $wishlistId,
         Context $context,
-        array $associations = ['wishlist']
+        array $associations = ['wishlist'],
     ): array {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('wishlistId', $wishlistId));
@@ -108,17 +111,17 @@ class WishlistShareFactory extends TestEntityFactory
     }
 
     /**
-     * Delete a wishlist share
+     * Delete a wishlist share.
      */
     public function deleteWishlistShare(
         string $id,
-        Context $context
+        Context $context,
     ): void {
         parent::delete($this->wishlistShareRepository, $id, $context);
     }
 
     /**
-     * Generate random wishlist share data
+     * Generate random wishlist share data.
      */
     public function getRandomData(): array
     {
@@ -128,8 +131,8 @@ class WishlistShareFactory extends TestEntityFactory
             'type' => array_rand(['link' => 1, 'email' => 1, 'social' => 1]),
             'platform' => random_int(0, 1) ? array_rand(['facebook' => 1, 'twitter' => 1, 'whatsapp' => 1]) : null,
             'active' => (bool) random_int(0, 1),
-            'password' => random_int(0, 1) ? password_hash('password' . Uuid::randomHex(), PASSWORD_DEFAULT) : null,
-            'expiresAt' => random_int(0, 1) ? (new \DateTime())->modify('+' . random_int(1, 30) . ' days')->format('Y-m-d H:i:s') : null,
+            'password' => random_int(0, 1) ? password_hash('password'.Uuid::randomHex(), PASSWORD_DEFAULT) : null,
+            'expiresAt' => random_int(0, 1) ? (new \DateTime())->modify('+'.random_int(1, 30).' days')->format('Y-m-d H:i:s') : null,
             'settings' => [
                 'hidePrices' => (bool) random_int(0, 1),
                 'readOnly' => (bool) random_int(0, 1),
@@ -139,12 +142,13 @@ class WishlistShareFactory extends TestEntityFactory
     }
 
     /**
-     * Generate random wishlist share data for a specific wishlist
+     * Generate random wishlist share data for a specific wishlist.
      */
     public function getRandomDataForWishlist(string $wishlistId): array
     {
         $data = $this->getRandomData();
         $data['wishlistId'] = $wishlistId;
+
         return $data;
     }
 }

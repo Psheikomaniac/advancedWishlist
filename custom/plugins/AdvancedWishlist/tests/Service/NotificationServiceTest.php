@@ -1,18 +1,19 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace AdvancedWishlist\Tests\Service;
 
-use AdvancedWishlist\ScheduledTask\PriceMonitoringTask;
 use AdvancedWishlist\ScheduledTask\PriceMonitoringTaskHandler;
 use AdvancedWishlist\Service\NotificationService;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Psr\Log\LoggerInterface;
 
 class NotificationServiceTest extends TestCase
 {

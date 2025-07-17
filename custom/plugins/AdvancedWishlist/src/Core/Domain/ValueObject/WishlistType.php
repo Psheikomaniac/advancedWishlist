@@ -1,53 +1,55 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace AdvancedWishlist\Core\Domain\ValueObject;
 
 /**
- * Enum representing the type of a wishlist
+ * Enum representing the type of a wishlist.
  */
 enum WishlistType: string
 {
     /**
-     * Private wishlist type - only visible to the owner
+     * Private wishlist type - only visible to the owner.
      */
     case PRIVATE = 'private';
 
     /**
-     * Public wishlist type - visible to everyone
+     * Public wishlist type - visible to everyone.
      */
     case PUBLIC = 'public';
 
     /**
-     * Shared wishlist type - visible to specific users
+     * Shared wishlist type - visible to specific users.
      */
     case SHARED = 'shared';
 
     /**
-     * Check if this is a private wishlist
+     * Check if this is a private wishlist.
      */
     public function isPrivate(): bool
     {
-        return $this === self::PRIVATE;
+        return self::PRIVATE === $this;
     }
 
     /**
-     * Check if this is a public wishlist
+     * Check if this is a public wishlist.
      */
     public function isPublic(): bool
     {
-        return $this === self::PUBLIC;
+        return self::PUBLIC === $this;
     }
 
     /**
-     * Check if this is a shared wishlist
+     * Check if this is a shared wishlist.
      */
     public function isShared(): bool
     {
-        return $this === self::SHARED;
+        return self::SHARED === $this;
     }
 
     /**
-     * Check if this wishlist type allows sharing
+     * Check if this wishlist type allows sharing.
      */
     public function allowsSharing(): bool
     {
@@ -55,7 +57,7 @@ enum WishlistType: string
     }
 
     /**
-     * Get the wishlist type as a string
+     * Get the wishlist type as a string.
      */
     public function toString(): string
     {
@@ -63,8 +65,8 @@ enum WishlistType: string
     }
 
     /**
-     * Get all valid wishlist types as strings
-     * 
+     * Get all valid wishlist types as strings.
+     *
      * @return array<string> Array of valid wishlist types
      */
     public static function getValidTypes(): array
@@ -73,9 +75,10 @@ enum WishlistType: string
     }
 
     /**
-     * Create a wishlist type from a string
-     * 
+     * Create a wishlist type from a string.
+     *
      * @param string $value The wishlist type as a string
+     *
      * @return self|null The wishlist type enum or null if invalid
      */
     public static function fromString(string $value): ?self

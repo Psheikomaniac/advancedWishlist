@@ -1,10 +1,12 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace AdvancedWishlist\Core\Security;
 
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
+use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
@@ -15,8 +17,6 @@ class SecurityMonitoringSubscriber implements EventSubscriberInterface
 
     /**
      * SecurityMonitoringSubscriber constructor.
-     *
-     * @param SecurityMonitoringService $securityMonitoring
      */
     public function __construct(SecurityMonitoringService $securityMonitoring)
     {
@@ -38,8 +38,6 @@ class SecurityMonitoringSubscriber implements EventSubscriberInterface
 
     /**
      * Handle the request event.
-     *
-     * @param RequestEvent $event
      */
     public function onKernelRequest(RequestEvent $event): void
     {
@@ -52,8 +50,6 @@ class SecurityMonitoringSubscriber implements EventSubscriberInterface
 
     /**
      * Handle the exception event.
-     *
-     * @param ExceptionEvent $event
      */
     public function onKernelException(ExceptionEvent $event): void
     {

@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace AdvancedWishlist\Tests\Integration;
 
@@ -12,15 +14,13 @@ use AdvancedWishlist\Core\Service\WishlistItemService;
 use AdvancedWishlist\Tests\Factory\WishlistFactory;
 use AdvancedWishlist\Tests\Factory\WishlistItemFactory;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * Integration tests for WishlistItemService
+ * Integration tests for WishlistItemService.
  */
 class WishlistItemServiceTest extends TestCase
 {
@@ -228,7 +228,7 @@ class WishlistItemServiceTest extends TestCase
     }
 
     /**
-     * Helper method to create a test wishlist
+     * Helper method to create a test wishlist.
      */
     private function createTestWishlist(string $customerId, string $name): string
     {
@@ -239,11 +239,12 @@ class WishlistItemServiceTest extends TestCase
         $request->setIsDefault(false);
 
         $response = $this->wishlistCrudService->createWishlist($request, $this->context);
+
         return $response->getId();
     }
 
     /**
-     * Helper method to create a test product
+     * Helper method to create a test product.
      */
     private function createTestProduct(string $name): string
     {
@@ -251,15 +252,16 @@ class WishlistItemServiceTest extends TestCase
         $data = [
             'id' => $productId,
             'name' => $name,
-            'productNumber' => 'TEST-' . $productId,
+            'productNumber' => 'TEST-'.$productId,
             'stock' => 10,
             'price' => [
-                ['currencyId' => 'b7d2554b0ce847cd82f3ac9bd1c0dfca', 'gross' => 15, 'net' => 10, 'linked' => false]
+                ['currencyId' => 'b7d2554b0ce847cd82f3ac9bd1c0dfca', 'gross' => 15, 'net' => 10, 'linked' => false],
             ],
             'tax' => ['name' => '19%', 'taxRate' => 19],
         ];
 
         $this->productRepository->create([$data], $this->context);
+
         return $productId;
     }
 }

@@ -44,7 +44,7 @@ enum WishlistPermission: string
      */
     public function getLabel(): string
     {
-        return match($this) {
+        return match ($this) {
             self::ADD_PRODUCT => 'Produkte hinzufügen',
             self::REMOVE_PRODUCT => 'Produkte entfernen',
             self::MANAGE_MEMBERS => 'Mitglieder verwalten',
@@ -59,7 +59,7 @@ enum WishlistPermission: string
      */
     public function getDescription(): string
     {
-        return match($this) {
+        return match ($this) {
             self::ADD_PRODUCT => 'Erlaubt das Hinzufügen von Produkten zur Wunschliste',
             self::REMOVE_PRODUCT => 'Erlaubt das Entfernen von Produkten aus der Wunschliste',
             self::MANAGE_MEMBERS => 'Erlaubt die Verwaltung von Teammitgliedern',
@@ -79,7 +79,7 @@ enum WishlistPermission: string
 
     /**
      * Gibt alle Berechtigungen für die Bearbeitung zurück.
-     * 
+     *
      * @return array<self>
      */
     public static function getEditPermissions(): array
@@ -89,7 +89,7 @@ enum WishlistPermission: string
 
     /**
      * Gibt alle verfügbaren Berechtigungen als assoziatives Array zurück.
-     * 
+     *
      * @return array<string, string> Key: Enum-Wert, Value: Label
      */
     public static function getOptions(): array

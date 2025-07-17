@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace AdvancedWishlist\Core\OAuth\Middleware;
 
@@ -25,17 +27,12 @@ class OAuth2Middleware
 
     /**
      * OAuth2Middleware constructor.
-     *
-     * @param OAuth2Service $oauth2Service
-     * @param PsrHttpFactory $psrHttpFactory
-     * @param HttpFoundationFactory $httpFoundationFactory
-     * @param LoggerInterface $logger
      */
     public function __construct(
         OAuth2Service $oauth2Service,
         PsrHttpFactory $psrHttpFactory,
         HttpFoundationFactory $httpFoundationFactory,
-        LoggerInterface $logger
+        LoggerInterface $logger,
     ) {
         $this->oauth2Service = $oauth2Service;
         $this->psrHttpFactory = $psrHttpFactory;
@@ -45,48 +42,45 @@ class OAuth2Middleware
 
     /**
      * Handle the request event.
-     *
-     * @param RequestEvent $event
      */
     public function onKernelRequest(RequestEvent $event): void
     {
         $request = $event->getRequest();
-        
+
         // Only process API routes
         if (!$this->isApiRoute($request)) {
             return;
         }
-        
+
         // Skip excluded routes
         if ($this->isExcludedRoute($request)) {
             return;
         }
-        
+
         try {
             $psr7Request = $this->psrHttpFactory->createRequest($request);
             $psr7Request = $this->oauth2Service->getResourceServer()->validateAuthenticatedRequest($psr7Request);
-            
+
             // Add OAuth2 attributes to the request
             $request->attributes->set('oauth_client_id', $psr7Request->getAttribute('oauth_client_id'));
             $request->attributes->set('oauth_user_id', $psr7Request->getAttribute('oauth_user_id'));
             $request->attributes->set('oauth_scopes', $psr7Request->getAttribute('oauth_scopes'));
-            
         } catch (OAuthServerException $exception) {
-            $this->logger->error('OAuth2 authentication error: ' . $exception->getMessage(), [
+            $this->logger->error('OAuth2 authentication error: '.$exception->getMessage(), [
                 'exception' => $exception,
             ]);
-            
+
             $psr7Response = $this->psrHttpFactory->createResponse(new Response());
             $response = $this->httpFoundationFactory->createResponse(
                 $exception->generateHttpResponse($psr7Response)
             );
-            
+
             $event->setResponse($response);
         } catch (\Exception $exception) {
-            $this->logger->error('OAuth2 authentication error: ' . $exception->getMessage(), [
+            $this->logger->error('OAuth2 authentication error: '.$exception->getMessage(), [
                 'exception' => $exception,
             ]);
-            
+
             $response = new JsonResponse(['error' => 'Server error'], Response::HTTP_INTERNAL_SERVER_ERROR);
             $event->setResponse($response);
         }
@@ -94,25 +88,19 @@ class OAuth2Middleware
 
     /**
      * Check if the request is for an API route.
-     *
-     * @param Request $request
-     * @return bool
      */
     private function isApiRoute(Request $request): bool
     {
-        return strpos($request->getPathInfo(), '/api/') === 0;
+        return 0 === strpos($request->getPathInfo(), '/api/');
     }
 
     /**
      * Check if the route is excluded from OAuth2 authentication.
-     *
-     * @param Request $request
-     * @return bool
      */
     private function isExcludedRoute(Request $request): bool
     {
         $routeName = $request->attributes->get('_route');
-        
+
         return in_array($routeName, $this->excludedRoutes);
     }
 }

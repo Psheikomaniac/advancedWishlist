@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace AdvancedWishlist\Service;
 
@@ -20,7 +22,7 @@ class ShareTokenService
         $iv = openssl_random_pseudo_bytes($ivlen);
         $encrypted = openssl_encrypt($data, $cipher, $this->encryptionKey, 0, $iv);
 
-        return base64_encode($iv . ':' . $encrypted);
+        return base64_encode($iv.':'.$encrypted);
     }
 
     public function decrypt(string $encryptedData): string

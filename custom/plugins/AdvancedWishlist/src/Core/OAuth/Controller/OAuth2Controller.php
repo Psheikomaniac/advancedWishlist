@@ -1,11 +1,11 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace AdvancedWishlist\Core\OAuth\Controller;
 
 use AdvancedWishlist\Core\OAuth\Service\OAuth2Service;
 use League\OAuth2\Server\Exception\OAuthServerException;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Bridge\PsrHttpMessage\Factory\HttpFoundationFactory;
 use Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory;
@@ -25,17 +25,12 @@ class OAuth2Controller
 
     /**
      * OAuth2Controller constructor.
-     *
-     * @param OAuth2Service $oauth2Service
-     * @param PsrHttpFactory $psrHttpFactory
-     * @param HttpFoundationFactory $httpFoundationFactory
-     * @param LoggerInterface $logger
      */
     public function __construct(
         OAuth2Service $oauth2Service,
         PsrHttpFactory $psrHttpFactory,
         HttpFoundationFactory $httpFoundationFactory,
-        LoggerInterface $logger
+        LoggerInterface $logger,
     ) {
         $this->oauth2Service = $oauth2Service;
         $this->psrHttpFactory = $psrHttpFactory;
@@ -59,7 +54,7 @@ class OAuth2Controller
 
             return $this->httpFoundationFactory->createResponse($psr7Response);
         } catch (OAuthServerException $exception) {
-            $this->logger->error('OAuth2 token error: ' . $exception->getMessage(), [
+            $this->logger->error('OAuth2 token error: '.$exception->getMessage(), [
                 'exception' => $exception,
             ]);
 
@@ -67,7 +62,7 @@ class OAuth2Controller
                 $exception->generateHttpResponse($psr7Response)
             );
         } catch (\Exception $exception) {
-            $this->logger->error('OAuth2 token error: ' . $exception->getMessage(), [
+            $this->logger->error('OAuth2 token error: '.$exception->getMessage(), [
                 'exception' => $exception,
             ]);
 
@@ -98,7 +93,7 @@ class OAuth2Controller
                 'Content-Type' => 'application/json',
             ]);
         } catch (OAuthServerException $exception) {
-            $this->logger->error('OAuth2 introspect error: ' . $exception->getMessage(), [
+            $this->logger->error('OAuth2 introspect error: '.$exception->getMessage(), [
                 'exception' => $exception,
             ]);
 
@@ -106,7 +101,7 @@ class OAuth2Controller
                 'Content-Type' => 'application/json',
             ]);
         } catch (\Exception $exception) {
-            $this->logger->error('OAuth2 introspect error: ' . $exception->getMessage(), [
+            $this->logger->error('OAuth2 introspect error: '.$exception->getMessage(), [
                 'exception' => $exception,
             ]);
 

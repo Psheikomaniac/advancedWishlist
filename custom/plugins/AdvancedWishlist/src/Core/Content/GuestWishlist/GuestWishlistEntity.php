@@ -1,11 +1,13 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace AdvancedWishlist\Core\Content\GuestWishlist;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
-use Shopware\Core\System\SalesChannel\SalesChannelEntity;
-use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\Currency\CurrencyEntity;
+use Shopware\Core\System\Language\LanguageEntity;
+use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
 class GuestWishlistEntity extends Entity
 {
@@ -23,7 +25,7 @@ class GuestWishlistEntity extends Entity
     public ?string $name {
         get => $this->name;
         set {
-            if ($value !== null && strlen($value) < 3) {
+            if (null !== $value && strlen($value) < 3) {
                 throw new \InvalidArgumentException('Name must be at least 3 characters long');
             }
             $this->name = $value;

@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace AdvancedWishlist\Core\OAuth\Repository;
 
@@ -7,9 +9,6 @@ use League\OAuth2\Server\Repositories\ClientRepositoryInterface;
 
 class ClientRepository implements ClientRepositoryInterface
 {
-    /**
-     * @var array
-     */
     private array $clients;
 
     /**
@@ -31,19 +30,17 @@ class ClientRepository implements ClientRepositoryInterface
     /**
      * Get a client.
      *
-     * @param string $clientIdentifier The client's identifier
-     * @param string|null $grantType The grant type used
-     * @param string|null $clientSecret The client's secret (if sent)
-     * @param bool $mustValidateSecret If true the client must attempt to validate the secret if the client
-     *                                 is confidential
-     *
-     * @return \League\OAuth2\Server\Entities\ClientEntityInterface|null
+     * @param string      $clientIdentifier   The client's identifier
+     * @param string|null $grantType          The grant type used
+     * @param string|null $clientSecret       The client's secret (if sent)
+     * @param bool        $mustValidateSecret If true the client must attempt to validate the secret if the client
+     *                                        is confidential
      */
     public function getClientEntity(
         $clientIdentifier,
         $grantType = null,
         $clientSecret = null,
-        $mustValidateSecret = true
+        $mustValidateSecret = true,
     ): ?\League\OAuth2\Server\Entities\ClientEntityInterface {
         // Check if client is registered
         if (!array_key_exists($clientIdentifier, $this->clients)) {
@@ -70,11 +67,9 @@ class ClientRepository implements ClientRepositoryInterface
     /**
      * Validate a client's secret.
      *
-     * @param string $clientIdentifier The client's identifier
-     * @param string|null $clientSecret The client's secret
-     * @param string|null $grantType The grant type used
-     *
-     * @return bool
+     * @param string      $clientIdentifier The client's identifier
+     * @param string|null $clientSecret     The client's secret
+     * @param string|null $grantType        The grant type used
      */
     public function validateClient($clientIdentifier, $clientSecret, $grantType = null): bool
     {

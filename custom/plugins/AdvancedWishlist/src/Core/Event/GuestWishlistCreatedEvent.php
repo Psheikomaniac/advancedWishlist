@@ -1,8 +1,9 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace AdvancedWishlist\Core\Event;
 
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -13,7 +14,7 @@ class GuestWishlistCreatedEvent extends Event
     public function __construct(
         private readonly string $wishlistId,
         private readonly string $guestId,
-        private readonly SalesChannelContext $salesChannelContext
+        private readonly SalesChannelContext $salesChannelContext,
     ) {
     }
 

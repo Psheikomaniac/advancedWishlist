@@ -1,33 +1,34 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace AdvancedWishlist\Core\Cache;
 
-use Symfony\Component\Cache\Adapter\TagAwareAdapter;
-use Symfony\Component\Cache\Adapter\RedisAdapter;
-use Symfony\Component\DependencyInjection\Attribute\Autowire;
-use Symfony\Component\DependencyInjection\Attribute\TaggedIterator;
-use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
-use Symfony\Component\DependencyInjection\Attribute\When;
-use Symfony\Component\Cache\Adapter\AdapterInterface;
-use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Psr\Cache\CacheItemPoolInterface;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\Cache\Adapter\ArrayAdapter;
+use Symfony\Component\Cache\Adapter\RedisAdapter;
+use Symfony\Component\Cache\Adapter\TagAwareAdapter;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Component\DependencyInjection\Attribute\TaggedIterator;
+use Symfony\Component\DependencyInjection\Attribute\When;
 
 /**
  * Cache configuration for the AdvancedWishlist plugin
- * Uses attribute-based configuration for Symfony 7 compatibility
+ * Uses attribute-based configuration for Symfony 7 compatibility.
  */
 class CacheConfiguration
 {
     /**
-     * Create a Redis cache adapter for production
+     * Create a Redis cache adapter for production.
      */
     #[AsTaggedItem('cache.adapter', 100)]
     #[When(env: 'prod')]
     public function createProductionCacheAdapter(
         #[Autowire('%env(REDIS_URL)%')] string $redisUrl,
         #[Autowire('%env(int:CACHE_TTL)%')] int $cacheTtl = 3600,
-        LoggerInterface $logger = null
+        ?LoggerInterface $logger = null,
     ): CacheItemPoolInterface {
         $redis = RedisAdapter::createConnection($redisUrl);
 
@@ -42,12 +43,12 @@ class CacheConfiguration
     }
 
     /**
-     * Create a memory cache adapter for development
+     * Create a memory cache adapter for development.
      */
     #[AsTaggedItem('cache.adapter', 50)]
     #[When(env: 'dev')]
     public function createDevelopmentCacheAdapter(
-        LoggerInterface $logger = null
+        ?LoggerInterface $logger = null,
     ): CacheItemPoolInterface {
         // Use in-memory cache for development
         $arrayAdapter = new ArrayAdapter(
@@ -60,13 +61,13 @@ class CacheConfiguration
     }
 
     /**
-     * Create the wishlist cache service
+     * Create the wishlist cache service.
      */
     #[AsTaggedItem('cache.pool', 100)]
     public function createWishlistCache(
-        #[TaggedIterator('cache.adapter', defaultPriorityMethod: 'getPriority')] 
+        #[TaggedIterator('cache.adapter', defaultPriorityMethod: 'getPriority')]
         iterable $adapters,
-        LoggerInterface $logger
+        LoggerInterface $logger,
     ): CacheItemPoolInterface {
         // Get the highest priority adapter
         $adapter = null;

@@ -1,9 +1,11 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace AdvancedWishlist\Core\DTO\Request;
 
-use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[MapRequestPayload]
 class UpdateWishlistRequest extends AbstractRequestDTO
@@ -37,10 +39,10 @@ class UpdateWishlistRequest extends AbstractRequestDTO
 
     public function hasChanges(): bool
     {
-        return $this->name !== null 
-            || $this->description !== null
-            || $this->type !== null
-            || $this->isDefault !== null
+        return null !== $this->name
+            || null !== $this->description
+            || null !== $this->type
+            || null !== $this->isDefault
             || !empty($this->customFields);
     }
 
@@ -48,19 +50,19 @@ class UpdateWishlistRequest extends AbstractRequestDTO
     {
         $data = [];
 
-        if ($this->name !== null) {
+        if (null !== $this->name) {
             $data['name'] = $this->name;
         }
 
-        if ($this->description !== null) {
+        if (null !== $this->description) {
             $data['description'] = $this->description;
         }
 
-        if ($this->type !== null) {
+        if (null !== $this->type) {
             $data['type'] = $this->type;
         }
 
-        if ($this->isDefault !== null) {
+        if (null !== $this->isDefault) {
             $data['isDefault'] = $this->isDefault;
         }
 

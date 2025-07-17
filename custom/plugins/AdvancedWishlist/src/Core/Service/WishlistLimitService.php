@@ -1,14 +1,15 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace AdvancedWishlist\Core\Service;
 
-use AdvancedWishlist\Core\Content\Wishlist\WishlistEntity;
 use AdvancedWishlist\Core\Exception\WishlistLimitExceededException;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Psr\Log\LoggerInterface;
 
 class WishlistLimitService
 {
@@ -20,11 +21,12 @@ class WishlistLimitService
         private EntityRepository $wishlistItemRepository,
         private LoggerInterface $logger,
         private int $maxWishlistsPerCustomer = self::DEFAULT_MAX_WISHLISTS_PER_CUSTOMER,
-        private int $maxItemsPerWishlist = self::DEFAULT_MAX_ITEMS_PER_WISHLIST
-    ) {}
+        private int $maxItemsPerWishlist = self::DEFAULT_MAX_ITEMS_PER_WISHLIST,
+    ) {
+    }
 
     /**
-     * Check if customer has reached the maximum number of wishlists
+     * Check if customer has reached the maximum number of wishlists.
      */
     public function checkCustomerWishlistLimit(string $customerId, Context $context): void
     {
@@ -40,18 +42,12 @@ class WishlistLimitService
                 'current' => $count,
             ]);
 
-            throw new WishlistLimitExceededException(
-                'Maximum number of wishlists reached',
-                [
-                    'limit' => $this->maxWishlistsPerCustomer,
-                    'current' => $count,
-                ]
-            );
+            throw new WishlistLimitExceededException('Maximum number of wishlists reached', ['limit' => $this->maxWishlistsPerCustomer, 'current' => $count]);
         }
     }
 
     /**
-     * Check if wishlist has reached the maximum number of items
+     * Check if wishlist has reached the maximum number of items.
      */
     public function checkWishlistItemLimit(string $wishlistId, Context $context): void
     {
@@ -67,18 +63,12 @@ class WishlistLimitService
                 'current' => $count,
             ]);
 
-            throw new WishlistLimitExceededException(
-                'Maximum number of items in wishlist reached',
-                [
-                    'limit' => $this->maxItemsPerWishlist,
-                    'current' => $count,
-                ]
-            );
+            throw new WishlistLimitExceededException('Maximum number of items in wishlist reached', ['limit' => $this->maxItemsPerWishlist, 'current' => $count]);
         }
     }
 
     /**
-     * Get remaining capacity for a wishlist
+     * Get remaining capacity for a wishlist.
      */
     public function getWishlistRemainingCapacity(string $wishlistId, Context $context): int
     {
@@ -91,7 +81,7 @@ class WishlistLimitService
     }
 
     /**
-     * Get remaining capacity for a customer
+     * Get remaining capacity for a customer.
      */
     public function getCustomerRemainingCapacity(string $customerId, Context $context): int
     {
@@ -104,7 +94,7 @@ class WishlistLimitService
     }
 
     /**
-     * Get limits information
+     * Get limits information.
      */
     public function getLimitsInfo(string $customerId, Context $context): array
     {
@@ -146,7 +136,7 @@ class WishlistLimitService
     }
 
     /**
-     * Set custom limits
+     * Set custom limits.
      */
     public function setLimits(int $maxWishlistsPerCustomer, int $maxItemsPerWishlist): void
     {

@@ -29,7 +29,7 @@ enum WishlistRole: string
      */
     public function getLabel(): string
     {
-        return match($this) {
+        return match ($this) {
             self::OWNER => 'Besitzer',
             self::EDITOR => 'Bearbeiter',
             self::VIEWER => 'Betrachter',
@@ -41,7 +41,7 @@ enum WishlistRole: string
      */
     public function isAdmin(): bool
     {
-        return $this === self::OWNER;
+        return self::OWNER === $this;
     }
 
     /**
@@ -54,12 +54,12 @@ enum WishlistRole: string
 
     /**
      * Gibt die zugehörigen Berechtigungen für die Rolle zurück.
-     * 
+     *
      * @return array<string>
      */
     public function getPermissions(): array
     {
-        return match($this) {
+        return match ($this) {
             self::OWNER => [
                 WishlistPermission::ADD_PRODUCT->value,
                 WishlistPermission::REMOVE_PRODUCT->value,
@@ -83,7 +83,7 @@ enum WishlistRole: string
 
     /**
      * Gibt alle verfügbaren Rollen als assoziatives Array zurück.
-     * 
+     *
      * @return array<string, string> Key: Enum-Wert, Value: Label
      */
     public static function getOptions(): array

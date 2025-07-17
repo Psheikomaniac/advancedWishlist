@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace AdvancedWishlist\Tests;
 
@@ -19,10 +21,10 @@ class WishlistCacheServiceTest extends TestCase
     {
         // Create a tag-aware cache adapter for testing
         $this->cache = new TagAwareAdapter(new ArrayAdapter());
-        
+
         // Create a mock logger
         $this->logger = $this->createMock(LoggerInterface::class);
-        
+
         // Create the cache service
         $this->cacheService = new WishlistCacheService($this->cache, $this->logger);
     }
@@ -31,12 +33,12 @@ class WishlistCacheServiceTest extends TestCase
     {
         // Set a value in the cache
         $this->cacheService->set('test_key', 'test_value');
-        
+
         // Get the value from the cache
-        $value = $this->cacheService->get('test_key', function() {
+        $value = $this->cacheService->get('test_key', function () {
             return 'fallback_value';
         });
-        
+
         // Assert that the value is retrieved from the cache
         $this->assertEquals('test_value', $value);
     }
@@ -50,10 +52,10 @@ class WishlistCacheServiceTest extends TestCase
             5400,           // 1.5 hours for wishlist
             1800            // 30 minutes for default wishlist
         );
-        
+
         // Get cache statistics to verify TTL settings
         $stats = $this->cacheService->getCacheStatistics();
-        
+
         // Assert that the TTL values are set correctly
         $this->assertEquals(7200, $stats['ttlSettings']['default']);
         $this->assertEquals(3600, $stats['ttlSettings']['customer']);
@@ -67,20 +69,20 @@ class WishlistCacheServiceTest extends TestCase
         $initialStats = $this->cacheService->getCacheStatistics();
         $this->assertEquals(0, $initialStats['hits']);
         $this->assertEquals(0, $initialStats['misses']);
-        
+
         // Cache miss - should increment misses
-        $this->cacheService->get('missing_key', function() {
+        $this->cacheService->get('missing_key', function () {
             return 'new_value';
         });
-        
+
         // Cache hit - should increment hits
-        $this->cacheService->get('missing_key', function() {
+        $this->cacheService->get('missing_key', function () {
             return 'should_not_be_called';
         });
-        
+
         // Get updated statistics
         $updatedStats = $this->cacheService->getCacheStatistics();
-        
+
         // Assert that the statistics are updated correctly
         $this->assertEquals(1, $updatedStats['hits']);
         $this->assertEquals(1, $updatedStats['misses']);
@@ -91,22 +93,23 @@ class WishlistCacheServiceTest extends TestCase
     public function testPerformanceMonitoring(): void
     {
         // Perform an operation that is monitored
-        $this->cacheService->get('performance_test', function() {
+        $this->cacheService->get('performance_test', function () {
             // Simulate some work
             usleep(10000); // 10ms
+
             return 'result';
         });
-        
+
         // Get performance metrics
         $metrics = $this->cacheService->getPerformanceMetrics('cache_get_performance_test');
-        
+
         // Assert that metrics are recorded
         $this->assertNotNull($metrics);
         $this->assertArrayHasKey('duration', $metrics);
         $this->assertArrayHasKey('memory', $metrics);
         $this->assertArrayHasKey('startTime', $metrics);
         $this->assertArrayHasKey('endTime', $metrics);
-        
+
         // Duration should be positive
         $this->assertGreaterThan(0, $metrics['duration']);
     }
@@ -116,23 +119,24 @@ class WishlistCacheServiceTest extends TestCase
         // Set up test data
         $wishlistId = 'test-wishlist-123';
         $this->cacheService->cacheWishlist($wishlistId, ['id' => $wishlistId, 'name' => 'Test Wishlist']);
-        
+
         // Verify data is cached
-        $cachedData = $this->cacheService->get("wishlist_{$wishlistId}", function() {
+        $cachedData = $this->cacheService->get("wishlist_{$wishlistId}", function () {
             return null;
         });
         $this->assertNotNull($cachedData);
-        
+
         // Invalidate the cache
         $this->cacheService->invalidateWishlistCache($wishlistId);
-        
+
         // Verify data is no longer cached
         $callbackCalled = false;
-        $this->cacheService->get("wishlist_{$wishlistId}", function() use (&$callbackCalled) {
+        $this->cacheService->get("wishlist_{$wishlistId}", function () use (&$callbackCalled) {
             $callbackCalled = true;
+
             return 'new data';
         });
-        
+
         // Assert that the callback was called (cache miss)
         $this->assertTrue($callbackCalled);
     }
@@ -142,20 +146,21 @@ class WishlistCacheServiceTest extends TestCase
         // Set up test data
         $this->cacheService->set('test_key1', 'test_value1');
         $this->cacheService->set('test_key2', 'test_value2');
-        
+
         // Clear all cache
         $this->cacheService->clearAllCache();
-        
+
         // Verify all data is cleared
         $callbackCalled = false;
-        $this->cacheService->get('test_key1', function() use (&$callbackCalled) {
+        $this->cacheService->get('test_key1', function () use (&$callbackCalled) {
             $callbackCalled = true;
+
             return 'new value';
         });
-        
+
         // Assert that the callback was called (cache miss)
         $this->assertTrue($callbackCalled);
-        
+
         // Statistics should be reset
         $stats = $this->cacheService->getCacheStatistics();
         $this->assertEquals(0, $stats['hits']);

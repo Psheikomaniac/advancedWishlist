@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace AdvancedWishlist\Tests\Integration;
 
@@ -12,13 +14,12 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
- * Integration tests for WishlistCrudService
+ * Integration tests for WishlistCrudService.
  */
 class WishlistCrudServiceTest extends TestCase
 {
@@ -150,7 +151,7 @@ class WishlistCrudServiceTest extends TestCase
     }
 
     /**
-     * Helper method to create a test wishlist
+     * Helper method to create a test wishlist.
      */
     private function createTestWishlist(string $customerId, string $name): string
     {
@@ -161,6 +162,7 @@ class WishlistCrudServiceTest extends TestCase
         $request->setIsDefault(false);
 
         $response = $this->wishlistCrudService->createWishlist($request, $this->context);
+
         return $response->getId();
     }
 }

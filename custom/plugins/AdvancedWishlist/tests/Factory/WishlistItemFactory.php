@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace AdvancedWishlist\Tests\Factory;
 
@@ -10,20 +12,21 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * Factory for creating test wishlist item entities
+ * Factory for creating test wishlist item entities.
  */
 class WishlistItemFactory extends TestEntityFactory
 {
     public function __construct(
-        private EntityRepository $wishlistItemRepository
-    ) {}
+        private EntityRepository $wishlistItemRepository,
+    ) {
+    }
 
     /**
-     * Create a wishlist item with the given data
+     * Create a wishlist item with the given data.
      */
     public function createWishlistItem(
         array $data,
-        Context $context
+        Context $context,
     ): string {
         $defaults = [
             'quantity' => 1,
@@ -38,14 +41,14 @@ class WishlistItemFactory extends TestEntityFactory
     }
 
     /**
-     * Create a wishlist item with price alert
+     * Create a wishlist item with price alert.
      */
     public function createWishlistItemWithPriceAlert(
         string $wishlistId,
         string $productId,
         string $productVersionId,
         float $priceAlertThreshold,
-        Context $context
+        Context $context,
     ): string {
         return $this->createWishlistItem([
             'wishlistId' => $wishlistId,
@@ -57,23 +60,23 @@ class WishlistItemFactory extends TestEntityFactory
     }
 
     /**
-     * Get a wishlist item by ID
+     * Get a wishlist item by ID.
      */
     public function getWishlistItem(
         string $id,
         Context $context,
-        array $associations = ['product', 'wishlist']
+        array $associations = ['product', 'wishlist'],
     ): ?WishlistItemEntity {
         return parent::get($this->wishlistItemRepository, $id, $context, $associations);
     }
 
     /**
-     * Find wishlist items by wishlist ID
+     * Find wishlist items by wishlist ID.
      */
     public function findByWishlist(
         string $wishlistId,
         Context $context,
-        array $associations = ['product', 'wishlist']
+        array $associations = ['product', 'wishlist'],
     ): array {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('wishlistId', $wishlistId));
@@ -86,13 +89,13 @@ class WishlistItemFactory extends TestEntityFactory
     }
 
     /**
-     * Find a wishlist item by product ID and wishlist ID
+     * Find a wishlist item by product ID and wishlist ID.
      */
     public function findByProductAndWishlist(
         string $productId,
         string $wishlistId,
         Context $context,
-        array $associations = ['product', 'wishlist']
+        array $associations = ['product', 'wishlist'],
     ): ?WishlistItemEntity {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('productId', $productId));
@@ -107,17 +110,17 @@ class WishlistItemFactory extends TestEntityFactory
     }
 
     /**
-     * Delete a wishlist item
+     * Delete a wishlist item.
      */
     public function deleteWishlistItem(
         string $id,
-        Context $context
+        Context $context,
     ): void {
         parent::delete($this->wishlistItemRepository, $id, $context);
     }
 
     /**
-     * Generate random wishlist item data
+     * Generate random wishlist item data.
      */
     public function getRandomData(): array
     {
@@ -126,7 +129,7 @@ class WishlistItemFactory extends TestEntityFactory
             'productId' => Uuid::randomHex(),
             'productVersionId' => Uuid::randomHex(),
             'quantity' => random_int(1, 10),
-            'note' => 'Random note ' . Uuid::randomHex(),
+            'note' => 'Random note '.Uuid::randomHex(),
             'priority' => random_int(0, 5),
             'priceAlertThreshold' => random_int(50, 200) / 10,
             'priceAlertActive' => (bool) random_int(0, 1),
@@ -134,17 +137,18 @@ class WishlistItemFactory extends TestEntityFactory
     }
 
     /**
-     * Generate random wishlist item data for a specific wishlist and product
+     * Generate random wishlist item data for a specific wishlist and product.
      */
     public function getRandomDataForWishlistAndProduct(
         string $wishlistId,
         string $productId,
-        string $productVersionId
+        string $productVersionId,
     ): array {
         $data = $this->getRandomData();
         $data['wishlistId'] = $wishlistId;
         $data['productId'] = $productId;
         $data['productVersionId'] = $productVersionId;
+
         return $data;
     }
 }

@@ -1,10 +1,12 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace AdvancedWishlist\Core\Content\WishlistShareView;
 
+use AdvancedWishlist\Core\Content\WishlistShare\WishlistShareEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
-use AdvancedWishlist\Core\Content\WishlistShare\WishlistShareEntity;
 
 class WishlistShareViewEntity extends Entity
 {
@@ -29,7 +31,7 @@ class WishlistShareViewEntity extends Entity
     public ?float $purchaseValue {
         get => $this->purchaseValue;
         set {
-            if ($value !== null && $value < 0) {
+            if (null !== $value && $value < 0) {
                 throw new \InvalidArgumentException('Purchase value cannot be negative');
             }
             $this->purchaseValue = $value;

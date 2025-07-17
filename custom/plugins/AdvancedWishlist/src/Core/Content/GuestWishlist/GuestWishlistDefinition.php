@@ -1,9 +1,10 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace AdvancedWishlist\Core\Content\GuestWishlist;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
@@ -14,9 +15,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
-use Shopware\Core\System\Language\LanguageDefinition;
 use Shopware\Core\System\Currency\CurrencyDefinition;
+use Shopware\Core\System\Language\LanguageDefinition;
+use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
 class GuestWishlistDefinition extends EntityDefinition
 {
@@ -61,7 +62,7 @@ class GuestWishlistDefinition extends EntityDefinition
 
             new ManyToOneAssociationField('salesChannel', 'sales_channel_id', SalesChannelDefinition::class, 'id', false),
             new ManyToOneAssociationField('language', 'language_id', LanguageDefinition::class, 'id', false),
-            new ManyToOneAssociationField('currency', 'currency_id', CurrencyDefinition::class, 'id', false)
+            new ManyToOneAssociationField('currency', 'currency_id', CurrencyDefinition::class, 'id', false),
         ]);
     }
 }

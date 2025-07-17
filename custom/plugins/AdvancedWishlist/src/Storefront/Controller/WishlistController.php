@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace AdvancedWishlist\Storefront\Controller;
 
@@ -22,8 +24,9 @@ class WishlistController extends StorefrontController
 {
     public function __construct(
         private WishlistCrudService $wishlistCrudService,
-        private GetWishlistsQueryHandler $getWishlistsQueryHandler
-    ) {}
+        private GetWishlistsQueryHandler $getWishlistsQueryHandler,
+    ) {
+    }
 
     #[Route('/store-api/wishlist', name: 'store-api.wishlist.list', methods: ['GET'])]
     public function list(Request $request, SalesChannelContext $context): JsonResponse
@@ -72,7 +75,7 @@ class WishlistController extends StorefrontController
         if ($filter) {
             // Parse filter parameter (field:value format)
             $filterParts = explode(':', $filter);
-            if (count($filterParts) === 2) {
+            if (2 === count($filterParts)) {
                 $field = $filterParts[0];
                 $value = $filterParts[1];
 
@@ -104,7 +107,7 @@ class WishlistController extends StorefrontController
             $wishlist = $this->wishlistCrudService->loadWishlist($id, $context->getContext());
 
             // Check if the wishlist belongs to the current customer or is public
-            if ($wishlist->getCustomerId() !== $customerId && $wishlist->getType() !== 'public') {
+            if ($wishlist->getCustomerId() !== $customerId && 'public' !== $wishlist->getType()) {
                 // Check if the wishlist is shared with the customer
                 $isShared = false;
                 if ($wishlist->getShareInfo()) {
@@ -131,9 +134,8 @@ class WishlistController extends StorefrontController
     public function create(
         CreateWishlistRequest $createRequest,
         Request $request,
-        SalesChannelContext $context
-    ): JsonResponse
-    {
+        SalesChannelContext $context,
+    ): JsonResponse {
         $customerId = $context->getCustomer()?->getId();
         if (!$customerId) {
             return new JsonResponse(['errors' => [['code' => 'WISHLIST__UNAUTHORIZED', 'title' => 'Unauthorized', 'detail' => 'Customer not logged in']]], JsonResponse::HTTP_UNAUTHORIZED);
@@ -163,9 +165,8 @@ class WishlistController extends StorefrontController
         string $id,
         UpdateWishlistRequest $updateRequest,
         Request $request,
-        SalesChannelContext $context
-    ): JsonResponse
-    {
+        SalesChannelContext $context,
+    ): JsonResponse {
         $customerId = $context->getCustomer()?->getId();
         if (!$customerId) {
             return new JsonResponse(['errors' => [['code' => 'WISHLIST__UNAUTHORIZED', 'title' => 'Unauthorized', 'detail' => 'Customer not logged in']]], JsonResponse::HTTP_UNAUTHORIZED);

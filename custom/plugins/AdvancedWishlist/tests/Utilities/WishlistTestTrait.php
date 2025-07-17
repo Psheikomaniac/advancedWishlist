@@ -1,20 +1,21 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace AdvancedWishlist\Tests\Utilities;
 
+use AdvancedWishlist\Core\Content\Wishlist\WishlistEntity;
+use AdvancedWishlist\Core\Content\Wishlist\WishlistType;
+use AdvancedWishlist\Tests\Factory\WishlistFactory;
+use AdvancedWishlist\Tests\Factory\WishlistItemFactory;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\Checkout\Customer\CustomerEntity;
-use AdvancedWishlist\Core\Content\Wishlist\WishlistEntity;
-use AdvancedWishlist\Core\Content\Wishlist\WishlistType;
-use AdvancedWishlist\Core\Content\Wishlist\Aggregate\WishlistItem\WishlistItemEntity;
-use AdvancedWishlist\Tests\Factory\WishlistFactory;
-use AdvancedWishlist\Tests\Factory\WishlistItemFactory;
 
 trait WishlistTestTrait
 {
-    protected function createWishlist(array $data = [], Context $context = null): string
+    protected function createWishlist(array $data = [], ?Context $context = null): string
     {
         $context = $context ?? Context::createDefaultContext();
 
@@ -27,10 +28,11 @@ trait WishlistTestTrait
         $data = array_merge($defaults, $data);
 
         $wishlistFactory = $this->getContainer()->get(WishlistFactory::class);
+
         return $wishlistFactory->createWishlist($data, $context);
     }
 
-    protected function createWishlistWithItems(int $itemCount = 2, array $wishlistData = [], Context $context = null): string
+    protected function createWishlistWithItems(int $itemCount = 2, array $wishlistData = [], ?Context $context = null): string
     {
         $context = $context ?? Context::createDefaultContext();
 
@@ -38,7 +40,7 @@ trait WishlistTestTrait
 
         $wishlistItemFactory = $this->getContainer()->get(WishlistItemFactory::class);
 
-        for ($i = 0; $i < $itemCount; $i++) {
+        for ($i = 0; $i < $itemCount; ++$i) {
             $wishlistItemFactory->createWishlistItem([
                 'wishlistId' => $wishlistId,
                 'productId' => Uuid::randomHex(),
@@ -50,21 +52,22 @@ trait WishlistTestTrait
         return $wishlistId;
     }
 
-    protected function getWishlist(string $wishlistId, Context $context = null): ?WishlistEntity
+    protected function getWishlist(string $wishlistId, ?Context $context = null): ?WishlistEntity
     {
         $context = $context ?? Context::createDefaultContext();
 
         $wishlistFactory = $this->getContainer()->get(WishlistFactory::class);
+
         return $wishlistFactory->getWishlist($wishlistId, $context);
     }
 
     protected function assertWishlistEquals(
         WishlistEntity $expected,
         WishlistEntity $actual,
-        array $fields = ['name', 'type', 'customerId']
+        array $fields = ['name', 'type', 'customerId'],
     ): void {
         foreach ($fields as $field) {
-            $getter = 'get' . ucfirst($field);
+            $getter = 'get'.ucfirst($field);
             $this->assertEquals(
                 $expected->$getter(),
                 $actual->$getter(),
@@ -73,11 +76,11 @@ trait WishlistTestTrait
         }
     }
 
-    protected function assertWishlistHasItems(WishlistEntity $wishlist, int $expectedCount = null): void
+    protected function assertWishlistHasItems(WishlistEntity $wishlist, ?int $expectedCount = null): void
     {
         $this->assertNotNull($wishlist->getItems(), 'Wishlist items collection is null');
 
-        if ($expectedCount !== null) {
+        if (null !== $expectedCount) {
             $this->assertCount(
                 $expectedCount,
                 $wishlist->getItems(),

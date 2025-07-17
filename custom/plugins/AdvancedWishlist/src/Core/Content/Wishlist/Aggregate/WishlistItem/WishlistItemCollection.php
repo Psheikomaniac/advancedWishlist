@@ -1,12 +1,14 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace AdvancedWishlist\Core\Content\Wishlist\Aggregate\WishlistItem;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
- * @method void                  add(WishlistItemEntity $entity)
- * @method void                  set(string $key, WishlistItemEntity $entity)
+ * @method void                    add(WishlistItemEntity $entity)
+ * @method void                    set(string $key, WishlistItemEntity $entity)
  * @method WishlistItemEntity[]    getIterator()
  * @method WishlistItemEntity[]    getElements()
  * @method WishlistItemEntity|null get(string $key)

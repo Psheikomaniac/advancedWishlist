@@ -44,7 +44,7 @@ enum NotificationType: string
      */
     public function getLabel(): string
     {
-        return match($this) {
+        return match ($this) {
             self::PRICE_DROP => 'Preissenkung',
             self::BACK_IN_STOCK => 'Wieder verfügbar',
             self::WISHLIST_SHARED => 'Wunschliste geteilt',
@@ -59,7 +59,7 @@ enum NotificationType: string
      */
     public function getCssClass(): string
     {
-        return match($this) {
+        return match ($this) {
             self::PRICE_DROP => 'success',
             self::BACK_IN_STOCK => 'info',
             self::WISHLIST_SHARED => 'primary',
@@ -74,7 +74,7 @@ enum NotificationType: string
      */
     public function getIcon(): string
     {
-        return match($this) {
+        return match ($this) {
             self::PRICE_DROP => 'tag',
             self::BACK_IN_STOCK => 'box',
             self::WISHLIST_SHARED => 'share',
@@ -89,7 +89,7 @@ enum NotificationType: string
      */
     public function isPriceRelated(): bool
     {
-        return $this === self::PRICE_DROP;
+        return self::PRICE_DROP === $this;
     }
 
     /**
@@ -97,7 +97,7 @@ enum NotificationType: string
      */
     public function isStockRelated(): bool
     {
-        return $this === self::BACK_IN_STOCK;
+        return self::BACK_IN_STOCK === $this;
     }
 
     /**
@@ -110,7 +110,7 @@ enum NotificationType: string
 
     /**
      * Gibt alle verfügbaren Benachrichtigungstypen als assoziatives Array zurück.
-     * 
+     *
      * @return array<string, string> Key: Enum-Wert, Value: Label
      */
     public static function getOptions(): array

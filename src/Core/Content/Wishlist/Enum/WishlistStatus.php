@@ -44,7 +44,7 @@ enum WishlistStatus: string
      */
     public function getLabel(): string
     {
-        return match($this) {
+        return match ($this) {
             self::DRAFT => 'Entwurf',
             self::ACTIVE => 'Aktiv',
             self::PENDING_APPROVAL => 'Warte auf Genehmigung',
@@ -59,7 +59,7 @@ enum WishlistStatus: string
      */
     public function getCssClass(): string
     {
-        return match($this) {
+        return match ($this) {
             self::DRAFT => 'secondary',
             self::ACTIVE => 'success',
             self::PENDING_APPROVAL => 'warning',
@@ -79,7 +79,7 @@ enum WishlistStatus: string
 
     /**
      * Gibt alle editierbaren Status zurück.
-     * 
+     *
      * @return array<self>
      */
     public static function getEditableStatuses(): array
@@ -97,7 +97,7 @@ enum WishlistStatus: string
 
     /**
      * Gibt alle Status zurück, die für Genehmigung relevant sind.
-     * 
+     *
      * @return array<self>
      */
     public static function getApprovalStatuses(): array
@@ -107,7 +107,7 @@ enum WishlistStatus: string
 
     /**
      * Gibt alle verfügbaren Status als assoziatives Array zurück.
-     * 
+     *
      * @return array<string, string> Key: Enum-Wert, Value: Label
      */
     public static function getOptions(): array

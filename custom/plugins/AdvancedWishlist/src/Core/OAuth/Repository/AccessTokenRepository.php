@@ -1,9 +1,10 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace AdvancedWishlist\Core\OAuth\Repository;
 
 use AdvancedWishlist\Core\OAuth\Entity\AccessTokenEntity;
-use DateTimeImmutable;
 use League\OAuth2\Server\Entities\AccessTokenEntityInterface;
 use League\OAuth2\Server\Entities\ClientEntityInterface;
 use League\OAuth2\Server\Entities\ScopeEntityInterface;
@@ -18,38 +19,32 @@ class AccessTokenRepository implements AccessTokenRepositoryInterface
     private array $tokens = [];
 
     /**
-     * Create a new access token
+     * Create a new access token.
      *
-     * @param ClientEntityInterface $clientEntity
      * @param ScopeEntityInterface[] $scopes
-     * @param string|null $userIdentifier
-     *
-     * @return AccessTokenEntityInterface
+     * @param string|null            $userIdentifier
      */
     public function getNewToken(
         ClientEntityInterface $clientEntity,
         array $scopes,
-        $userIdentifier = null
-    ): AccessTokenEntityInterface
-    {
+        $userIdentifier = null,
+    ): AccessTokenEntityInterface {
         $accessToken = new AccessTokenEntity();
         $accessToken->setClient($clientEntity);
-        
+
         foreach ($scopes as $scope) {
             $accessToken->addScope($scope);
         }
-        
-        if ($userIdentifier !== null) {
+
+        if (null !== $userIdentifier) {
             $accessToken->setUserIdentifier($userIdentifier);
         }
-        
+
         return $accessToken;
     }
 
     /**
      * Persists a new access token to permanent storage.
-     *
-     * @param AccessTokenEntityInterface $accessTokenEntity
      *
      * @throws UniqueTokenIdentifierConstraintViolationException
      */
@@ -59,7 +54,7 @@ class AccessTokenRepository implements AccessTokenRepositoryInterface
         if (isset($this->tokens[$accessTokenEntity->getIdentifier()])) {
             throw new UniqueTokenIdentifierConstraintViolationException();
         }
-        
+
         // In a real application, you would persist the token to a database
         $this->tokens[$accessTokenEntity->getIdentifier()] = $accessTokenEntity;
     }

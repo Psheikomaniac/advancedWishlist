@@ -1,25 +1,26 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace AdvancedWishlist\Core\Content\Wishlist;
 
-use Shopware\Core\Checkout\Customer\CustomerEntity;
-use Shopware\Core\Framework\DataAbstractionLayer\Entity;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
-use Shopware\Core\System\Language\LanguageEntity;
-use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use AdvancedWishlist\Core\Content\Wishlist\Aggregate\WishlistItem\WishlistItemCollection;
 use AdvancedWishlist\Core\Content\Wishlist\Aggregate\WishlistShare\WishlistShareCollection;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\System\Language\LanguageEntity;
+use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
 /**
  * Enterprise WishlistEntity with PHP 8.4 Property Hooks and Asymmetric Visibility
- * Demonstrates modern PHP features for better encapsulation and performance
+ * Demonstrates modern PHP features for better encapsulation and performance.
  */
 class WishlistEntity extends Entity
 {
     // Asymmetric visibility - public read, private write for immutable properties
     public private(set) string $id;
     public private(set) \DateTime $createdAt;
-    
+
     // Customer relationship with protected write access
     public protected(set) string $customerId;
     protected ?CustomerEntity $customer = null;
@@ -82,9 +83,10 @@ class WishlistEntity extends Entity
     private ?int $_itemCount = null;
     public int $itemCount {
         get {
-            if ($this->_itemCount === null) {
+            if (null === $this->_itemCount) {
                 $this->_itemCount = $this->items?->count() ?? 0;
             }
+
             return $this->_itemCount;
         }
         set {
@@ -96,9 +98,10 @@ class WishlistEntity extends Entity
     private ?float $_totalValue = null;
     public float $totalValue {
         get {
-            if ($this->_totalValue === null) {
+            if (null === $this->_totalValue) {
                 $this->_totalValue = $this->calculateTotalValue();
             }
+
             return $this->_totalValue;
         }
         set {
@@ -111,7 +114,7 @@ class WishlistEntity extends Entity
 
     // Virtual property for display name
     public string $displayName {
-        get => $this->name . ($this->isDefault ? ' (Default)' : '') . ' [' . ucfirst($this->type) . ']';
+        get => $this->name.($this->isDefault ? ' (Default)' : '').' ['.ucfirst($this->type).']';
     }
 
     // Virtual property for share status
@@ -121,14 +124,14 @@ class WishlistEntity extends Entity
 
     // Timestamps with automatic updates
     public protected(set) \DateTime $updatedAt;
-    
+
     // Collections and custom fields
     protected ?array $customFields = null;
     protected ?WishlistItemCollection $items = null;
     protected ?WishlistShareCollection $shareInfo = null;
 
     /**
-     * Calculate total value of all items in wishlist
+     * Calculate total value of all items in wishlist.
      */
     private function calculateTotalValue(): float
     {
@@ -147,7 +150,7 @@ class WishlistEntity extends Entity
     }
 
     /**
-     * Invalidate computed property caches
+     * Invalidate computed property caches.
      */
     public function invalidateCache(): void
     {
@@ -157,7 +160,7 @@ class WishlistEntity extends Entity
     }
 
     // Legacy getter/setter methods for backward compatibility and framework integration
-    
+
     public function getCustomer(): ?CustomerEntity
     {
         return $this->customer;
@@ -221,14 +224,14 @@ class WishlistEntity extends Entity
     }
 
     /**
-     * Factory method for creating new wishlist instances
+     * Factory method for creating new wishlist instances.
      */
     public static function create(
         string $id,
         string $customerId,
         string $name,
         string $type = 'private',
-        bool $isDefault = false
+        bool $isDefault = false,
     ): self {
         $wishlist = new self();
         $wishlist->id = $id;
@@ -238,25 +241,25 @@ class WishlistEntity extends Entity
         $wishlist->isDefault = $isDefault;
         $wishlist->createdAt = new \DateTime();
         $wishlist->updatedAt = new \DateTime();
-        
+
         return $wishlist;
     }
 
     /**
-     * Add item to wishlist and update computed properties
+     * Add item to wishlist and update computed properties.
      */
     public function addItem($item): void
     {
         if (!$this->items) {
             $this->items = new WishlistItemCollection();
         }
-        
+
         $this->items->add($item);
         $this->invalidateCache();
     }
 
     /**
-     * Remove item from wishlist and update computed properties
+     * Remove item from wishlist and update computed properties.
      */
     public function removeItem($item): void
     {

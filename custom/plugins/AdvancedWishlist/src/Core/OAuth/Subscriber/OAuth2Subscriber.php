@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace AdvancedWishlist\Core\OAuth\Subscriber;
 
@@ -13,8 +15,6 @@ class OAuth2Subscriber implements EventSubscriberInterface
 
     /**
      * OAuth2Subscriber constructor.
-     *
-     * @param OAuth2Middleware $middleware
      */
     public function __construct(OAuth2Middleware $middleware)
     {
@@ -36,8 +36,6 @@ class OAuth2Subscriber implements EventSubscriberInterface
 
     /**
      * Handle the request event.
-     *
-     * @param RequestEvent $event
      */
     public function onKernelRequest(RequestEvent $event): void
     {

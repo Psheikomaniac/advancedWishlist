@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace AdvancedWishlist\Tests\Factory;
 
@@ -9,17 +11,17 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * Base class for test entity factories
+ * Base class for test entity factories.
  */
 abstract class TestEntityFactory
 {
     /**
-     * Create an entity with the given data
+     * Create an entity with the given data.
      */
     protected function create(
         EntityRepository $repository,
         array $data,
-        Context $context
+        Context $context,
     ): string {
         $id = Uuid::randomHex();
         $data['id'] = $id;
@@ -30,13 +32,13 @@ abstract class TestEntityFactory
     }
 
     /**
-     * Get an entity by ID
+     * Get an entity by ID.
      */
     protected function get(
         EntityRepository $repository,
         string $id,
         Context $context,
-        array $associations = []
+        array $associations = [],
     ): ?object {
         $criteria = new Criteria([$id]);
 
@@ -48,14 +50,14 @@ abstract class TestEntityFactory
     }
 
     /**
-     * Find an entity by field value
+     * Find an entity by field value.
      */
     protected function findOneBy(
         EntityRepository $repository,
         string $field,
         $value,
         Context $context,
-        array $associations = []
+        array $associations = [],
     ): ?object {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter($field, $value));
@@ -69,18 +71,18 @@ abstract class TestEntityFactory
     }
 
     /**
-     * Delete an entity by ID
+     * Delete an entity by ID.
      */
     protected function delete(
         EntityRepository $repository,
         string $id,
-        Context $context
+        Context $context,
     ): void {
         $repository->delete([['id' => $id]], $context);
     }
 
     /**
-     * Generate random data for testing
+     * Generate random data for testing.
      */
     protected function getRandomData(): array
     {
@@ -88,7 +90,7 @@ abstract class TestEntityFactory
     }
 
     /**
-     * Merge default data with provided data
+     * Merge default data with provided data.
      */
     protected function mergeData(array $defaults, array $data): array
     {

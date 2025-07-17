@@ -1,28 +1,29 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace AdvancedWishlist\Core\Service;
 
+use AdvancedWishlist\Core\Content\Wishlist\WishlistEntity;
 use AdvancedWishlist\Core\DTO\Request\CreateWishlistRequest;
 use AdvancedWishlist\Core\DTO\Request\UpdateWishlistRequest;
 use AdvancedWishlist\Core\DTO\Response\WishlistResponse;
-use AdvancedWishlist\Core\Content\Wishlist\WishlistEntity;
 use AdvancedWishlist\Core\Event\WishlistCreatedEvent;
-use AdvancedWishlist\Core\Event\WishlistUpdatedEvent;
 use AdvancedWishlist\Core\Event\WishlistDeletedEvent;
+use AdvancedWishlist\Core\Event\WishlistUpdatedEvent;
+use AdvancedWishlist\Core\Exception\CannotDeleteDefaultWishlistException;
+use AdvancedWishlist\Core\Exception\OptimisticLockException;
 use AdvancedWishlist\Core\Exception\WishlistException;
 use AdvancedWishlist\Core\Exception\WishlistNotFoundException;
-use AdvancedWishlist\Core\Exception\OptimisticLockException;
-use AdvancedWishlist\Core\Exception\CannotDeleteDefaultWishlistException;
-use AdvancedWishlist\Core\Exception\WishlistLimitExceededException;
+use AdvancedWishlist\Service\ShareService;
+use Psr\Cache\CacheItemPoolInterface;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Psr\Log\LoggerInterface;
-use Psr\Cache\CacheItemPoolInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use AdvancedWishlist\Service\ShareService;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class WishlistService
 {
@@ -38,15 +39,16 @@ class WishlistService
         private EventDispatcherInterface $eventDispatcher,
         private LoggerInterface $logger,
         private CacheItemPoolInterface $cache,
-        private ShareService $shareService
-    ) {}
+        private ShareService $shareService,
+    ) {
+    }
 
     /**
-     * Create a new wishlist with validation and limits
+     * Create a new wishlist with validation and limits.
      */
     public function createWishlist(
         CreateWishlistRequest $request,
-        Context $context
+        Context $context,
     ): WishlistResponse {
         // Start transaction
         $this->wishlistRepository->beginTransaction();
@@ -89,7 +91,6 @@ class WishlistService
             $this->wishlistRepository->commit();
 
             return WishlistResponse::fromEntity($wishlist);
-
         } catch (\Exception $e) {
             // Rollback transaction
             $this->wishlistRepository->rollback();
@@ -99,20 +100,16 @@ class WishlistService
                 'request' => $request->toArray(),
             ]);
 
-            throw new WishlistException(
-                'Failed to create wishlist: ' . $e->getMessage(),
-                0,
-                $e
-            );
+            throw new WishlistException('Failed to create wishlist: '.$e->getMessage(), 0, $e);
         }
     }
 
     /**
-     * Update existing wishlist with optimistic locking
+     * Update existing wishlist with optimistic locking.
      */
     public function updateWishlist(
         UpdateWishlistRequest $request,
-        Context $context
+        Context $context,
     ): WishlistResponse {
         // 1. Load wishlist with lock
         $wishlist = $this->wishlistRepository->search(
@@ -121,10 +118,7 @@ class WishlistService
         )->first();
 
         if (!$wishlist) {
-            throw new WishlistNotFoundException(
-                'Wishlist not found',
-                ['wishlistId' => $request->getWishlistId()]
-            );
+            throw new WishlistNotFoundException('Wishlist not found', ['wishlistId' => $request->getWishlistId()]);
         }
 
         // 2. Validate ownership and permissions
@@ -163,12 +157,12 @@ class WishlistService
     }
 
     /**
-     * Delete wishlist with optional item transfer
+     * Delete wishlist with optional item transfer.
      */
     public function deleteWishlist(
         string $wishlistId,
         ?string $transferToWishlistId,
-        Context $context
+        Context $context,
     ): void {
         $wishlist = $this->loadWishlist($wishlistId, $context);
         $this->validator->validateOwnership($wishlist, $context);
@@ -197,19 +191,19 @@ class WishlistService
 
         $this->logger->info('Wishlist deleted', [
             'wishlistId' => $wishlistId,
-            'itemsTransferred' => $transferToWishlistId !== null,
+            'itemsTransferred' => null !== $transferToWishlistId,
         ]);
     }
 
     /**
-     * Get or create default wishlist for customer
+     * Get or create default wishlist for customer.
      */
     public function getOrCreateDefaultWishlist(
         string $customerId,
-        Context $context
+        Context $context,
     ): WishlistEntity {
         // Use the WishlistCacheService to get or create the default wishlist
-        return $this->cacheService->getCachedDefaultWishlist($customerId, function() use ($customerId, $context) {
+        return $this->cacheService->getCachedDefaultWishlist($customerId, function () use ($customerId, $context) {
             // Find existing default wishlist
             $criteria = new Criteria();
             $criteria->addFilter(new EqualsFilter('customerId', $customerId));
@@ -229,23 +223,24 @@ class WishlistService
                 $request->setIsDefault(true);
 
                 $response = $this->createWishlist($request, $context);
+
                 return $this->loadWishlist($response->getId(), $context);
             }
         });
     }
 
     /**
-     * Check if product is in any customer wishlist
+     * Check if product is in any customer wishlist.
      */
     public function isProductInWishlist(
         string $customerId,
         string $productId,
-        Context $context
+        Context $context,
     ): array {
         // Try to get from cache first
         $cacheKey = "product_in_wishlist_{$customerId}_{$productId}";
 
-        return $this->cacheService->get($cacheKey, function() use ($customerId, $productId, $context) {
+        return $this->cacheService->get($cacheKey, function () use ($customerId, $productId, $context) {
             // Create a more efficient query that directly filters for the product
             $criteria = new Criteria();
             $criteria->addFilter(new EqualsFilter('customerId', $customerId));
@@ -267,7 +262,7 @@ class WishlistService
             if ($result['inWishlist']) {
                 foreach ($wishlists as $wishlist) {
                     $item = $wishlist->getItems()->filter(
-                        fn($item) => $item->getProductId() === $productId
+                        fn ($item) => $item->getProductId() === $productId
                     )->first();
 
                     if ($item) {
@@ -285,11 +280,11 @@ class WishlistService
     }
 
     /**
-     * Get wishlist statistics for customer
+     * Get wishlist statistics for customer.
      */
     public function getCustomerStatistics(
         string $customerId,
-        Context $context
+        Context $context,
     ): array {
         // $stats = $this->wishlistRepository->getCustomerStatistics($customerId, $context);
 
@@ -307,7 +302,7 @@ class WishlistService
     }
 
     /**
-     * Helper: Check customer limits
+     * Helper: Check customer limits.
      */
     private function checkCustomerLimits(string $customerId, Context $context): void
     {
@@ -316,12 +311,12 @@ class WishlistService
     }
 
     /**
-     * Helper: Create wishlist entity
+     * Helper: Create wishlist entity.
      */
     private function createWishlistEntity(
         string $wishlistId,
         CreateWishlistRequest $request,
-        Context $context
+        Context $context,
     ): WishlistEntity {
         $data = [
             'id' => $wishlistId,
@@ -340,27 +335,29 @@ class WishlistService
     }
 
     /**
-     * Helper: Load wishlist with associations
-     * 
-     * @param string $wishlistId The ID of the wishlist to load
-     * @param Context $context The context
+     * Helper: Load wishlist with associations.
+     *
+     * @param string     $wishlistId   The ID of the wishlist to load
+     * @param Context    $context      The context
      * @param array|null $associations Optional associations to load, null for all default associations
+     *
      * @return WishlistEntity The loaded wishlist
+     *
      * @throws WishlistNotFoundException If the wishlist is not found
      */
     private function loadWishlist(
-        string $wishlistId, 
-        Context $context, 
-        ?array $associations = null
+        string $wishlistId,
+        Context $context,
+        ?array $associations = null,
     ): WishlistEntity {
         // Try to get from cache first
         $cacheKey = "wishlist_{$wishlistId}";
 
-        return $this->cacheService->getCachedWishlist($wishlistId, function() use ($wishlistId, $context, $associations) {
+        return $this->cacheService->getCachedWishlist($wishlistId, function () use ($wishlistId, $context, $associations) {
             $criteria = new Criteria([$wishlistId]);
 
             // If specific associations are requested, only load those
-            if ($associations !== null) {
+            if (null !== $associations) {
                 foreach ($associations as $association) {
                     $criteria->addAssociation($association);
                 }
@@ -375,10 +372,7 @@ class WishlistService
             $wishlist = $this->wishlistRepository->search($criteria, $context)->first();
 
             if (!$wishlist) {
-                throw new WishlistNotFoundException(
-                    'Wishlist not found',
-                    ['wishlistId' => $wishlistId]
-                );
+                throw new WishlistNotFoundException('Wishlist not found', ['wishlistId' => $wishlistId]);
             }
 
             return $wishlist;

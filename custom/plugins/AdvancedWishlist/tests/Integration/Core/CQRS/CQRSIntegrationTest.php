@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace AdvancedWishlist\Tests\Integration\Core\CQRS;
 
@@ -7,13 +9,13 @@ use AdvancedWishlist\Core\CQRS\Command\CreateWishlistCommand;
 use AdvancedWishlist\Core\CQRS\Query\GetWishlistQuery;
 use AdvancedWishlist\Core\CQRS\Query\QueryBus;
 use AdvancedWishlist\Core\Domain\ValueObject\WishlistType;
+use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use PHPUnit\Framework\TestCase;
 
 /**
- * Integration test for the CQRS pattern
- * 
+ * Integration test for the CQRS pattern.
+ *
  * This test verifies that the Command and Query buses work correctly together
  * and that the CQRS pattern is properly integrated with the Shopware container.
  */
@@ -45,14 +47,14 @@ class CQRSIntegrationTest extends TestCase
         );
 
         $wishlistId = $this->commandBus->dispatch($command);
-        
+
         // Verify that the wishlist ID is returned
         self::assertNotEmpty($wishlistId);
-        
+
         // Retrieve the wishlist using the QueryBus
         $query = new GetWishlistQuery($wishlistId, $this->context);
         $wishlist = $this->queryBus->dispatch($query);
-        
+
         // Verify that the wishlist is retrieved correctly
         self::assertNotNull($wishlist);
         self::assertEquals($wishlistId, $wishlist->getId());
@@ -75,11 +77,11 @@ class CQRSIntegrationTest extends TestCase
         );
 
         $wishlistId = $this->commandBus->dispatch($command);
-        
+
         // Retrieve the wishlist using the QueryBus
         $query = new GetWishlistQuery($wishlistId, $this->context);
         $wishlist = $this->queryBus->dispatch($query);
-        
+
         // Verify that the wishlist is private
         self::assertEquals(WishlistType::PRIVATE, $wishlist->getType());
     }
@@ -88,7 +90,7 @@ class CQRSIntegrationTest extends TestCase
     {
         // Expect an exception when trying to get a non-existent wishlist
         $this->expectException(\AdvancedWishlist\Core\Exception\WishlistNotFoundException::class);
-        
+
         // Try to retrieve a non-existent wishlist
         $query = new GetWishlistQuery('non-existent-id', $this->context);
         $this->queryBus->dispatch($query);
@@ -107,7 +109,7 @@ class CQRSIntegrationTest extends TestCase
 
         // Expect an exception when trying to create a wishlist with invalid data
         $this->expectException(\InvalidArgumentException::class);
-        
+
         // Try to create a wishlist with invalid data
         $this->commandBus->dispatch($command);
     }

@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace AdvancedWishlist\Core\Factory;
 
@@ -8,10 +10,9 @@ use AdvancedWishlist\Core\Domain\Strategy\PublicWishlistVisibilityStrategy;
 use AdvancedWishlist\Core\Domain\Strategy\SharedWishlistVisibilityStrategy;
 use AdvancedWishlist\Core\Domain\Strategy\WishlistVisibilityStrategy;
 use AdvancedWishlist\Core\Domain\ValueObject\WishlistType;
-use AdvancedWishlist\Core\Exception\InvalidWishlistTypeException;
 
 /**
- * Factory for creating wishlist visibility strategies
+ * Factory for creating wishlist visibility strategies.
  */
 class WishlistVisibilityStrategyFactory
 {
@@ -21,7 +22,7 @@ class WishlistVisibilityStrategyFactory
     private array $strategies = [];
 
     /**
-     * Constructor
+     * Constructor.
      */
     public function __construct()
     {
@@ -32,10 +33,12 @@ class WishlistVisibilityStrategyFactory
     }
 
     /**
-     * Get the appropriate strategy for a wishlist
-     * 
+     * Get the appropriate strategy for a wishlist.
+     *
      * @param WishlistEntity $wishlist The wishlist
+     *
      * @return WishlistVisibilityStrategy The appropriate strategy
+     *
      * @throws \InvalidArgumentException If the wishlist type is invalid
      */
     public function getStrategy(WishlistEntity $wishlist): WishlistVisibilityStrategy
@@ -44,30 +47,30 @@ class WishlistVisibilityStrategyFactory
     }
 
     /**
-     * Get the appropriate strategy for a wishlist type
-     * 
+     * Get the appropriate strategy for a wishlist type.
+     *
      * @param string $type The wishlist type
+     *
      * @return WishlistVisibilityStrategy The appropriate strategy
+     *
      * @throws \InvalidArgumentException If the wishlist type is invalid
      */
     public function getStrategyForType(string $type): WishlistVisibilityStrategy
     {
         if (!isset($this->strategies[$type])) {
-            throw new \InvalidArgumentException(sprintf(
-                'No strategy found for wishlist type "%s". Valid types are: %s',
-                $type,
-                implode(', ', array_keys($this->strategies))
-            ));
+            throw new \InvalidArgumentException(sprintf('No strategy found for wishlist type "%s". Valid types are: %s', $type, implode(', ', array_keys($this->strategies))));
         }
 
         return $this->strategies[$type];
     }
 
     /**
-     * Get the appropriate strategy for a wishlist type value object
-     * 
+     * Get the appropriate strategy for a wishlist type value object.
+     *
      * @param WishlistType $type The wishlist type
+     *
      * @return WishlistVisibilityStrategy The appropriate strategy
+     *
      * @throws \InvalidArgumentException If the wishlist type is invalid
      */
     public function getStrategyForTypeObject(WishlistType $type): WishlistVisibilityStrategy
@@ -76,8 +79,8 @@ class WishlistVisibilityStrategyFactory
     }
 
     /**
-     * Register a strategy
-     * 
+     * Register a strategy.
+     *
      * @param WishlistVisibilityStrategy $strategy The strategy to register
      */
     private function registerStrategy(WishlistVisibilityStrategy $strategy): void

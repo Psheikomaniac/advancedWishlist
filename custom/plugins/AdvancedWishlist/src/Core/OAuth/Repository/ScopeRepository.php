@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace AdvancedWishlist\Core\OAuth\Repository;
 
@@ -9,9 +11,6 @@ use League\OAuth2\Server\Repositories\ScopeRepositoryInterface;
 
 class ScopeRepository implements ScopeRepositoryInterface
 {
-    /**
-     * @var array
-     */
     private array $scopes = [
         'wishlist:read' => 'Read wishlists',
         'wishlist:write' => 'Create and update wishlists',
@@ -23,8 +22,6 @@ class ScopeRepository implements ScopeRepositoryInterface
      * Return information about a scope.
      *
      * @param string $identifier The scope identifier
-     *
-     * @return ScopeEntityInterface|null
      */
     public function getScopeEntityByIdentifier($identifier): ?ScopeEntityInterface
     {
@@ -39,10 +36,9 @@ class ScopeRepository implements ScopeRepositoryInterface
      * Given a client, grant type and user identifier, return the scopes the user can use.
      *
      * @param ScopeEntityInterface[] $scopes
-     * @param string $grantType
-     * @param ClientEntityInterface $clientEntity
-     * @param string|null $userIdentifier
-     * @param string|null $authCodeId
+     * @param string                 $grantType
+     * @param string|null            $userIdentifier
+     * @param string|null            $authCodeId
      *
      * @return ScopeEntityInterface[]
      */
@@ -51,9 +47,8 @@ class ScopeRepository implements ScopeRepositoryInterface
         $grantType,
         ClientEntityInterface $clientEntity,
         $userIdentifier = null,
-        $authCodeId = null
-    ): array
-    {
+        $authCodeId = null,
+    ): array {
         // For simplicity, we'll allow all requested scopes
         // In a real application, you would check if the client and user are allowed to use the requested scopes
         return $scopes;

@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace AdvancedWishlist\Tests\Security;
 
@@ -25,11 +27,11 @@ class WishlistInputValidationTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         $this->wishlistService = $this->createMock(WishlistService::class);
         $this->csrfTokenManager = $this->createMock(CsrfTokenManagerInterface::class);
         $this->wishlistController = new WishlistController($this->wishlistService, $this->csrfTokenManager);
-        
+
         // Always make CSRF token valid for these tests
         $this->csrfTokenManager->method('isTokenValid')
             ->willReturn(true);
@@ -42,11 +44,11 @@ class WishlistInputValidationTest extends TestCase
             'name' => '',
             'type' => 'private',
         ]);
-        
+
         $salesChannelContext = $this->createSalesChannelContextWithCustomer(Uuid::randomHex());
-        
+
         $response = $this->wishlistController->create($request, $salesChannelContext);
-        
+
         $this->assertInstanceOf(JsonResponse::class, $response);
         $this->assertEquals(400, $response->getStatusCode());
         $this->assertStringContainsString('WISHLIST__INVALID_NAME', $response->getContent());
@@ -59,11 +61,11 @@ class WishlistInputValidationTest extends TestCase
             'name' => str_repeat('a', 256), // 256 characters, exceeding the 255 limit
             'type' => 'private',
         ]);
-        
+
         $salesChannelContext = $this->createSalesChannelContextWithCustomer(Uuid::randomHex());
-        
+
         $response = $this->wishlistController->create($request, $salesChannelContext);
-        
+
         $this->assertInstanceOf(JsonResponse::class, $response);
         $this->assertEquals(400, $response->getStatusCode());
         $this->assertStringContainsString('WISHLIST__NAME_TOO_LONG', $response->getContent());
@@ -76,11 +78,11 @@ class WishlistInputValidationTest extends TestCase
             'name' => 'Test Wishlist',
             'type' => 'invalid_type',
         ]);
-        
+
         $salesChannelContext = $this->createSalesChannelContextWithCustomer(Uuid::randomHex());
-        
+
         $response = $this->wishlistController->create($request, $salesChannelContext);
-        
+
         $this->assertInstanceOf(JsonResponse::class, $response);
         $this->assertEquals(400, $response->getStatusCode());
         $this->assertStringContainsString('WISHLIST__INVALID_TYPE', $response->getContent());
@@ -91,29 +93,29 @@ class WishlistInputValidationTest extends TestCase
         $customerId = Uuid::randomHex();
         $unsafeInput = '<script>alert("XSS")</script>Test Wishlist';
         $sanitizedOutput = '&lt;script&gt;alert(&quot;XSS&quot;)&lt;/script&gt;Test Wishlist';
-        
+
         $request = new Request([], [
             '_csrf_token' => 'valid_token',
             'name' => $unsafeInput,
             'description' => $unsafeInput,
             'type' => 'private',
         ]);
-        
+
         $salesChannelContext = $this->createSalesChannelContextWithCustomer($customerId);
-        
+
         // Mock the createWishlist method to verify sanitized input
         $this->wishlistService->expects($this->once())
             ->method('createWishlist')
             ->with(
                 $this->callback(function ($createRequest) use ($sanitizedOutput, $customerId) {
-                    return $createRequest->getName() === $sanitizedOutput &&
-                           $createRequest->getDescription() === $sanitizedOutput &&
-                           $createRequest->getCustomerId() === $customerId;
+                    return $createRequest->getName() === $sanitizedOutput
+                           && $createRequest->getDescription() === $sanitizedOutput
+                           && $createRequest->getCustomerId() === $customerId;
                 }),
                 $this->anything()
             )
             ->willReturn(['id' => Uuid::randomHex()]);
-        
+
         $this->wishlistController->create($request, $salesChannelContext);
     }
 
@@ -121,7 +123,7 @@ class WishlistInputValidationTest extends TestCase
     {
         $customerId = Uuid::randomHex();
         $hackerCustomerId = Uuid::randomHex();
-        
+
         $request = new Request([], [
             '_csrf_token' => 'valid_token',
             'name' => 'Test Wishlist',
@@ -130,9 +132,9 @@ class WishlistInputValidationTest extends TestCase
             'id' => Uuid::randomHex(), // Attempt to specify the ID
             'salesChannelId' => Uuid::randomHex(), // Attempt to specify the sales channel
         ]);
-        
+
         $salesChannelContext = $this->createSalesChannelContextWithCustomer($customerId);
-        
+
         // Mock the createWishlist method to verify sanitized input
         $this->wishlistService->expects($this->once())
             ->method('createWishlist')
@@ -144,7 +146,7 @@ class WishlistInputValidationTest extends TestCase
                 $this->anything()
             )
             ->willReturn(['id' => Uuid::randomHex()]);
-        
+
         $this->wishlistController->create($request, $salesChannelContext);
     }
 
@@ -154,7 +156,7 @@ class WishlistInputValidationTest extends TestCase
         $customerId = Uuid::randomHex();
         $unsafeInput = '<script>alert("XSS")</script>Updated Wishlist';
         $sanitizedOutput = '&lt;script&gt;alert(&quot;XSS&quot;)&lt;/script&gt;Updated Wishlist';
-        
+
         $request = new Request([], [
             '_csrf_token' => 'valid_token',
             'name' => $unsafeInput,
@@ -162,32 +164,32 @@ class WishlistInputValidationTest extends TestCase
             'type' => 'private',
             'customerId' => Uuid::randomHex(), // Attempt to change the owner
         ]);
-        
+
         $salesChannelContext = $this->createSalesChannelContextWithCustomer($customerId);
-        
+
         // Mock loadWishlist to return a wishlist owned by the current user
         $wishlist = $this->createMock(\AdvancedWishlist\Core\Content\Wishlist\WishlistEntity::class);
         $wishlist->method('getCustomerId')->willReturn($customerId);
         $wishlist->method('getId')->willReturn($wishlistId);
-        
+
         $this->wishlistService->method('loadWishlist')
             ->willReturn($wishlist);
-        
+
         // Mock the updateWishlist method to verify sanitized input
         $this->wishlistService->expects($this->once())
             ->method('updateWishlist')
             ->with(
                 $this->callback(function ($updateRequest) use ($sanitizedOutput, $wishlistId) {
                     // Verify that the name and description are sanitized and customerId is not included
-                    return $updateRequest->getName() === $sanitizedOutput &&
-                           $updateRequest->getDescription() === $sanitizedOutput &&
-                           $updateRequest->getWishlistId() === $wishlistId &&
-                           !property_exists($updateRequest, 'customerId');
+                    return $updateRequest->getName() === $sanitizedOutput
+                           && $updateRequest->getDescription() === $sanitizedOutput
+                           && $updateRequest->getWishlistId() === $wishlistId
+                           && !property_exists($updateRequest, 'customerId');
                 }),
                 $this->anything()
             )
             ->willReturn(['id' => $wishlistId]);
-        
+
         $this->wishlistController->update($wishlistId, $request, $salesChannelContext);
     }
 
@@ -196,11 +198,11 @@ class WishlistInputValidationTest extends TestCase
         $context = Context::createDefaultContext();
         $customer = new UserEntity();
         $customer->setId($customerId);
-        
+
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
         $salesChannelContext->method('getContext')->willReturn($context);
         $salesChannelContext->method('getCustomer')->willReturn($customer);
-        
+
         return $salesChannelContext;
     }
 }

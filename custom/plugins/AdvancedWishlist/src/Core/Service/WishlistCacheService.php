@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace AdvancedWishlist\Core\Service;
 
@@ -37,7 +39,7 @@ class WishlistCacheService
     public function __construct(
         // L2 cache (persistent)
         private CacheItemPoolInterface $cache,
-        private LoggerInterface $logger
+        private LoggerInterface $logger,
     ) {
         // Initialize L1 cache
         $this->l1Cache = new ArrayAdapter();
@@ -53,7 +55,7 @@ class WishlistCacheService
     }
 
     /**
-     * Get item from cache with multi-level caching and performance monitoring
+     * Get item from cache with multi-level caching and performance monitoring.
      */
     public function get(string $key, callable $callback, array $tags = []): mixed
     {
@@ -65,7 +67,7 @@ class WishlistCacheService
         // Check L1 cache first (in-memory)
         $l1CacheItem = $this->l1Cache->getItem($cacheKey);
         if ($l1CacheItem->isHit()) {
-            $this->cacheHits++;
+            ++$this->cacheHits;
             $this->logger->debug('L1 cache hit', ['key' => $cacheKey]);
 
             // Stop performance monitoring
@@ -73,7 +75,7 @@ class WishlistCacheService
             $this->logger->debug('L1 cache performance', [
                 'key' => $cacheKey,
                 'duration' => $event->getDuration(),
-                'memory' => $event->getMemory()
+                'memory' => $event->getMemory(),
             ]);
 
             return $l1CacheItem->get();
@@ -82,7 +84,7 @@ class WishlistCacheService
         // Check L2 cache (persistent)
         $l2CacheItem = $this->cache->getItem($cacheKey);
         if ($l2CacheItem->isHit()) {
-            $this->cacheHits++;
+            ++$this->cacheHits;
             $this->logger->debug('L2 cache hit', ['key' => $cacheKey]);
 
             // Store in L1 cache for future requests
@@ -96,14 +98,14 @@ class WishlistCacheService
             $this->logger->debug('L2 cache performance', [
                 'key' => $cacheKey,
                 'duration' => $event->getDuration(),
-                'memory' => $event->getMemory()
+                'memory' => $event->getMemory(),
             ]);
 
             return $value;
         }
 
         // Cache miss - execute callback
-        $this->cacheMisses++;
+        ++$this->cacheMisses;
         $this->logger->debug('Cache miss', ['key' => $cacheKey]);
 
         // Execute callback with performance monitoring
@@ -114,7 +116,7 @@ class WishlistCacheService
         $this->logger->debug('Callback performance', [
             'key' => $cacheKey,
             'duration' => $callbackEvent->getDuration(),
-            'memory' => $callbackEvent->getMemory()
+            'memory' => $callbackEvent->getMemory(),
         ]);
 
         // Determine TTL based on key pattern
@@ -144,14 +146,14 @@ class WishlistCacheService
         $this->logger->debug('Cache miss performance', [
             'key' => $cacheKey,
             'duration' => $event->getDuration(),
-            'memory' => $event->getMemory()
+            'memory' => $event->getMemory(),
         ]);
 
         return $result;
     }
 
     /**
-     * Set item in cache with multi-level caching and performance monitoring
+     * Set item in cache with multi-level caching and performance monitoring.
      */
     public function set(string $key, mixed $value, ?int $ttl = null, array $tags = []): void
     {
@@ -190,12 +192,12 @@ class WishlistCacheService
             'key' => $cacheKey,
             'duration' => $event->getDuration(),
             'memory' => $event->getMemory(),
-            'ttl' => $ttl
+            'ttl' => $ttl,
         ]);
     }
 
     /**
-     * Delete item from cache (both L1 and L2)
+     * Delete item from cache (both L1 and L2).
      */
     public function delete(string $key): void
     {
@@ -217,12 +219,12 @@ class WishlistCacheService
         $this->logger->debug('Cache delete performance', [
             'key' => $cacheKey,
             'duration' => $event->getDuration(),
-            'memory' => $event->getMemory()
+            'memory' => $event->getMemory(),
         ]);
     }
 
     /**
-     * Determine TTL based on key pattern
+     * Determine TTL based on key pattern.
      */
     private function getTtlForKey(string $key): int
     {
@@ -246,7 +248,7 @@ class WishlistCacheService
     }
 
     /**
-     * Invalidate wishlist cache using tags (both L1 and L2)
+     * Invalidate wishlist cache using tags (both L1 and L2).
      */
     public function invalidateWishlistCache(string $wishlistId): void
     {
@@ -277,12 +279,12 @@ class WishlistCacheService
         $this->logger->debug('Invalidate wishlist cache performance', [
             'wishlistId' => $wishlistId,
             'duration' => $event->getDuration(),
-            'memory' => $event->getMemory()
+            'memory' => $event->getMemory(),
         ]);
     }
 
     /**
-     * Invalidate customer cache using tags (both L1 and L2)
+     * Invalidate customer cache using tags (both L1 and L2).
      */
     public function invalidateCustomerCache(string $customerId): void
     {
@@ -313,92 +315,92 @@ class WishlistCacheService
         $this->logger->debug('Invalidate customer cache performance', [
             'customerId' => $customerId,
             'duration' => $event->getDuration(),
-            'memory' => $event->getMemory()
+            'memory' => $event->getMemory(),
         ]);
     }
 
     /**
-     * Cache wishlist data with optimized TTL
+     * Cache wishlist data with optimized TTL.
      */
     public function cacheWishlist(string $wishlistId, array $data): void
     {
         $this->set(
-            "wishlist_{$wishlistId}", 
-            $data, 
-            $this->wishlistCacheTtl, 
+            "wishlist_{$wishlistId}",
+            $data,
+            $this->wishlistCacheTtl,
             ["wishlist-{$wishlistId}"]
         );
     }
 
     /**
-     * Cache customer wishlists with optimized TTL
+     * Cache customer wishlists with optimized TTL.
      */
     public function cacheCustomerWishlists(string $customerId, array $wishlists): void
     {
         $this->set(
-            "customer_wishlists_{$customerId}", 
-            $wishlists, 
-            $this->customerCacheTtl, 
+            "customer_wishlists_{$customerId}",
+            $wishlists,
+            $this->customerCacheTtl,
             ["customer-{$customerId}"]
         );
     }
 
     /**
-     * Cache default wishlist for customer with optimized TTL
+     * Cache default wishlist for customer with optimized TTL.
      */
     public function cacheDefaultWishlist(string $customerId, array $wishlist): void
     {
         $this->set(
-            "customer_default_wishlist_{$customerId}", 
-            $wishlist, 
-            $this->defaultWishlistCacheTtl, 
+            "customer_default_wishlist_{$customerId}",
+            $wishlist,
+            $this->defaultWishlistCacheTtl,
             ["customer-{$customerId}", "wishlist-{$wishlist['id']}"]
         );
     }
 
     /**
-     * Get cached wishlist with performance monitoring
+     * Get cached wishlist with performance monitoring.
      */
     public function getCachedWishlist(string $wishlistId, callable $callback): mixed
     {
         return $this->get(
-            "wishlist_{$wishlistId}", 
-            $callback, 
+            "wishlist_{$wishlistId}",
+            $callback,
             ["wishlist-{$wishlistId}"]
         );
     }
 
     /**
-     * Get cached customer wishlists with performance monitoring
+     * Get cached customer wishlists with performance monitoring.
      */
     public function getCachedCustomerWishlists(string $customerId, callable $callback): mixed
     {
         return $this->get(
-            "customer_wishlists_{$customerId}", 
-            $callback, 
+            "customer_wishlists_{$customerId}",
+            $callback,
             ["customer-{$customerId}"]
         );
     }
 
     /**
-     * Get cached default wishlist with performance monitoring
+     * Get cached default wishlist with performance monitoring.
      */
     public function getCachedDefaultWishlist(string $customerId, callable $callback): mixed
     {
         return $this->get(
-            "customer_default_wishlist_{$customerId}", 
-            $callback, 
+            "customer_default_wishlist_{$customerId}",
+            $callback,
             ["customer-{$customerId}"]
         );
     }
 
     /**
-     * Clear all wishlist cache (both L1 and L2)
+     * Clear all wishlist cache (both L1 and L2).
      */
     public function clearAllCache(): void
     {
         // Start performance monitoring
-        $this->stopwatch->start("clear_all_cache");
+        $this->stopwatch->start('clear_all_cache');
 
         // Clear L1 cache
         $this->l1Cache->clear();
@@ -413,23 +415,23 @@ class WishlistCacheService
         $this->cacheMisses = 0;
 
         // Stop performance monitoring
-        $event = $this->stopwatch->stop("clear_all_cache");
+        $event = $this->stopwatch->stop('clear_all_cache');
         $this->logger->debug('Clear all cache performance', [
             'duration' => $event->getDuration(),
-            'memory' => $event->getMemory()
+            'memory' => $event->getMemory(),
         ]);
     }
 
     /**
-     * Get cache key with prefix
+     * Get cache key with prefix.
      */
     private function getCacheKey(string $key): string
     {
-        return self::CACHE_PREFIX . $key;
+        return self::CACHE_PREFIX.$key;
     }
 
     /**
-     * Set custom cache TTL values
+     * Set custom cache TTL values.
      */
     public function setCacheTtl(int $ttl, ?int $customerTtl = null, ?int $wishlistTtl = null, ?int $defaultWishlistTtl = null): void
     {
@@ -442,12 +444,12 @@ class WishlistCacheService
             'default' => $this->cacheTtl,
             'customer' => $this->customerCacheTtl,
             'wishlist' => $this->wishlistCacheTtl,
-            'defaultWishlist' => $this->defaultWishlistCacheTtl
+            'defaultWishlist' => $this->defaultWishlistCacheTtl,
         ]);
     }
 
     /**
-     * Get cache statistics
+     * Get cache statistics.
      */
     public function getCacheStatistics(): array
     {
@@ -458,18 +460,18 @@ class WishlistCacheService
             'hits' => $this->cacheHits,
             'misses' => $this->cacheMisses,
             'total' => $totalRequests,
-            'hitRate' => round($hitRate, 2) . '%',
+            'hitRate' => round($hitRate, 2).'%',
             'ttlSettings' => [
                 'default' => $this->cacheTtl,
                 'customer' => $this->customerCacheTtl,
                 'wishlist' => $this->wishlistCacheTtl,
-                'defaultWishlist' => $this->defaultWishlistCacheTtl
-            ]
+                'defaultWishlist' => $this->defaultWishlistCacheTtl,
+            ],
         ];
     }
 
     /**
-     * Get performance metrics for a specific operation
+     * Get performance metrics for a specific operation.
      */
     public function getPerformanceMetrics(string $operation): ?array
     {
@@ -487,12 +489,12 @@ class WishlistCacheService
             'duration' => $event->getDuration(),
             'memory' => $event->getMemory(),
             'startTime' => $event->getStartTime(),
-            'endTime' => $event->getEndTime()
+            'endTime' => $event->getEndTime(),
         ];
     }
 
     /**
-     * Warm up cache for customer with performance monitoring
+     * Warm up cache for customer with performance monitoring.
      */
     public function warmUpCustomerCache(string $customerId, array $wishlists): void
     {
@@ -520,7 +522,7 @@ class WishlistCacheService
             'customerId' => $customerId,
             'duration' => $event->getDuration(),
             'memory' => $event->getMemory(),
-            'wishlistCount' => count($wishlists)
+            'wishlistCount' => count($wishlists),
         ]);
     }
 }

@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace AdvancedWishlist\Storefront\Controller;
 
@@ -19,7 +21,7 @@ class ExampleController extends StorefrontController
     public function showExample(Request $request, SalesChannelContext $context): Response
     {
         return $this->renderStorefront('@AdvancedWishlist/storefront/page/example.html.twig', [
-            'example' => 'Hello world'
+            'example' => 'Hello world',
         ]);
     }
 }

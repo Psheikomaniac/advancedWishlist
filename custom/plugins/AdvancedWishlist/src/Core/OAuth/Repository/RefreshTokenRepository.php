@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace AdvancedWishlist\Core\OAuth\Repository;
 
@@ -16,8 +18,6 @@ class RefreshTokenRepository implements RefreshTokenRepositoryInterface
 
     /**
      * Create a new refresh token.
-     *
-     * @return RefreshTokenEntityInterface
      */
     public function getNewRefreshToken(): ?RefreshTokenEntityInterface
     {
@@ -27,8 +27,6 @@ class RefreshTokenRepository implements RefreshTokenRepositoryInterface
     /**
      * Persists a new refresh token to permanent storage.
      *
-     * @param RefreshTokenEntityInterface $refreshTokenEntity
-     *
      * @throws UniqueTokenIdentifierConstraintViolationException
      */
     public function persistNewRefreshToken(RefreshTokenEntityInterface $refreshTokenEntity): void
@@ -37,7 +35,7 @@ class RefreshTokenRepository implements RefreshTokenRepositoryInterface
         if (isset($this->refreshTokens[$refreshTokenEntity->getIdentifier()])) {
             throw new UniqueTokenIdentifierConstraintViolationException();
         }
-        
+
         // In a real application, you would persist the token to a database
         $this->refreshTokens[$refreshTokenEntity->getIdentifier()] = $refreshTokenEntity;
     }

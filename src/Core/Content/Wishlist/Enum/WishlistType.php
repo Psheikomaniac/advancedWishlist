@@ -29,7 +29,7 @@ enum WishlistType: string
      */
     public function getLabel(): string
     {
-        return match($this) {
+        return match ($this) {
             self::PRIVATE => 'Privat',
             self::PUBLIC => 'Öffentlich',
             self::SHARED => 'Geteilt',
@@ -41,7 +41,7 @@ enum WishlistType: string
      */
     public function isPubliclyVisible(): bool
     {
-        return $this === self::PUBLIC;
+        return self::PUBLIC === $this;
     }
 
     /**
@@ -54,7 +54,7 @@ enum WishlistType: string
 
     /**
      * Gibt alle verfügbaren Typen als assoziatives Array zurück.
-     * 
+     *
      * @return array<string, string> Key: Enum-Wert, Value: Label
      */
     public static function getOptions(): array

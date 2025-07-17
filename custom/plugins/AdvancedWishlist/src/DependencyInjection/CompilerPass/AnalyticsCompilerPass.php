@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace AdvancedWishlist\DependencyInjection\CompilerPass;
 
@@ -13,9 +15,9 @@ class AnalyticsCompilerPass implements CompilerPassInterface
         $container->getDefinition('router.default')
             ->addMethodCall('addResource', [
                 new Reference('routing.loader.annotation'),
-                __DIR__ . '/../../Administration/Controller/AnalyticsController.php',
+                __DIR__.'/../../Administration/Controller/AnalyticsController.php',
                 'annotation',
-                'advanced_wishlist_analytics'
+                'advanced_wishlist_analytics',
             ]);
     }
 }

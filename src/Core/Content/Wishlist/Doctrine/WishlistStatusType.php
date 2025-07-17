@@ -27,7 +27,7 @@ class WishlistStatusType extends Type
 
     public function convertToPHPValue($value, AbstractPlatform $platform): ?WishlistStatus
     {
-        if ($value === null) {
+        if (null === $value) {
             return null;
         }
 

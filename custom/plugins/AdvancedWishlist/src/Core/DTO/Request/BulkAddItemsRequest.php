@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace AdvancedWishlist\Core\DTO\Request;
 
@@ -9,7 +11,7 @@ class BulkAddItemsRequest extends AbstractRequestDTO
     #[Assert\Uuid]
     #[Assert\NotBlank]
     private string $wishlistId;
-    
+
     #[Assert\Type('array')]
     #[Assert\Count(min: 1, max: 100)]
     #[Assert\All([
@@ -17,24 +19,24 @@ class BulkAddItemsRequest extends AbstractRequestDTO
             'fields' => [
                 'productId' => [
                     new Assert\Uuid(),
-                    new Assert\NotBlank()
+                    new Assert\NotBlank(),
                 ],
                 'quantity' => [
                     new Assert\Type('int'),
-                    new Assert\Positive()
+                    new Assert\Positive(),
                 ],
                 'note' => [
                     new Assert\Type('string'),
-                    new Assert\Length(['max' => 500])
-                ]
-            ]
-        ])
+                    new Assert\Length(['max' => 500]),
+                ],
+            ],
+        ]),
     ])]
     private array $items;
-    
+
     #[Assert\Type('bool')]
     private bool $skipDuplicates = true;
-    
+
     #[Assert\Type('bool')]
     private bool $mergeQuantities = false;
 

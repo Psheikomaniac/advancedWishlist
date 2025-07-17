@@ -1,8 +1,9 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace AdvancedWishlist\Core\Event;
 
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -14,7 +15,7 @@ class GuestWishlistMergedEvent extends Event
         private readonly string $guestWishlistId,
         private readonly string $customerWishlistId,
         private readonly int $mergedItemsCount,
-        private readonly SalesChannelContext $salesChannelContext
+        private readonly SalesChannelContext $salesChannelContext,
     ) {
     }
 

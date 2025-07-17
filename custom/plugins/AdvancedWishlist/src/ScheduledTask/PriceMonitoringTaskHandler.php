@@ -1,13 +1,15 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace AdvancedWishlist\ScheduledTask;
 
 use AdvancedWishlist\Service\NotificationService;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
-use Psr\Log\LoggerInterface;
 
 #[AsMessageHandler(handles: PriceMonitoringTask::class)]
 class PriceMonitoringTaskHandler extends ScheduledTaskHandler
@@ -19,9 +21,8 @@ class PriceMonitoringTaskHandler extends ScheduledTaskHandler
         EntityRepository $scheduledTaskRepository,
         NotificationService $notificationService,
         EntityRepository $productRepository,
-        LoggerInterface $logger
-    )
-    {
+        LoggerInterface $logger,
+    ) {
         parent::__construct($scheduledTaskRepository, $logger);
         $this->notificationService = $notificationService;
         $this->productRepository = $productRepository;

@@ -1,18 +1,18 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace AdvancedWishlist\Tests\Integration;
 
+use AdvancedWishlist\Core\Service\WishlistMergeService;
+use AdvancedWishlist\Tests\Factory\WishlistFactory;
+use AdvancedWishlist\Tests\Factory\WishlistItemFactory;
+use AdvancedWishlist\Tests\Utilities\WishlistTestTrait;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use AdvancedWishlist\Core\Content\Wishlist\WishlistEntity;
-use AdvancedWishlist\Core\Content\GuestWishlist\GuestWishlistEntity;
-use AdvancedWishlist\Core\Service\WishlistMergeService;
-use AdvancedWishlist\Tests\Factory\WishlistFactory;
-use AdvancedWishlist\Tests\Factory\WishlistItemFactory;
-use AdvancedWishlist\Tests\Utilities\WishlistTestTrait;
 
 class WishlistMergeTest extends TestCase
 {

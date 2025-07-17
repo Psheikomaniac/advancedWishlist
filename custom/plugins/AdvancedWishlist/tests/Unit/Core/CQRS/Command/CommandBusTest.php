@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace AdvancedWishlist\Tests\Unit\Core\CQRS\Command;
 
@@ -8,7 +10,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 
 /**
- * Unit tests for the CommandBus class
+ * Unit tests for the CommandBus class.
  */
 class CommandBusTest extends TestCase
 {
@@ -94,7 +96,7 @@ class CommandBusTest extends TestCase
 
         // Expect an exception
         $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('Handler stdClass must implement ' . CommandHandlerInterface::class);
+        $this->expectExceptionMessage('Handler stdClass must implement '.CommandHandlerInterface::class);
 
         // Dispatch the command
         $this->commandBus->dispatch($command);

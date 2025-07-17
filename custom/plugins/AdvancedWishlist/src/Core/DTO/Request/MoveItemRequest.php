@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace AdvancedWishlist\Core\DTO\Request;
 
@@ -9,15 +11,15 @@ class MoveItemRequest extends AbstractRequestDTO
     #[Assert\Uuid]
     #[Assert\NotBlank]
     private string $sourceWishlistId;
-    
+
     #[Assert\Uuid]
     #[Assert\NotBlank]
     private string $targetWishlistId;
-    
+
     #[Assert\Uuid]
     #[Assert\NotBlank]
     private string $itemId;
-    
+
     #[Assert\Type('bool')]
     private bool $copy = false; // false = move, true = copy
 

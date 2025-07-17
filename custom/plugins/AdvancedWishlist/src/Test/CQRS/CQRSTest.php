@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace AdvancedWishlist\Test\CQRS;
 
@@ -6,13 +8,13 @@ use AdvancedWishlist\Core\CQRS\Command\CommandBus;
 use AdvancedWishlist\Core\CQRS\Command\CreateWishlistCommand;
 use AdvancedWishlist\Core\CQRS\Query\GetWishlistQuery;
 use AdvancedWishlist\Core\CQRS\Query\QueryBus;
+use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use PHPUnit\Framework\TestCase;
 
 /**
  * Test for the CQRS pattern implementation.
- * 
+ *
  * This test verifies that the Command and Query buses work correctly
  * and that the CQRS pattern is properly implemented.
  */
@@ -44,14 +46,14 @@ class CQRSTest extends TestCase
         );
 
         $wishlistId = $this->commandBus->dispatch($command);
-        
+
         // Verify that the wishlist ID is returned
         self::assertNotEmpty($wishlistId);
-        
+
         // Retrieve the wishlist using the QueryBus
         $query = new GetWishlistQuery($wishlistId, $this->context);
         $wishlist = $this->queryBus->dispatch($query);
-        
+
         // Verify that the wishlist is retrieved correctly
         self::assertNotNull($wishlist);
         self::assertEquals($wishlistId, $wishlist->getId());

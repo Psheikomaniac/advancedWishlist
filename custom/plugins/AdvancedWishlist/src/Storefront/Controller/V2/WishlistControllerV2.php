@@ -1,13 +1,14 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace AdvancedWishlist\Storefront\Controller\V2;
 
-use AdvancedWishlist\Core\CQRS\Query\Wishlist\GetWishlistsQuery;
 use AdvancedWishlist\Core\DTO\Request\CreateWishlistRequest;
 use AdvancedWishlist\Core\DTO\Request\UpdateWishlistRequest;
-use AdvancedWishlist\Core\Service\WishlistCrudService;
-use AdvancedWishlist\Core\Routing\ApiVersionResolver;
 use AdvancedWishlist\Core\Performance\LazyObjectService;
+use AdvancedWishlist\Core\Routing\ApiVersionResolver;
+use AdvancedWishlist\Core\Service\WishlistCrudService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -20,7 +21,7 @@ use Symfony\Component\Routing\Attribute\Route;
 
 /**
  * Enterprise V2 Wishlist Controller with PHP 8.4 Features
- * Demonstrates modern API design with lazy loading, bulk operations, and enhanced performance
+ * Demonstrates modern API design with lazy loading, bulk operations, and enhanced performance.
  */
 #[Route(defaults: ['_routeScope' => ['storefront']])]
 class WishlistControllerV2 extends StorefrontController
@@ -28,11 +29,12 @@ class WishlistControllerV2 extends StorefrontController
     public function __construct(
         private WishlistCrudService $wishlistCrudService,
         private ApiVersionResolver $apiVersionResolver,
-        private LazyObjectService $lazyObjectService
-    ) {}
+        private LazyObjectService $lazyObjectService,
+    ) {
+    }
 
     /**
-     * Enhanced list endpoint with lazy loading and advanced filtering
+     * Enhanced list endpoint with lazy loading and advanced filtering.
      */
     #[Route('/store-api/v2/wishlist', name: 'store-api.v2.wishlist.list', methods: ['GET'])]
     public function list(Request $request, SalesChannelContext $context): JsonResponse
@@ -43,10 +45,10 @@ class WishlistControllerV2 extends StorefrontController
         }
 
         $criteria = $this->buildEnhancedCriteria($request);
-        
+
         // Use lazy loading for performance
         $useLazyLoading = $request->query->getBoolean('lazy', true);
-        
+
         if ($useLazyLoading) {
             $wishlists = $this->lazyObjectService->createLazyCustomerWishlists($customerId, $context->getContext());
             $data = $this->serializeLazyWishlists($wishlists);
@@ -64,12 +66,12 @@ class WishlistControllerV2 extends StorefrontController
 
         // Add version headers
         $this->addVersionHeaders($response, 'v2');
-        
+
         return $response;
     }
 
     /**
-     * Enhanced detail endpoint with lazy loading and computed properties
+     * Enhanced detail endpoint with lazy loading and computed properties.
      */
     #[Route('/store-api/v2/wishlist/{id}', name: 'store-api.v2.wishlist.detail', methods: ['GET'])]
     public function detail(string $id, Request $request, SalesChannelContext $context): JsonResponse
@@ -81,7 +83,7 @@ class WishlistControllerV2 extends StorefrontController
 
         try {
             $useLazyLoading = $request->query->getBoolean('lazy', false);
-            
+
             if ($useLazyLoading) {
                 $wishlist = $this->lazyObjectService->createLazyWishlist($id, $context->getContext());
             } else {
@@ -110,7 +112,7 @@ class WishlistControllerV2 extends StorefrontController
     }
 
     /**
-     * Enhanced create endpoint with bulk creation support
+     * Enhanced create endpoint with bulk creation support.
      */
     #[Route('/store-api/v2/wishlist', name: 'store-api.v2.wishlist.create', methods: ['POST'])]
     public function create(Request $request, SalesChannelContext $context): JsonResponse
@@ -126,7 +128,7 @@ class WishlistControllerV2 extends StorefrontController
 
         try {
             $requestData = json_decode($request->getContent(), true);
-            
+
             // Support bulk creation in V2
             if (isset($requestData['data']) && is_array($requestData['data']) && isset($requestData['data'][0])) {
                 return $this->handleBulkCreate($requestData['data'], $customerId, $context);
@@ -151,7 +153,7 @@ class WishlistControllerV2 extends StorefrontController
     }
 
     /**
-     * Enhanced update endpoint with partial updates and optimistic locking
+     * Enhanced update endpoint with partial updates and optimistic locking.
      */
     #[Route('/store-api/v2/wishlist/{id}', name: 'store-api.v2.wishlist.update', methods: ['PATCH'])]
     public function update(string $id, Request $request, SalesChannelContext $context): JsonResponse
@@ -173,7 +175,7 @@ class WishlistControllerV2 extends StorefrontController
             }
 
             $requestData = json_decode($request->getContent(), true);
-            
+
             // Handle optimistic locking
             if (isset($requestData['meta']['version'])) {
                 if (!$this->validateOptimisticLock($wishlist, $requestData['meta']['version'])) {
@@ -198,7 +200,7 @@ class WishlistControllerV2 extends StorefrontController
     }
 
     /**
-     * Enhanced delete endpoint with soft delete and item transfer
+     * Enhanced delete endpoint with soft delete and item transfer.
      */
     #[Route('/store-api/v2/wishlist/{id}', name: 'store-api.v2.wishlist.delete', methods: ['DELETE'])]
     public function delete(string $id, Request $request, SalesChannelContext $context): JsonResponse
@@ -233,8 +235,8 @@ class WishlistControllerV2 extends StorefrontController
                 'meta' => [
                     'deleted_at' => time(),
                     'soft_delete' => $softDelete,
-                    'items_transferred' => $transferToWishlistId !== null,
-                ]
+                    'items_transferred' => null !== $transferToWishlistId,
+                ],
             ], 204);
 
             $this->addVersionHeaders($response, 'v2');
@@ -246,7 +248,7 @@ class WishlistControllerV2 extends StorefrontController
     }
 
     /**
-     * New V2 bulk operations endpoint
+     * New V2 bulk operations endpoint.
      */
     #[Route('/store-api/v2/wishlist/bulk', name: 'store-api.v2.wishlist.bulk', methods: ['POST'])]
     public function bulkOperations(Request $request, SalesChannelContext $context): JsonResponse
@@ -274,9 +276,9 @@ class WishlistControllerV2 extends StorefrontController
                 'data' => $results,
                 'meta' => [
                     'total_operations' => count($operations),
-                    'successful' => count(array_filter($results, fn($r) => $r['success'])),
-                    'failed' => count(array_filter($results, fn($r) => !$r['success'])),
-                ]
+                    'successful' => count(array_filter($results, fn ($r) => $r['success'])),
+                    'failed' => count(array_filter($results, fn ($r) => !$r['success'])),
+                ],
             ]);
 
             $this->addVersionHeaders($response, 'v2');
@@ -288,7 +290,7 @@ class WishlistControllerV2 extends StorefrontController
     }
 
     /**
-     * Build enhanced criteria with advanced filtering
+     * Build enhanced criteria with advanced filtering.
      */
     private function buildEnhancedCriteria(Request $request): Criteria
     {
@@ -311,7 +313,7 @@ class WishlistControllerV2 extends StorefrontController
         // Enhanced sorting with multiple fields
         $sort = $request->query->get('sort', 'createdAt:DESC');
         foreach (explode(',', $sort) as $sortField) {
-            [$field, $direction] = explode(':', $sortField . ':ASC');
+            [$field, $direction] = explode(':', $sortField.':ASC');
             if (in_array(strtoupper($direction), ['ASC', 'DESC'])) {
                 $criteria->addSorting(new FieldSorting($field, $direction));
             }
@@ -332,7 +334,7 @@ class WishlistControllerV2 extends StorefrontController
     }
 
     /**
-     * Create standardized error response
+     * Create standardized error response.
      */
     private function createErrorResponse(string $code, string $message, int $status): JsonResponse
     {
@@ -342,28 +344,28 @@ class WishlistControllerV2 extends StorefrontController
                 'title' => $this->getErrorTitle($status),
                 'detail' => $message,
                 'status' => (string) $status,
-            ]]
+            ]],
         ], $status);
 
         $this->addVersionHeaders($response, 'v2');
-        
+
         return $response;
     }
 
     /**
-     * Add version-specific headers
+     * Add version-specific headers.
      */
     private function addVersionHeaders(JsonResponse $response, string $version): void
     {
         $headers = $this->apiVersionResolver->getVersionHeaders($version);
-        
+
         foreach ($headers as $key => $value) {
             $response->headers->set($key, $value);
         }
     }
 
     /**
-     * Serialize wishlist with PHP 8.4 property hooks benefits
+     * Serialize wishlist with PHP 8.4 property hooks benefits.
      */
     private function serializeWishlist($wishlist, bool $includeComputed = false): array
     {
@@ -390,22 +392,90 @@ class WishlistControllerV2 extends StorefrontController
     }
 
     // Additional helper methods would be implemented here...
-    private function canAccessWishlist($wishlist, string $customerId): bool { return true; }
-    private function canModifyWishlist($wishlist, string $customerId): bool { return true; }
-    private function validateCsrfToken(Request $request, string $intention): bool { return true; }
-    private function buildCreateRequest(array $data, string $customerId): CreateWishlistRequest { return new CreateWishlistRequest(); }
-    private function buildUpdateRequest(array $data, string $id): UpdateWishlistRequest { return new UpdateWishlistRequest(); }
-    private function handleBulkCreate(array $data, string $customerId, SalesChannelContext $context): JsonResponse { return new JsonResponse([]); }
-    private function validateOptimisticLock($wishlist, $version): bool { return true; }
-    private function softDeleteWishlist(string $id, Context $context): void {}
-    private function executeBulkOperation(array $operation, string $customerId, SalesChannelContext $context): array { return []; }
-    private function buildMetadata(Request $request, string $customerId, SalesChannelContext $context): array { return []; }
-    private function buildDetailMetadata($wishlist): array { return []; }
-    private function buildHalLinks(Request $request): array { return []; }
-    private function getIncludedResources($wishlist, Request $request): array { return []; }
-    private function serializeLazyWishlists($wishlists): array { return []; }
-    private function serializeWishlists($result): array { return []; }
-    private function addAdvancedFilters(Criteria $criteria, string $filter): void {}
-    private function addCacheHeaders(JsonResponse $response, int $ttl): void {}
-    private function getErrorTitle(int $status): string { return 'Error'; }
+    private function canAccessWishlist($wishlist, string $customerId): bool
+    {
+        return true;
+    }
+
+    private function canModifyWishlist($wishlist, string $customerId): bool
+    {
+        return true;
+    }
+
+    private function validateCsrfToken(Request $request, string $intention): bool
+    {
+        return true;
+    }
+
+    private function buildCreateRequest(array $data, string $customerId): CreateWishlistRequest
+    {
+        return new CreateWishlistRequest();
+    }
+
+    private function buildUpdateRequest(array $data, string $id): UpdateWishlistRequest
+    {
+        return new UpdateWishlistRequest();
+    }
+
+    private function handleBulkCreate(array $data, string $customerId, SalesChannelContext $context): JsonResponse
+    {
+        return new JsonResponse([]);
+    }
+
+    private function validateOptimisticLock($wishlist, $version): bool
+    {
+        return true;
+    }
+
+    private function softDeleteWishlist(string $id, Context $context): void
+    {
+    }
+
+    private function executeBulkOperation(array $operation, string $customerId, SalesChannelContext $context): array
+    {
+        return [];
+    }
+
+    private function buildMetadata(Request $request, string $customerId, SalesChannelContext $context): array
+    {
+        return [];
+    }
+
+    private function buildDetailMetadata($wishlist): array
+    {
+        return [];
+    }
+
+    private function buildHalLinks(Request $request): array
+    {
+        return [];
+    }
+
+    private function getIncludedResources($wishlist, Request $request): array
+    {
+        return [];
+    }
+
+    private function serializeLazyWishlists($wishlists): array
+    {
+        return [];
+    }
+
+    private function serializeWishlists($result): array
+    {
+        return [];
+    }
+
+    private function addAdvancedFilters(Criteria $criteria, string $filter): void
+    {
+    }
+
+    private function addCacheHeaders(JsonResponse $response, int $ttl): void
+    {
+    }
+
+    private function getErrorTitle(int $status): string
+    {
+        return 'Error';
+    }
 }
