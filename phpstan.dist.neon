@@ -1,9 +1,4 @@
 parameters:
     level: 6
     paths:
-        - bin/
-        - config/
-        - public/
-        - src/
-        - tests/
         - custom/plugins/AdvancedWishlist/src/
