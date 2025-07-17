@@ -65,6 +65,7 @@
     }
   },
   "require-dev": {
+    "friendsofphp/php-cs-fixer": "^3.84",
     "symfony/phpunit-bridge": "^7.3"
   }
 }
