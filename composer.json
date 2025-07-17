@@ -1,12 +1,14 @@
 {
+  "name": "shopware/project",
+  "description": "Shopware 6 project",
   "license": "proprietary",
   "type": "project",
   "require": {
     "composer-runtime-api": "^2.0",
-    "shopware/administration": "*",
-    "shopware/core": "v6.7.0.1",
-    "shopware/elasticsearch": "*",
-    "shopware/storefront": "*",
+    "shopware/administration": "^6.7",
+    "shopware/core": "^6.7",
+    "shopware/elasticsearch": "^6.7",
+    "shopware/storefront": "^6.7",
     "symfony/flex": "~2",
     "symfony/security-csrf": "^7.3"
   },
