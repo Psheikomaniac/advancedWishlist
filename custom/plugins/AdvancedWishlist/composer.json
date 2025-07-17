@@ -46,7 +46,7 @@
         }
     ],
     "require": {
-        "php": "^8.4",
+        "php": "^8.3",
         "shopware/core": "^6.7.0",
         "shopware/administration": "^6.7.0",
         "shopware/storefront": "^6.7.0",
@@ -75,17 +75,23 @@
     "extra": {
         "shopware-plugin-class": "AdvancedWishlist\\AdvancedWishlist",
         "plugin-icon": "src/Resources/config/plugin.png",
-        "plugin-description": {
-            "de-DE": "Das fortschrittlichste Wunschlisten-System für Shopware 6 mit PHP 8.4 Property Hooks, Enterprise-Sicherheit, Lazy Loading und professioneller Analytik.",
-            "en-GB": "The most advanced wishlist system for Shopware 6 with PHP 8.4 property hooks, enterprise security, lazy loading, and professional analytics."
+        "description": {
+            "de-DE": "Das fortschrittlichste Wunschlisten-System für Shopware 6",
+            "en-GB": "The most advanced wishlist system for Shopware 6"
         },
         "label": {
             "de-DE": "Erweitertes Wunschlisten-System",
             "en-GB": "Advanced Wishlist System"
         },
         "copyright": "(c) 2025 Advanced Wishlist",
-        "manufacturerLink": "https://software-rademacher.de",
-        "supportLink": "https://docs.software-rademacher.de/advanced-wishlist"
+        "manufacturerLink": {
+            "de-DE": "https://software-rademacher.de",
+            "en-GB": "https://software-rademacher.de"
+        },
+        "supportLink": {
+            "de-DE": "https://docs.software-rademacher.de/advanced-wishlist",
+            "en-GB": "https://docs.software-rademacher.de/advanced-wishlist"
+        }
     },
     "autoload": {
         "psr-4": {

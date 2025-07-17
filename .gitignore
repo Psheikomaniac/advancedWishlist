@@ -15,7 +15,7 @@
 /var/*
 !/var/.htaccess
 /auth.json
-/install.lock
+/install.lockuth
 public/asset-manifest.json
 ###< shopware/core ###
 /custom/plugins/AdvancedWishlist/vendor/

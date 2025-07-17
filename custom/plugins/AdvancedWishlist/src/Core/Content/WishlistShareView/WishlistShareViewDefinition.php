@@ -16,8 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FloatField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\EnumField;
-use AdvancedWishlist\Core\Content\WishlistShare\WishlistShareDefinition;
+use AdvancedWishlist\Core\Content\Wishlist\Aggregate\WishlistShare\WishlistShareDefinition;
 
 class WishlistShareViewDefinition extends EntityDefinition
 {
@@ -49,7 +48,7 @@ class WishlistShareViewDefinition extends EntityDefinition
             new LongTextField('user_agent', 'userAgent'),
             new LongTextField('referrer', 'referrer'),
             new StringField('country_code', 'countryCode'),
-            new EnumField('device_type', 'deviceType', ['desktop', 'mobile', 'tablet', 'other']),
+            new StringField('device_type', 'deviceType'),
             new BoolField('purchased', 'purchased'),
             new FloatField('purchase_value', 'purchaseValue'),
             (new DateTimeField('viewed_at', 'viewedAt'))->addFlags(new Required()),

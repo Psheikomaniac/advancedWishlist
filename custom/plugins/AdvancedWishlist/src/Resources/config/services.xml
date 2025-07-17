@@ -110,7 +110,6 @@
 
     <service id="AdvancedWishlist\Storefront\Controller\WishlistController" public="true">
             <argument type="service" id="AdvancedWishlist\Core\Service\WishlistCrudService"/>
-            <argument type="service" id="security.csrf.token_manager"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
@@ -211,7 +210,8 @@
         <!-- Builder Pattern Implementation -->
         <service id="AdvancedWishlist\Core\Builder\WishlistBuilder" />
 
-        <!-- OAuth2 Integration -->
+        <!-- OAuth2 Integration - TEMPORARILY DISABLED -->
+        <!-- 
         <service id="AdvancedWishlist\Core\OAuth\Repository\ClientRepository" public="true" />
 
         <service id="AdvancedWishlist\Core\OAuth\Repository\ScopeRepository" public="true" />
@@ -239,7 +239,6 @@
             <tag name="controller.service_arguments" />
         </service>
 
-        <!-- OAuth2 Middleware -->
         <service id="AdvancedWishlist\Core\OAuth\Middleware\OAuth2Middleware">
             <argument type="service" id="AdvancedWishlist\Core\OAuth\Service\OAuth2Service" />
             <argument type="service" id="Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory" />
@@ -247,11 +246,11 @@
             <argument type="service" id="logger" />
         </service>
 
-        <!-- OAuth2 Subscriber -->
         <service id="AdvancedWishlist\Core\OAuth\Subscriber\OAuth2Subscriber">
             <argument type="service" id="AdvancedWishlist\Core\OAuth\Middleware\OAuth2Middleware" />
             <tag name="kernel.event_subscriber" />
         </service>
+        -->
 
         <!-- CDN Integration -->
         <service id="AdvancedWishlist\Core\Service\CdnService">
@@ -259,12 +258,14 @@
             <argument type="service" id="logger"/>
         </service>
 
-        <!-- Asset URL Decorator -->
+        <!-- Asset URL Decorator - TEMPORARILY DISABLED -->
+        <!-- 
         <service id="AdvancedWishlist\Core\Asset\AssetUrlDecorator" decorates="shopware.asset.asset">
             <argument type="service" id="AdvancedWishlist\Core\Asset\AssetUrlDecorator.inner"/>
             <argument type="service" id="AdvancedWishlist\Core\Service\CdnService"/>
             <argument type="service" id="logger"/>
         </service>
+        -->
 
         <!-- Database Read Replica -->
         <service id="AdvancedWishlist\Core\Database\ReadReplicaConnectionDecorator">
@@ -317,7 +318,7 @@
         
         <!-- Rate Limiting Service -->
         <service id="AdvancedWishlist\Core\Security\RateLimitService">
-            <argument type="service" id="cache.default"/>
+            <argument type="service" id="cache.app"/>
             <argument type="service" id="logger"/>
             <argument type="service" id="request_stack"/>
         </service>
@@ -343,7 +344,7 @@
         <!-- Enhanced Performance Monitoring -->
         <service id="AdvancedWishlist\Core\Performance\PerformanceMonitoringService">
             <argument type="service" id="logger"/>
-            <argument type="service" id="stopwatch"/>
+            <argument type="service" id="request_stack"/>
         </service>
 
         <service id="AdvancedWishlist\Core\Performance\PerformanceMonitoringSubscriber">
@@ -356,7 +357,7 @@
             <argument type="service" id="wishlist.repository"/>
             <argument type="service" id="wishlist_item.repository"/>
             <argument type="service" id="AdvancedWishlist\Core\Performance\LazyObjectService"/>
-            <argument type="service" id="cache.default"/>
+            <argument type="service" id="cache.app"/>
             <argument type="service" id="logger"/>
         </service>
 
@@ -368,7 +369,6 @@
         <!-- V2 Controllers for API Versioning -->
         <service id="AdvancedWishlist\Storefront\Controller\V2\WishlistControllerV2" public="true">
             <argument type="service" id="AdvancedWishlist\Core\Service\WishlistCrudService"/>
-            <argument type="service" id="security.csrf.token_manager"/>
             <argument type="service" id="AdvancedWishlist\Core\Routing\ApiVersionResolver"/>
             <argument type="service" id="AdvancedWishlist\Core\Performance\LazyObjectService"/>
             <call method="setContainer">
@@ -378,7 +378,7 @@
 
         <!-- Premium Features Services -->
         <service id="AdvancedWishlist\Core\Premium\LicenseService">
-            <argument type="service" id="cache.default"/>
+            <argument type="service" id="cache.app"/>
             <argument type="service" id="logger"/>
         </service>
 
@@ -390,7 +390,7 @@
         <!-- Multi-tenant Support -->
         <service id="AdvancedWishlist\Core\Tenant\TenantService">
             <argument type="service" id="request_stack"/>
-            <argument type="service" id="cache.default"/>
+            <argument type="service" id="cache.app"/>
             <argument type="service" id="logger"/>
         </service>
 

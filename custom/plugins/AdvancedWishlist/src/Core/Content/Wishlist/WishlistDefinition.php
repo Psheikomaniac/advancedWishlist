@@ -5,7 +5,7 @@ namespace AdvancedWishlist\Core\Content\Wishlist;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFieldsField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
@@ -56,7 +56,7 @@ class WishlistDefinition extends EntityDefinition
             new FkField('language_id', 'languageId', LanguageDefinition::class),
             (new IntField('item_count', 'itemCount'))->addFlags(new Required()),
             new FloatField('total_value', 'totalValue'),
-            new CustomFieldsField(),
+            new CustomFields(),
             (new DateTimeField('created_at', 'createdAt'))->addFlags(new Required()),
             new DateTimeField('updated_at', 'updatedAt'),
 

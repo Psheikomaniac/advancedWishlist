@@ -17,8 +17,6 @@ use Shopware\Storefront\Controller\StorefrontController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
-use Symfony\Component\Security\Csrf\CsrfToken;
 
 /**
  * Enterprise V2 Wishlist Controller with PHP 8.4 Features
@@ -29,7 +27,6 @@ class WishlistControllerV2 extends StorefrontController
 {
     public function __construct(
         private WishlistCrudService $wishlistCrudService,
-        private CsrfTokenManagerInterface $csrfTokenManager,
         private ApiVersionResolver $apiVersionResolver,
         private LazyObjectService $lazyObjectService
     ) {}

@@ -16,9 +16,8 @@
     <card>
         <title>Performance Settings</title>
 
-        <component name="sw-entity-single-select">
+        <component name="sw-single-select">
             <name>cdnStrategy</name>
-            <entity>cdn_strategy</entity>
             <label>CDN Strategy</label>
             <placeholder>Select CDN strategy</placeholder>
             <helpText>Choose which CDN strategy to use for static assets</helpText>

@@ -6,7 +6,7 @@ use AdvancedWishlist\Core\Content\Wishlist\WishlistDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFieldsField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
@@ -50,7 +50,7 @@ class WishlistItemDefinition extends EntityDefinition
             new FloatField('price_at_addition', 'priceAtAddition'),
             new FloatField('price_alert_threshold', 'priceAlertThreshold'),
             new BoolField('price_alert_active', 'priceAlertActive'),
-            new CustomFieldsField(),
+            new CustomFields(),
             (new DateTimeField('added_at', 'addedAt'))->addFlags(new Required()),
             new DateTimeField('updated_at', 'updatedAt'),
 

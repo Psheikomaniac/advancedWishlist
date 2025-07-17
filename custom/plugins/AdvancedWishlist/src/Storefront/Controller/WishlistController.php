@@ -16,15 +16,12 @@ use Shopware\Storefront\Controller\StorefrontController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
-use Symfony\Component\Security\Csrf\CsrfToken;
 
 #[Route(defaults: ['_routeScope' => ['storefront']])]
 class WishlistController extends StorefrontController
 {
     public function __construct(
         private WishlistCrudService $wishlistCrudService,
-        private CsrfTokenManagerInterface $csrfTokenManager,
         private GetWishlistsQueryHandler $getWishlistsQueryHandler
     ) {}
 

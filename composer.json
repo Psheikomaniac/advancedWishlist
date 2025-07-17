@@ -7,7 +7,8 @@
     "shopware/core": "v6.7.0.1",
     "shopware/elasticsearch": "*",
     "shopware/storefront": "*",
-    "symfony/flex": "~2"
+    "symfony/flex": "~2",
+    "symfony/security-csrf": "^7.3"
   },
   "repositories": [
     {
