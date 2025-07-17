@@ -6,6 +6,7 @@ namespace AdvancedWishlist\Core\Content\Wishlist;
 
 use AdvancedWishlist\Core\Content\Wishlist\Aggregate\WishlistItem\WishlistItemCollection;
 use AdvancedWishlist\Core\Content\Wishlist\Aggregate\WishlistShare\WishlistShareCollection;
+use AdvancedWishlist\Core\Content\Wishlist\Enum\WishlistType;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\System\Language\LanguageEntity;
@@ -160,6 +161,26 @@ class WishlistEntity extends Entity
     }
 
     // Legacy getter/setter methods for backward compatibility and framework integration
+
+    public function getId(): string
+    {
+        return $this->id;
+    }
+
+    public function getCustomerId(): string
+    {
+        return $this->customerId;
+    }
+
+    public function getType(): WishlistType
+    {
+        return WishlistType::from($this->type);
+    }
+
+    public function getMembers(): array
+    {
+        return $this->customFields['members'] ?? [];
+    }
 
     public function getCustomer(): ?CustomerEntity
     {

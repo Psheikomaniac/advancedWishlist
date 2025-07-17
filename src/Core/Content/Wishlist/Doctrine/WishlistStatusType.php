@@ -17,7 +17,7 @@ class WishlistStatusType extends Type
 
     public function getSQLDeclaration(array $column, AbstractPlatform $platform): string
     {
-        return $platform->getVarcharTypeDeclarationSQL(['length' => 20]);
+        return $platform->getStringTypeDeclarationSQL(['length' => 20]);
     }
 
     public function convertToDatabaseValue($value, AbstractPlatform $platform): ?string

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace AdvancedWishlist\Core\Content\Wishlist\Service;
 
-use AdvancedWishlist\Core\Content\Wishlist\Entity\WishlistEntity;
+use AdvancedWishlist\Core\Content\Wishlist\WishlistEntity;
 use AdvancedWishlist\Core\Content\Wishlist\Enum\WishlistPermission;
 use AdvancedWishlist\Core\Content\Wishlist\Enum\WishlistRole;
 use AdvancedWishlist\Core\Content\Wishlist\Enum\WishlistType;
