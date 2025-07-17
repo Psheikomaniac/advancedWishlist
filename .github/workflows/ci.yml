@@ -49,7 +49,7 @@ jobs:
       run: vendor/bin/php-cs-fixer fix --dry-run --diff
       
     - name: Run static analysis
-      run: vendor/bin/phpstan analyse src tests --level=8
+      run: vendor/bin/phpstan analyse custom/plugins/AdvancedWishlist/src --level=8 --memory-limit=512M
       
     - name: Run unit tests
       run: vendor/bin/phpunit --testsuite Unit
