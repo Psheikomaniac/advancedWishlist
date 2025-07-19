@@ -22,5 +22,8 @@ abstract class AbstractRequestDTO extends Struct
     /**
      * Validate the DTO.
      */
+    /**
+     * @return string[]
+     */
     abstract public function validate(): array;
 }
