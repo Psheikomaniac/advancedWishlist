@@ -111,7 +111,7 @@
     <service id="AdvancedWishlist\Storefront\Controller\WishlistController" public="true">
             <argument type="service" id="AdvancedWishlist\Core\Service\WishlistCrudService"/>
             <argument type="service" id="AdvancedWishlist\Core\CQRS\Query\Wishlist\GetWishlistsQueryHandler"/>
-            <argument type="service" id="security.csrf.token_manager"/>
+            <argument type="service" id="security.csrf.token_manager" on-invalid="null"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>

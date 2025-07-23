@@ -35,15 +35,24 @@ class AdvancedWishlist extends Plugin
     {
         /** @var EntityRepository $scheduledTaskRepository */
         $scheduledTaskRepository = $this->container->get('scheduled_task.repository');
-        $scheduledTaskRepository->upsert([
-            [
-                'name' => 'advanced_wishlist.price_monitoring_task',
-                'scheduledTaskClass' => PriceMonitoringTask::class,
-                'runInterval' => 3600,
-                'defaultRunInterval' => 3600,
-                'status' => ScheduledTaskDefinition::STATUS_SCHEDULED,
-            ],
-        ], $installContext->getContext());
+        
+        // Check if scheduled task already exists
+        $existingTask = $scheduledTaskRepository->search(
+            (new Criteria())->addFilter(new EqualsFilter('scheduledTaskClass', PriceMonitoringTask::class)),
+            $installContext->getContext()
+        )->first();
+
+        if (!$existingTask) {
+            $scheduledTaskRepository->create([
+                [
+                    'name' => 'advanced_wishlist.price_monitoring_task',
+                    'scheduledTaskClass' => PriceMonitoringTask::class,
+                    'runInterval' => 3600,
+                    'defaultRunInterval' => 3600,
+                    'status' => ScheduledTaskDefinition::STATUS_SCHEDULED,
+                ],
+            ], $installContext->getContext());
+        }
     }
 
     #[\Override]
