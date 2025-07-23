@@ -374,12 +374,15 @@
             <argument type="service" id="logger"/>
         </service>
 
-        <!-- API Versioning Services -->
+        <!-- API Versioning Services - TEMPORARILY DISABLED -->
+        <!--
         <service id="AdvancedWishlist\Core\Routing\ApiVersionResolver">
             <argument type="service" id="request_stack"/>
         </service>
+        -->
 
-        <!-- V2 Controllers for API Versioning -->
+        <!-- V2 Controllers for API Versioning - TEMPORARILY DISABLED -->
+        <!--
         <service id="AdvancedWishlist\Storefront\Controller\V2\WishlistControllerV2" public="true">
             <argument type="service" id="AdvancedWishlist\Core\Service\WishlistCrudService"/>
             <argument type="service" id="AdvancedWishlist\Core\Routing\ApiVersionResolver"/>
@@ -389,6 +392,7 @@
                 <argument type="service" id="service_container"/>
             </call>
         </service>
+        -->
 
         <!-- Premium Features Services -->
         <service id="AdvancedWishlist\Core\Premium\LicenseService">

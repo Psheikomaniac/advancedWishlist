@@ -1,0 +1,194 @@
+# Prometheus Alert Rules for AdvancedWishlist
+# Based on deployment-strategy-implementation.md PRD specifications
+
+groups:
+- name: advanced-wishlist
+  rules:
+  # High Error Rate Alert
+  - alert: WishlistHighErrorRate
+    expr: rate(wishlist_errors_total[5m]) > 0.05
+    for: 2m
+    labels:
+      severity: critical
+      service: advanced-wishlist
+    annotations:
+      summary: "High error rate detected in AdvancedWishlist"
+      description: "Error rate is {{ $value | humanizePercentage }} for the last 5 minutes"
+      runbook_url: "https://docs.advanced-wishlist.com/runbooks/high-error-rate"
+      
+  # Slow Response Times
+  - alert: WishlistSlowResponse
+    expr: histogram_quantile(0.95, rate(wishlist_response_time_seconds_bucket[5m])) > 2
+    for: 5m
+    labels:
+      severity: warning
+      service: advanced-wishlist
+    annotations:
+      summary: "Slow response times in AdvancedWishlist"
+      description: "95th percentile response time is {{ $value }}s for the last 5 minutes"
+      runbook_url: "https://docs.advanced-wishlist.com/runbooks/slow-response"
+      
+  # High Database Connection Count
+  - alert: WishlistDatabaseConnections
+    expr: wishlist_database_connections > 80
+    for: 3m
+    labels:
+      severity: warning
+      service: advanced-wishlist
+    annotations:
+      summary: "High database connection count"
+      description: "Database connection count is {{ $value }}"
+      runbook_url: "https://docs.advanced-wishlist.com/runbooks/high-db-connections"
+      
+  # Application Down
+  - alert: WishlistServiceDown
+    expr: up{job="advanced-wishlist"} == 0
+    for: 1m
+    labels:
+      severity: critical
+      service: advanced-wishlist
+    annotations:
+      summary: "AdvancedWishlist service is down"
+      description: "AdvancedWishlist service has been down for more than 1 minute"
+      runbook_url: "https://docs.advanced-wishlist.com/runbooks/service-down"
+      
+  # Health Check Failures
+  - alert: WishlistHealthCheckFailed
+    expr: probe_success{instance=~".*health.*"} == 0
+    for: 2m
+    labels:
+      severity: critical
+      service: advanced-wishlist
+    annotations:
+      summary: "AdvancedWishlist health check failed"
+      description: "Health check for {{ $labels.instance }} has been failing for 2 minutes"
+      runbook_url: "https://docs.advanced-wishlist.com/runbooks/health-check-failed"
+      
+  # High Memory Usage
+  - alert: WishlistHighMemoryUsage
+    expr: (wishlist_memory_usage_bytes / wishlist_memory_limit_bytes) * 100 > 85
+    for: 5m
+    labels:
+      severity: warning
+      service: advanced-wishlist
+    annotations:
+      summary: "High memory usage in AdvancedWishlist"
+      description: "Memory usage is {{ $value | humanizePercentage }} of limit"
+      runbook_url: "https://docs.advanced-wishlist.com/runbooks/high-memory-usage"
+      
+  # Cache Hit Ratio Too Low
+  - alert: WishlistLowCacheHitRatio
+    expr: wishlist_cache_hit_ratio < 0.85
+    for: 10m
+    labels:
+      severity: warning
+      service: advanced-wishlist
+    annotations:
+      summary: "Low cache hit ratio in AdvancedWishlist"
+      description: "Cache hit ratio is {{ $value | humanizePercentage }}"
+      runbook_url: "https://docs.advanced-wishlist.com/runbooks/low-cache-hit-ratio"
+
+- name: infrastructure
+  rules:
+  # High CPU Usage
+  - alert: HighCPUUsage
+    expr: 100 - (avg by(instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+    for: 5m
+    labels:
+      severity: warning
+      component: infrastructure
+    annotations:
+      summary: "High CPU usage on {{ $labels.instance }}"
+      description: "CPU usage is {{ $value | humanizePercentage }}"
+      
+  # High Memory Usage
+  - alert: HighMemoryUsage
+    expr: (1 - ((node_memory_MemAvailable_bytes) / (node_memory_MemTotal_bytes))) * 100 > 85
+    for: 5m
+    labels:
+      severity: warning
+      component: infrastructure
+    annotations:
+      summary: "High memory usage on {{ $labels.instance }}"
+      description: "Memory usage is {{ $value | humanizePercentage }}"
+      
+  # Low Disk Space
+  - alert: LowDiskSpace
+    expr: (1 - ((node_filesystem_avail_bytes{mountpoint="/"}) / (node_filesystem_size_bytes{mountpoint="/"}))) * 100 > 85
+    for: 5m
+    labels:
+      severity: critical
+      component: infrastructure
+    annotations:
+      summary: "Low disk space on {{ $labels.instance }}"
+      description: "Disk usage is {{ $value | humanizePercentage }}"
+
+- name: database
+  rules:
+  # MySQL Down
+  - alert: MySQLDown
+    expr: up{job="mysql"} == 0
+    for: 1m
+    labels:
+      severity: critical
+      component: database
+    annotations:
+      summary: "MySQL is down"
+      description: "MySQL has been down for more than 1 minute"
+      
+  # High MySQL Connections
+  - alert: MySQLHighConnections
+    expr: (mysql_global_status_threads_connected / mysql_global_variables_max_connections) * 100 > 80
+    for: 5m
+    labels:
+      severity: warning
+      component: database
+    annotations:
+      summary: "High MySQL connection usage"
+      description: "MySQL connection usage is {{ $value | humanizePercentage }}"
+      
+  # Slow MySQL Queries
+  - alert: MySQLSlowQueries
+    expr: rate(mysql_global_status_slow_queries[5m]) > 0.1
+    for: 5m
+    labels:
+      severity: warning
+      component: database
+    annotations:
+      summary: "High rate of slow MySQL queries"
+      description: "Slow query rate is {{ $value }} queries/second"
+
+- name: redis
+  rules:
+  # Redis Down
+  - alert: RedisDown
+    expr: up{job="redis"} == 0
+    for: 1m
+    labels:
+      severity: critical
+      component: redis
+    annotations:
+      summary: "Redis is down"
+      description: "Redis has been down for more than 1 minute"
+      
+  # High Redis Memory Usage
+  - alert: RedisHighMemoryUsage
+    expr: (redis_memory_used_bytes / redis_memory_max_bytes) * 100 > 85
+    for: 5m
+    labels:
+      severity: warning
+      component: redis
+    annotations:
+      summary: "High Redis memory usage"
+      description: "Redis memory usage is {{ $value | humanizePercentage }}"
+      
+  # High Redis Connection Count
+  - alert: RedisHighConnections
+    expr: redis_connected_clients > 100
+    for: 5m
+    labels:
+      severity: warning
+      component: redis
+    annotations:
+      summary: "High Redis connection count"
+      description: "Redis has {{ $value }} connected clients"

@@ -1,0 +1,130 @@
+# Production Dockerfile for AdvancedWishlist
+# Based on deployment-strategy-implementation.md PRD specifications
+
+FROM php:8.4-fpm-alpine AS base
+
+# Set environment variables
+ENV ENVIRONMENT=production
+ENV PHP_OPCACHE_VALIDATE_TIMESTAMPS=0
+ENV PHP_OPCACHE_MAX_ACCELERATED_FILES=20000
+ENV PHP_OPCACHE_MEMORY_CONSUMPTION=256
+ENV PHP_REALPATH_CACHE_SIZE=4096K
+ENV PHP_REALPATH_CACHE_TTL=600
+
+# Install system dependencies
+RUN apk add --no-cache \
+    nginx \
+    supervisor \
+    curl \
+    wget \
+    zip \
+    unzip \
+    git \
+    icu-dev \
+    libzip-dev \
+    freetype-dev \
+    libjpeg-turbo-dev \
+    libpng-dev \
+    libxml2-dev \
+    oniguruma-dev \
+    mysql-client \
+    redis \
+    && rm -rf /var/cache/apk/*
+
+# Install PHP extensions
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install -j$(nproc) \
+        intl \
+        zip \
+        gd \
+        pdo_mysql \
+        mysqli \
+        bcmath \
+        soap \
+        xml \
+        mbstring \
+        opcache
+
+# Install Redis extension
+RUN pecl install redis && docker-php-ext-enable redis
+
+# Install Composer
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
+# Configure PHP for production
+RUN { \
+    echo 'opcache.memory_consumption=256'; \
+    echo 'opcache.interned_strings_buffer=8'; \
+    echo 'opcache.max_accelerated_files=20000'; \
+    echo 'opcache.revalidate_freq=0'; \
+    echo 'opcache.validate_timestamps=0'; \
+    echo 'opcache.enable=1'; \
+    echo 'opcache.enable_cli=0'; \
+    echo 'opcache.preload=/var/www/html/var/cache/preload.php'; \
+    echo 'opcache.preload_user=www-data'; \
+    echo 'realpath_cache_size=4096K'; \
+    echo 'realpath_cache_ttl=600'; \
+    echo 'memory_limit=512M'; \
+    echo 'max_execution_time=300'; \
+    echo 'upload_max_filesize=100M'; \
+    echo 'post_max_size=100M'; \
+    echo 'max_input_vars=3000'; \
+    echo 'expose_php=Off'; \
+    echo 'display_errors=Off'; \
+    echo 'log_errors=On'; \
+    echo 'error_log=/var/log/php_errors.log'; \
+} > /usr/local/etc/php/conf.d/production.ini
+
+# Configure Nginx
+COPY .docker/nginx/nginx.conf /etc/nginx/nginx.conf
+COPY .docker/nginx/default.conf /etc/nginx/conf.d/default.conf
+
+# Configure Supervisor
+COPY .docker/supervisor/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
+# Create application directory
+WORKDIR /var/www/html
+
+# Copy application files
+COPY . .
+
+# Install Composer dependencies
+RUN composer install --no-dev --optimize-autoloader --no-scripts --no-interaction
+
+# Set proper permissions
+RUN chown -R www-data:www-data /var/www/html \
+    && chmod -R 755 /var/www/html \
+    && chmod -R 777 /var/www/html/var/cache \
+    && chmod -R 777 /var/www/html/var/log \
+    && chmod -R 777 /var/www/html/files \
+    && chmod -R 777 /var/www/html/public/media
+
+# Create health check script
+RUN echo '#!/bin/sh' > /usr/local/bin/health-check.sh \
+    && echo 'curl -f http://localhost/health || exit 1' >> /usr/local/bin/health-check.sh \
+    && echo 'curl -f http://localhost/api/wishlist/health || exit 1' >> /usr/local/bin/health-check.sh \
+    && chmod +x /usr/local/bin/health-check.sh
+
+# Expose port
+EXPOSE 80
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=30s --retries=3 \
+    CMD /usr/local/bin/health-check.sh
+
+# Start supervisor
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+
+# Multi-stage build for different environments
+FROM base AS development
+ENV ENVIRONMENT=development
+ENV PHP_OPCACHE_VALIDATE_TIMESTAMPS=1
+RUN composer install --optimize-autoloader
+
+FROM base AS staging
+ENV ENVIRONMENT=staging
+RUN composer install --optimize-autoloader
+
+FROM base AS production
+ENV ENVIRONMENT=production
+# Already configured for production above

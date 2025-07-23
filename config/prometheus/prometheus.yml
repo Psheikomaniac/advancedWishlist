@@ -1,0 +1,92 @@
+# Prometheus Configuration for AdvancedWishlist
+# Based on deployment-strategy-implementation.md PRD specifications
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: 'advanced-wishlist-production'
+    environment: 'production'
+
+rule_files:
+  - "alert_rules.yml"
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          - alertmanager:9093
+
+scrape_configs:
+  # AdvancedWishlist Application Metrics
+  - job_name: 'advanced-wishlist'
+    static_configs:
+      - targets: ['app:9090']
+    metrics_path: '/metrics'
+    scrape_interval: 5s
+    scrape_timeout: 5s
+    honor_labels: true
+    
+  # Shopware Core Metrics
+  - job_name: 'shopware-core'
+    static_configs:
+      - targets: ['app:8080']
+    metrics_path: '/api/_info/metrics'
+    scrape_interval: 30s
+    
+  # MySQL Database Metrics
+  - job_name: 'mysql'
+    static_configs:
+      - targets: ['database:9104']
+    scrape_interval: 10s
+    
+  # Redis Metrics
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['redis:9121']
+    scrape_interval: 10s
+    
+  # Node Exporter (System Metrics)
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']
+    scrape_interval: 15s
+    
+  # Nginx Metrics
+  - job_name: 'nginx'
+    static_configs:
+      - targets: ['nginx-proxy:9113']
+    scrape_interval: 15s
+    
+  # Docker Container Metrics
+  - job_name: 'cadvisor'
+    static_configs:
+      - targets: ['cadvisor:8080']
+    scrape_interval: 15s
+    
+  # Health Check Monitoring
+  - job_name: 'blackbox'
+    metrics_path: /probe
+    params:
+      module: [http_2xx]
+    static_configs:
+      - targets:
+        - http://app/health
+        - http://app/api/wishlist/health
+        - http://app/health/ready
+        - http://app/health/live
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox-exporter:9115
+
+  # Custom AdvancedWishlist Business Metrics
+  - job_name: 'wishlist-business-metrics'
+    static_configs:
+      - targets: ['app:9090']
+    metrics_path: '/api/wishlist/metrics'
+    scrape_interval: 30s
+    honor_labels: true

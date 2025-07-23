@@ -1,0 +1,127 @@
+# AlertManager Configuration for AdvancedWishlist
+# Based on deployment-strategy-implementation.md PRD specifications
+
+global:
+  smtp_smarthost: 'localhost:587'
+  smtp_from: 'alerts@advanced-wishlist.com'
+  smtp_auth_username: 'alerts@advanced-wishlist.com'
+  smtp_auth_password: '${SMTP_PASSWORD}'
+
+route:
+  group_by: ['alertname', 'cluster', 'service']
+  group_wait: 10s
+  group_interval: 10s
+  repeat_interval: 1h
+  receiver: 'web.hook'
+  routes:
+  # Critical alerts go to on-call team immediately
+  - match:
+      severity: critical
+    receiver: 'critical-alerts'
+    group_wait: 0s
+    repeat_interval: 5m
+  
+  # Warning alerts are grouped and sent less frequently
+  - match:
+      severity: warning
+    receiver: 'warning-alerts'
+    group_wait: 30s
+    repeat_interval: 30m
+    
+  # Infrastructure alerts
+  - match:
+      component: infrastructure
+    receiver: 'infrastructure-team'
+    
+  # Database alerts
+  - match:
+      component: database
+    receiver: 'database-team'
+
+receivers:
+- name: 'web.hook'
+  webhook_configs:
+  - url: 'http://127.0.0.1:5001/'
+
+- name: 'critical-alerts'
+  email_configs:
+  - to: 'oncall@advanced-wishlist.com'
+    subject: '🚨 CRITICAL: {{ range .Alerts }}{{ .Annotations.summary }}{{ end }}'
+    body: |
+      {{ range .Alerts }}
+      Alert: {{ .Annotations.summary }}
+      Description: {{ .Annotations.description }}
+      Severity: {{ .Labels.severity }}
+      Service: {{ .Labels.service }}
+      Time: {{ .StartsAt }}
+      Runbook: {{ .Annotations.runbook_url }}
+      {{ end }}
+  slack_configs:
+  - api_url: '${SLACK_WEBHOOK_URL}'
+    channel: '#alerts-critical'
+    title: '🚨 Critical Alert'
+    text: |
+      {{ range .Alerts }}
+      *{{ .Annotations.summary }}*
+      {{ .Annotations.description }}
+      Service: {{ .Labels.service }}
+      Runbook: {{ .Annotations.runbook_url }}
+      {{ end }}
+  pagerduty_configs:
+  - routing_key: '${PAGERDUTY_ROUTING_KEY}'
+    description: '{{ range .Alerts }}{{ .Annotations.summary }}{{ end }}'
+
+- name: 'warning-alerts'
+  email_configs:
+  - to: 'team@advanced-wishlist.com'
+    subject: '⚠️ WARNING: {{ .GroupLabels.alertname }}'
+    body: |
+      {{ range .Alerts }}
+      Alert: {{ .Annotations.summary }}
+      Description: {{ .Annotations.description }}
+      Severity: {{ .Labels.severity }}
+      Service: {{ .Labels.service }}
+      Time: {{ .StartsAt }}
+      {{ end }}
+  slack_configs:
+  - api_url: '${SLACK_WEBHOOK_URL}'
+    channel: '#alerts-warning'
+    title: '⚠️ Warning Alert'
+    text: |
+      {{ range .Alerts }}
+      *{{ .Annotations.summary }}*
+      {{ .Annotations.description }}
+      Service: {{ .Labels.service }}
+      {{ end }}
+
+- name: 'infrastructure-team'
+  email_configs:
+  - to: 'infrastructure@advanced-wishlist.com'
+    subject: '🔧 Infrastructure Alert: {{ .GroupLabels.alertname }}'
+    body: |
+      {{ range .Alerts }}
+      Alert: {{ .Annotations.summary }}
+      Description: {{ .Annotations.description }}
+      Instance: {{ .Labels.instance }}
+      Time: {{ .StartsAt }}
+      {{ end }}
+
+- name: 'database-team'
+  email_configs:
+  - to: 'database@advanced-wishlist.com'
+    subject: '🗄️ Database Alert: {{ .GroupLabels.alertname }}'
+    body: |
+      {{ range .Alerts }}
+      Alert: {{ .Annotations.summary }}
+      Description: {{ .Annotations.description }}
+      Instance: {{ .Labels.instance }}
+      Time: {{ .StartsAt }}
+      {{ end }}
+
+inhibit_rules:
+  # Inhibit warning alerts if critical alerts are firing for the same service
+  - source_match:
+      severity: 'critical'
+    target_match:
+      severity: 'warning'
+    equal: ['service', 'instance']
