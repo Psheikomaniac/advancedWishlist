@@ -18,6 +18,8 @@ use Shopware\Storefront\Controller\StorefrontController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Csrf\CsrfToken;
+use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 
 #[Route(defaults: ['_routeScope' => ['storefront']])]
 class WishlistController extends StorefrontController
@@ -25,6 +27,7 @@ class WishlistController extends StorefrontController
     public function __construct(
         private WishlistCrudService $wishlistCrudService,
         private GetWishlistsQueryHandler $getWishlistsQueryHandler,
+        private CsrfTokenManagerInterface $csrfTokenManager,
     ) {
     }
 
@@ -38,48 +41,58 @@ class WishlistController extends StorefrontController
 
         $criteria = new Criteria();
 
-        // Add pagination from request
-        $limit = $request->query->getInt('limit', 10);
-        $page = $request->query->getInt('page', 1);
+        // Add pagination from request with security validation
+        $limit = $this->validateAndSanitizeInt($request->query->get('limit', '10'), 1, 100);
+        $page = $this->validateAndSanitizeInt($request->query->get('page', '1'), 1, 1000);
         $offset = ($page - 1) * $limit;
 
         $criteria->setLimit($limit);
         $criteria->setOffset($offset);
 
-        // Add field filtering from request
+        // Add field filtering from request with validation
         $fields = $request->query->get('fields');
-        if ($fields) {
+        if ($fields && $this->validateFieldsParameter($fields)) {
             // Parse fields parameter (comma-separated list)
             $fieldArray = array_map('trim', explode(',', $fields));
-            $criteria->setFields($fieldArray);
+            $allowedFields = ['id', 'name', 'description', 'type', 'isDefault', 'createdAt', 'updatedAt'];
+            $fieldArray = array_intersect($fieldArray, $allowedFields);
+            if (!empty($fieldArray)) {
+                $criteria->setFields($fieldArray);
+            }
         }
 
-        // Add sorting from request
+        // Add sorting from request with validation
         $sort = $request->query->get('sort');
-        if ($sort) {
+        if ($sort && $this->validateSortParameter($sort)) {
             // Parse sort parameter (field:direction format)
             $sortParts = explode(':', $sort);
             $field = $sortParts[0];
-            $direction = $sortParts[1] ?? 'ASC';
+            $direction = strtoupper($sortParts[1] ?? 'ASC');
 
-            if (in_array(strtoupper($direction), ['ASC', 'DESC'])) {
+            $allowedSortFields = ['id', 'name', 'createdAt', 'updatedAt'];
+            if (in_array($field, $allowedSortFields) && in_array($direction, ['ASC', 'DESC'])) {
                 $criteria->addSorting(new FieldSorting($field, $direction));
+            } else {
+                $criteria->addSorting(new FieldSorting('createdAt', 'DESC'));
             }
         } else {
             // Default sorting by creation date (newest first)
             $criteria->addSorting(new FieldSorting('createdAt', 'DESC'));
         }
 
-        // Add filtering from request
+        // Add filtering from request with validation
         $filter = $request->query->get('filter');
-        if ($filter) {
+        if ($filter && $this->validateFilterParameter($filter)) {
             // Parse filter parameter (field:value format)
-            $filterParts = explode(':', $filter);
+            $filterParts = explode(':', $filter, 2);
             if (2 === count($filterParts)) {
                 $field = $filterParts[0];
                 $value = $filterParts[1];
 
-                $criteria->addFilter(new EqualsFilter($field, $value));
+                $allowedFilterFields = ['type', 'isDefault'];
+                if (in_array($field, $allowedFilterFields) && $this->validateFilterValue($field, $value)) {
+                    $criteria->addFilter(new EqualsFilter($field, $value));
+                }
             }
         }
 
@@ -250,6 +263,60 @@ class WishlistController extends StorefrontController
             }
         } catch (\Exception $e) {
             return new JsonResponse(['errors' => [['code' => 'WISHLIST__DELETE_FAILED', 'title' => 'Delete Failed', 'detail' => $e->getMessage()]]], JsonResponse::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * Validate and sanitize integer input with bounds checking.
+     */
+    private function validateAndSanitizeInt(string $value, int $min = 1, int $max = PHP_INT_MAX): int
+    {
+        $int = filter_var($value, FILTER_VALIDATE_INT);
+        if (false === $int || $int < $min || $int > $max) {
+            return $min;
+        }
+        return $int;
+    }
+
+    /**
+     * Validate fields parameter to prevent injection attacks.
+     */
+    private function validateFieldsParameter(string $fields): bool
+    {
+        // Only allow alphanumeric characters, commas, and underscores
+        return 1 === preg_match('/^[a-zA-Z0-9,_]+$/', $fields);
+    }
+
+    /**
+     * Validate sort parameter to prevent SQL injection.
+     */
+    private function validateSortParameter(string $sort): bool
+    {
+        // Only allow alphanumeric characters, colon, and underscore
+        return 1 === preg_match('/^[a-zA-Z0-9_]+:(asc|desc|ASC|DESC)$/', $sort);
+    }
+
+    /**
+     * Validate filter parameter to prevent injection attacks.
+     */
+    private function validateFilterParameter(string $filter): bool
+    {
+        // Basic validation for field:value format
+        return 1 === preg_match('/^[a-zA-Z0-9_]+:[a-zA-Z0-9_]+$/', $filter);
+    }
+
+    /**
+     * Validate filter values based on field type.
+     */
+    private function validateFilterValue(string $field, string $value): bool
+    {
+        switch ($field) {
+            case 'type':
+                return in_array($value, ['private', 'public', 'shared']);
+            case 'isDefault':
+                return in_array($value, ['0', '1', 'true', 'false']);
+            default:
+                return false;
         }
     }
 }

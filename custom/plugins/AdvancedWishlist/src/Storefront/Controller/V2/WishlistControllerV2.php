@@ -18,6 +18,8 @@ use Shopware\Storefront\Controller\StorefrontController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Csrf\CsrfToken;
+use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 
 /**
  * Enterprise V2 Wishlist Controller with PHP 8.4 Features
@@ -30,6 +32,7 @@ class WishlistControllerV2 extends StorefrontController
         private WishlistCrudService $wishlistCrudService,
         private ApiVersionResolver $apiVersionResolver,
         private LazyObjectService $lazyObjectService,
+        private CsrfTokenManagerInterface $csrfTokenManager,
     ) {
     }
 
@@ -296,32 +299,43 @@ class WishlistControllerV2 extends StorefrontController
     {
         $criteria = new Criteria();
 
-        // Enhanced pagination
-        $limit = min($request->query->getInt('limit', 10), 100);
-        $page = max($request->query->getInt('page', 1), 1);
+        // Enhanced pagination with security validation
+        $limit = $this->validateAndSanitizePagination($request->query->get('limit', '10'), 1, 100);
+        $page = $this->validateAndSanitizePagination($request->query->get('page', '1'), 1, 1000);
         $offset = ($page - 1) * $limit;
 
         $criteria->setLimit($limit);
         $criteria->setOffset($offset);
 
-        // Enhanced field selection
+        // Enhanced field selection with security validation
         if ($fields = $request->query->get('fields')) {
-            $fieldArray = array_map('trim', explode(',', $fields));
-            $criteria->setFields($fieldArray);
-        }
-
-        // Enhanced sorting with multiple fields
-        $sort = $request->query->get('sort', 'createdAt:DESC');
-        foreach (explode(',', $sort) as $sortField) {
-            [$field, $direction] = explode(':', $sortField.':ASC');
-            if (in_array(strtoupper($direction), ['ASC', 'DESC'])) {
-                $criteria->addSorting(new FieldSorting($field, $direction));
+            if ($this->validateFieldsInput($fields)) {
+                $fieldArray = $this->sanitizeFieldsArray($fields);
+                if (!empty($fieldArray)) {
+                    $criteria->setFields($fieldArray);
+                }
             }
         }
 
-        // Enhanced filtering
+        // Enhanced sorting with multiple fields and security validation
+        $sort = $request->query->get('sort', 'createdAt:DESC');
+        if ($this->validateSortInput($sort)) {
+            foreach (explode(',', $sort) as $sortField) {
+                [$field, $direction] = explode(':', $sortField.':ASC');
+                if ($this->isAllowedSortField($field) && in_array(strtoupper($direction), ['ASC', 'DESC'])) {
+                    $criteria->addSorting(new FieldSorting($field, $direction));
+                }
+            }
+        } else {
+            // Fallback to default sorting
+            $criteria->addSorting(new FieldSorting('createdAt', 'DESC'));
+        }
+
+        // Enhanced filtering with security validation
         if ($filter = $request->query->get('filter')) {
-            $this->addAdvancedFilters($criteria, $filter);
+            if ($this->validateFilterInput($filter)) {
+                $this->addAdvancedFilters($criteria, $filter);
+            }
         }
 
         // Include associations based on request
@@ -394,17 +408,54 @@ class WishlistControllerV2 extends StorefrontController
     // Additional helper methods would be implemented here...
     private function canAccessWishlist($wishlist, string $customerId): bool
     {
-        return true;
+        if (!$wishlist) {
+            return false;
+        }
+        
+        // Owner can always access
+        if ($wishlist->getCustomerId() === $customerId) {
+            return true;
+        }
+        
+        // Public wishlists can be accessed
+        if ($wishlist->getType() === 'public') {
+            return true;
+        }
+        
+        // Check if wishlist is shared with the customer
+        if ($wishlist->getShareInfo()) {
+            foreach ($wishlist->getShareInfo() as $share) {
+                if ($share->getRecipientId() === $customerId) {
+                    return true;
+                }
+            }
+        }
+        
+        return false;
     }
 
     private function canModifyWishlist($wishlist, string $customerId): bool
     {
-        return true;
+        if (!$wishlist) {
+            return false;
+        }
+        
+        // Only the owner can modify the wishlist
+        return $wishlist->getCustomerId() === $customerId;
     }
 
     private function validateCsrfToken(Request $request, string $intention): bool
     {
-        return true;
+        $token = $request->request->get('_csrf_token');
+        if (!$token) {
+            $token = $request->headers->get('X-CSRF-Token');
+        }
+        
+        if (!$token) {
+            return false;
+        }
+        
+        return $this->csrfTokenManager->isTokenValid(new CsrfToken($intention, $token));
     }
 
     private function buildCreateRequest(array $data, string $customerId): CreateWishlistRequest
@@ -468,6 +519,20 @@ class WishlistControllerV2 extends StorefrontController
 
     private function addAdvancedFilters(Criteria $criteria, string $filter): void
     {
+        // Parse multiple filters separated by comma
+        $filters = explode(',', $filter);
+        
+        foreach ($filters as $filterStr) {
+            $filterParts = explode(':', $filterStr, 2);
+            if (2 === count($filterParts)) {
+                $field = trim($filterParts[0]);
+                $value = trim($filterParts[1]);
+                
+                if ($this->isAllowedFilterField($field) && $this->validateFilterValue($field, $value)) {
+                    $criteria->addFilter(new EqualsFilter($field, $value));
+                }
+            }
+        }
     }
 
     private function addCacheHeaders(JsonResponse $response, int $ttl): void
@@ -476,6 +541,103 @@ class WishlistControllerV2 extends StorefrontController
 
     private function getErrorTitle(int $status): string
     {
-        return 'Error';
+        return match($status) {
+            400 => 'Bad Request',
+            401 => 'Unauthorized',
+            403 => 'Forbidden',
+            404 => 'Not Found',
+            409 => 'Conflict',
+            429 => 'Too Many Requests',
+            500 => 'Internal Server Error',
+            default => 'Error'
+        };
+    }
+    
+    /**
+     * Validate and sanitize pagination input.
+     */
+    private function validateAndSanitizePagination(string $value, int $min = 1, int $max = PHP_INT_MAX): int
+    {
+        $int = filter_var($value, FILTER_VALIDATE_INT);
+        if (false === $int || $int < $min || $int > $max) {
+            return $min;
+        }
+        return $int;
+    }
+    
+    /**
+     * Validate fields input for security.
+     */
+    private function validateFieldsInput(string $fields): bool
+    {
+        // Only allow alphanumeric characters, commas, dots, and underscores
+        return 1 === preg_match('/^[a-zA-Z0-9,._]+$/', $fields);
+    }
+    
+    /**
+     * Sanitize fields array with allowed fields whitelist.
+     */
+    private function sanitizeFieldsArray(string $fields): array
+    {
+        $fieldArray = array_map('trim', explode(',', $fields));
+        $allowedFields = [
+            'id', 'name', 'description', 'type', 'isDefault', 'createdAt', 'updatedAt',
+            'items.id', 'items.count', 'shareInfo.id'
+        ];
+        
+        return array_intersect($fieldArray, $allowedFields);
+    }
+    
+    /**
+     * Validate sort input for security.
+     */
+    private function validateSortInput(string $sort): bool
+    {
+        // Allow multiple sort fields separated by comma
+        return 1 === preg_match('/^[a-zA-Z0-9_:,]+$/', $sort);
+    }
+    
+    /**
+     * Check if field is allowed for sorting.
+     */
+    private function isAllowedSortField(string $field): bool
+    {
+        $allowedSortFields = ['id', 'name', 'createdAt', 'updatedAt', 'type'];
+        return in_array($field, $allowedSortFields);
+    }
+    
+    /**
+     * Validate filter input for security.
+     */
+    private function validateFilterInput(string $filter): bool
+    {
+        // Allow multiple filters separated by comma
+        return 1 === preg_match('/^[a-zA-Z0-9_:,]+$/', $filter);
+    }
+    
+    /**
+     * Check if field is allowed for filtering.
+     */
+    private function isAllowedFilterField(string $field): bool
+    {
+        $allowedFilterFields = ['type', 'isDefault', 'customerId'];
+        return in_array($field, $allowedFilterFields);
+    }
+    
+    /**
+     * Validate filter values based on field type.
+     */
+    private function validateFilterValue(string $field, string $value): bool
+    {
+        switch ($field) {
+            case 'type':
+                return in_array($value, ['private', 'public', 'shared']);
+            case 'isDefault':
+                return in_array($value, ['0', '1', 'true', 'false']);
+            case 'customerId':
+                return 1 === preg_match('/^[a-f0-9]{32}$/', $value); // UUID format
+            default:
+                return false;
+        }
     }
 }

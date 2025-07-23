@@ -37,7 +37,7 @@ class QueryOptimizer
     public function __construct(
         private readonly Connection $connection,
         private readonly CacheItemPoolInterface $cache,
-        private readonly LoggerInterface $logger,
+        private readonly LoggerInterface $logger
     ) {
     }
 

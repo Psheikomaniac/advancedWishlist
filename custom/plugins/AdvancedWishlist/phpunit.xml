@@ -1,23 +1,129 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/11.0/phpunit.xsd"
          bootstrap="tests/TestBootstrap.php"
-         executionOrder="random">
-    <coverage>
+         executionOrder="random"
+         cacheDirectory=".phpunit.cache"
+         colors="true"
+         stopOnFailure="false"
+         stopOnError="false"
+         stopOnIncomplete="false"
+         stopOnSkipped="false"
+         beStrictAboutOutputDuringTests="true"
+         beStrictAboutTodoAnnotatedTests="true"
+         failOnRisky="true"
+         failOnWarning="true">
+    
+    <!-- Coverage Configuration for 80%+ Target -->
+    <coverage includeUncoveredFiles="true" pathCoverage="true" ignoreDeprecatedCodeUnits="true">
         <include>
-            <directory>./src/</directory>
+            <directory suffix=".php">./src/</directory>
         </include>
+        <exclude>
+            <!-- Exclude migration files from coverage -->
+            <directory>./src/Migration/</directory>
+            <!-- Exclude resource files -->
+            <directory>./src/Resources/</directory>
+            <!-- Exclude test utilities -->
+            <file>./src/Test/</file>
+        </exclude>
+        <report>
+            <html outputDirectory="coverage-html" lowUpperBound="50" highLowerBound="80"/>
+            <clover outputFile="coverage.xml"/>
+            <text outputFile="coverage.txt" showUncoveredFiles="true" showOnlySummary="false"/>
+        </report>
     </coverage>
+    
+    <!-- PHP Configuration -->
     <php>
         <ini name="error_reporting" value="-1"/>
+        <ini name="memory_limit" value="1G"/>
+        <ini name="max_execution_time" value="300"/>
         <server name="KERNEL_CLASS" value="Shopware\Core\Kernel"/>
         <env name="APP_ENV" value="test"/>
         <env name="APP_DEBUG" value="1"/>
         <env name="SYMFONY_DEPRECATIONS_HELPER" value="weak"/>
+        <env name="DATABASE_URL" value="mysql://root:root@localhost:3306/shopware_test"/>
+        <env name="REDIS_URL" value="redis://localhost:6379/1"/>
+        <env name="SHOPWARE_CACHE_ID" value="test"/>
+        <!-- PHP 8.4 specific settings -->
+        <ini name="opcache.enable" value="0"/>
+        <ini name="xdebug.mode" value="coverage"/>
     </php>
+    
+    <!-- Test Suites with Comprehensive Coverage -->
     <testsuites>
-        <testsuite name="AdvancedWishlist Testsuite">
+        <!-- Unit Tests for Core Logic -->
+        <testsuite name="Unit">
+            <directory>tests/Unit</directory>
+        </testsuite>
+        
+        <!-- Integration Tests for Service Layer -->
+        <testsuite name="Integration">
+            <directory>tests/Integration</directory>
+        </testsuite>
+        
+        <!-- Functional Tests for Controllers -->
+        <testsuite name="Functional">
+            <directory>tests/Functional</directory>
+        </testsuite>
+        
+        <!-- Security Tests -->
+        <testsuite name="Security">
+            <directory>tests/Security</directory>
+        </testsuite>
+        
+        <!-- Performance Tests -->
+        <testsuite name="Performance">
+            <directory>tests/Performance</directory>
+        </testsuite>
+        
+        <!-- End-to-End Tests -->
+        <testsuite name="E2E">
+            <directory>tests/E2E</directory>
+        </testsuite>
+        
+        <!-- Service Layer Tests -->
+        <testsuite name="Service">
+            <directory>tests/Service</directory>
+        </testsuite>
+        
+        <!-- All Tests (Default) -->
+        <testsuite name="AdvancedWishlist">
             <directory>tests</directory>
+            <exclude>tests/E2E/cypress*</exclude>
+            <exclude>tests/E2E/fixtures</exclude>
+            <exclude>tests/E2E/support</exclude>
         </testsuite>
     </testsuites>
+    
+    <!-- Logging Configuration -->
+    <logging>
+        <junit outputFile="test-results.xml"/>
+        <teamcity outputFile="teamcity-results.xml"/>
+        <testdoxHtml outputFile="testdox.html"/>
+        <testdoxText outputFile="testdox.txt"/>
+    </logging>
+    
+    <!-- Extension Configuration -->
+    <extensions>
+        <!-- Performance monitoring extension -->
+        <!-- <extension class="PHPUnit\Framework\TestListener\SpeedTrap"/> -->
+    </extensions>
+    
+    <!-- Groups for Selective Test Execution -->
+    <groups>
+        <include>
+            <group>unit</group>
+            <group>integration</group>
+            <group>functional</group>
+            <group>security</group>
+            <group>performance</group>
+            <group>e2e</group>
+        </include>
+        <exclude>
+            <group>slow</group>
+            <group>external</group>
+        </exclude>
+    </groups>
 </phpunit>

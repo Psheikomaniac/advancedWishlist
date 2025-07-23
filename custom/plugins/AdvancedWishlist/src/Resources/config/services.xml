@@ -110,6 +110,8 @@
 
     <service id="AdvancedWishlist\Storefront\Controller\WishlistController" public="true">
             <argument type="service" id="AdvancedWishlist\Core\Service\WishlistCrudService"/>
+            <argument type="service" id="AdvancedWishlist\Core\CQRS\Query\Wishlist\GetWishlistsQueryHandler"/>
+            <argument type="service" id="security.csrf.token_manager"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
@@ -205,6 +207,12 @@
 
         <service id="AdvancedWishlist\Core\CQRS\Query\GetWishlistQueryHandler">
             <argument type="service" id="wishlist.repository" />
+        </service>
+        
+        <service id="AdvancedWishlist\Core\CQRS\Query\Wishlist\GetWishlistsQueryHandler">
+            <argument type="service" id="wishlist.repository" />
+            <argument type="service" id="AdvancedWishlist\Core\Service\WishlistCacheService" />
+            <argument type="service" id="logger" />
         </service>
 
         <!-- Builder Pattern Implementation -->
@@ -303,7 +311,12 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
-        <!-- Security Monitoring -->
+        <!-- Security Services -->
+        <service id="AdvancedWishlist\Core\Security\SecurityService">
+            <argument type="service" id="security.csrf.token_manager"/>
+            <argument type="service" id="logger"/>
+        </service>
+        
         <service id="AdvancedWishlist\Core\Security\SecurityMonitoringService">
             <argument type="service" id="logger"/>
             <argument type="service" id="request_stack"/>
@@ -371,6 +384,7 @@
             <argument type="service" id="AdvancedWishlist\Core\Service\WishlistCrudService"/>
             <argument type="service" id="AdvancedWishlist\Core\Routing\ApiVersionResolver"/>
             <argument type="service" id="AdvancedWishlist\Core\Performance\LazyObjectService"/>
+            <argument type="service" id="security.csrf.token_manager"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>

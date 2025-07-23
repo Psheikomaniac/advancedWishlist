@@ -1,0 +1,135 @@
+{% sw_extends '@Storefront/storefront/base.html.twig' %}
+
+{% block base_head %}
+    {{ parent() }}
+    
+    {% block advanced_wishlist_meta %}
+        <meta name="description" content="{{ 'advanced-wishlist.meta.description'|trans }}">
+        <meta name="keywords" content="{{ 'advanced-wishlist.meta.keywords'|trans }}">
+        <meta property="og:title" content="{{ 'advanced-wishlist.meta.title'|trans }}">
+        <meta property="og:description" content="{{ 'advanced-wishlist.meta.description'|trans }}">
+        <meta property="og:type" content="website">
+    {% endblock %}
+{% endblock %}
+
+{% block base_navigation %}
+    {{ parent() }}
+{% endblock %}
+
+{% block base_main %}
+    <main class="main-content advanced-wishlist-main" role="main">
+        {% block advanced_wishlist_breadcrumb %}
+            <div class="breadcrumb-container">
+                {% sw_include '@Storefront/storefront/utilities/breadcrumb.html.twig' with {
+                    breadcrumb: [{
+                        name: 'navigation.home'|trans,
+                        path: path('frontend.home.page')
+                    }, {
+                        name: 'advanced-wishlist.breadcrumb.wishlists'|trans,
+                        path: path('frontend.account.wishlist.page')
+                    }]
+                } %}
+            </div>
+        {% endblock %}
+
+        {% block advanced_wishlist_main_content %}
+            <div class="container-main">
+                {% block advanced_wishlist_content %}
+                    {{ block('advanced_wishlist_page_content') }}
+                {% endblock %}
+            </div>
+        {% endblock %}
+    </main>
+{% endblock %}
+
+{% block advanced_wishlist_page_content %}
+    <div class="advanced-wishlist-page">
+        {% block advanced_wishlist_page_header %}
+            <div class="advanced-wishlist-header">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        {% block advanced_wishlist_page_title %}
+                            <h1 class="advanced-wishlist-title">
+                                {{ 'advanced-wishlist.page.title'|trans }}
+                            </h1>
+                        {% endblock %}
+                        
+                        {% block advanced_wishlist_page_description %}
+                            <p class="advanced-wishlist-description">
+                                {{ 'advanced-wishlist.page.description'|trans }}
+                            </p>
+                        {% endblock %}
+                    </div>
+                    
+                    <div class="col-md-4 text-md-right">
+                        {% block advanced_wishlist_page_actions %}
+                            <div class="advanced-wishlist-actions">
+                                {% block advanced_wishlist_create_button %}
+                                    <a href="{{ path('frontend.account.wishlist.create') }}" 
+                                       class="btn btn-primary advanced-wishlist-create-btn">
+                                        <i class="fas fa-plus" aria-hidden="true"></i>
+                                        {{ 'advanced-wishlist.button.createNew'|trans }}
+                                    </a>
+                                {% endblock %}
+                            </div>
+                        {% endblock %}
+                    </div>
+                </div>
+            </div>
+        {% endblock %}
+
+        {% block advanced_wishlist_page_body %}
+            <div class="advanced-wishlist-body">
+                {% block advanced_wishlist_alerts %}
+                    {% for message in app.flashes('success') %}
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <i class="fas fa-check-circle" aria-hidden="true"></i>
+                            {{ message }}
+                            <button type="button" class="close" data-dismiss="alert" aria-label="{{ 'general.close'|trans }}">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                    {% endfor %}
+                    
+                    {% for message in app.flashes('error') %}
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="fas fa-exclamation-triangle" aria-hidden="true"></i>
+                            {{ message }}
+                            <button type="button" class="close" data-dismiss="alert" aria-label="{{ 'general.close'|trans }}">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                    {% endfor %}
+                    
+                    {% for message in app.flashes('warning') %}
+                        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                            <i class="fas fa-exclamation-circle" aria-hidden="true"></i>
+                            {{ message }}
+                            <button type="button" class="close" data-dismiss="alert" aria-label="{{ 'general.close'|trans }}">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                    {% endfor %}
+                {% endblock %}
+
+                {% block advanced_wishlist_content_body %}
+                    <!-- Content will be extended by specific wishlist pages -->
+                {% endblock %}
+            </div>
+        {% endblock %}
+    </div>
+{% endblock %}
+
+{% block base_footer %}
+    {{ parent() }}
+{% endblock %}
+
+{% block base_script_token %}
+    {{ parent() }}
+    
+    {% block advanced_wishlist_csrf_token %}
+        <script>
+            window.wishlistCsrfToken = '{{ csrf_token('wishlist_token') }}';
+        </script>
+    {% endblock %}
+{% endblock %}

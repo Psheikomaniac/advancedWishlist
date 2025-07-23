@@ -1,0 +1,478 @@
+{% sw_extends '@AdvancedWishlist/storefront/layout/wishlist/wishlist.html.twig' %}
+
+{% block advanced_wishlist_breadcrumb %}
+    <div class="breadcrumb-container">
+        {% sw_include '@Storefront/storefront/utilities/breadcrumb.html.twig' with {
+            breadcrumb: [{
+                name: 'navigation.home'|trans,
+                path: path('frontend.home.page')
+            }, {
+                name: 'advanced-wishlist.breadcrumb.wishlists'|trans,
+                path: path('frontend.account.wishlist.page')
+            }, {
+                name: wishlist.name,
+                path: null
+            }]
+        } %}
+    </div>
+{% endblock %}
+
+{% block advanced_wishlist_content_body %}
+    <div class="advanced-wishlist-detail" data-advanced-wishlist-detail="true">
+        {% block advanced_wishlist_detail_header %}
+            <div class="advanced-wishlist-detail-header">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        {% block advanced_wishlist_detail_title %}
+                            <h1 class="advanced-wishlist-detail-title">
+                                {{ wishlist.name }}
+                                <span class="advanced-wishlist-type-badge advanced-wishlist-type-{{ wishlist.type }}">
+                                    {{ ('advanced-wishlist.type.' ~ wishlist.type)|trans }}
+                                </span>
+                            </h1>
+                        {% endblock %}
+                        
+                        {% block advanced_wishlist_detail_meta %}
+                            <div class="advanced-wishlist-detail-meta">
+                                <span class="advanced-wishlist-created">
+                                    <i class="fas fa-calendar" aria-hidden="true"></i> 
+                                    {{ 'advanced-wishlist.detail.created'|trans }} {{ wishlist.createdAt|format_date('medium') }}
+                                </span>
+                                {% if wishlist.updatedAt != wishlist.createdAt %}
+                                    <span class="advanced-wishlist-updated">
+                                        <i class="fas fa-edit" aria-hidden="true"></i> 
+                                        {{ 'advanced-wishlist.detail.updated'|trans }} {{ wishlist.updatedAt|format_date('medium') }}
+                                    </span>
+                                {% endif %}
+                            </div>
+                        {% endblock %}
+                    </div>
+                    
+                    <div class="col-md-4 text-md-right">
+                        {% block advanced_wishlist_detail_actions %}
+                            <div class="advanced-wishlist-detail-actions">
+                                <div class="btn-group" role="group">
+                                    <a href="{{ path('frontend.account.wishlist.edit', {'id': wishlist.id}) }}" 
+                                       class="btn btn-outline-secondary">
+                                        <i class="fas fa-edit" aria-hidden="true"></i>
+                                        {{ 'advanced-wishlist.action.edit'|trans }}
+                                    </a>
+                                    
+                                    {% if wishlist.type != 'private' %}
+                                        <a href="{{ path('frontend.account.wishlist.share', {'id': wishlist.id}) }}" 
+                                           class="btn btn-outline-primary">
+                                            <i class="fas fa-share-alt" aria-hidden="true"></i>
+                                            {{ 'advanced-wishlist.action.share'|trans }}
+                                        </a>
+                                    {% endif %}
+                                    
+                                    <div class="btn-group" role="group">
+                                        <button type="button" 
+                                                class="btn btn-outline-secondary dropdown-toggle" 
+                                                data-toggle="dropdown" 
+                                                aria-haspopup="true" 
+                                                aria-expanded="false">
+                                            <i class="fas fa-ellipsis-h" aria-hidden="true"></i>
+                                        </button>
+                                        <div class="dropdown-menu dropdown-menu-right">
+                                            <a class="dropdown-item" href="#" data-wishlist-export="{{ wishlist.id }}">
+                                                <i class="fas fa-download" aria-hidden="true"></i>
+                                                {{ 'advanced-wishlist.action.export'|trans }}
+                                            </a>
+                                            <a class="dropdown-item" href="#" data-wishlist-duplicate="{{ wishlist.id }}">
+                                                <i class="fas fa-copy" aria-hidden="true"></i>
+                                                {{ 'advanced-wishlist.action.duplicate'|trans }}
+                                            </a>
+                                            <div class="dropdown-divider"></div>
+                                            <a class="dropdown-item text-danger" 
+                                               href="#" 
+                                               data-wishlist-delete="{{ wishlist.id }}"
+                                               data-confirm-delete="{{ 'advanced-wishlist.action.confirmDelete'|trans }}">
+                                                <i class="fas fa-trash" aria-hidden="true"></i>
+                                                {{ 'advanced-wishlist.action.delete'|trans }}
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endblock %}
+                    </div>
+                </div>
+            </div>
+        {% endblock %}
+
+        {% block advanced_wishlist_detail_content %}
+            {% if wishlist.items and wishlist.items|length > 0 %}
+                {% block advanced_wishlist_detail_items %}
+                    <div class="advanced-wishlist-items-container">
+                        {% block advanced_wishlist_items_header %}
+                            <div class="row align-items-center mb-4">
+                                <div class="col-md-6">
+                                    <h2 class="advanced-wishlist-items-title">
+                                        {{ 'advanced-wishlist.detail.itemsTitle'|trans }}
+                                        <span class="badge badge-primary">{{ wishlist.items|length }}</span>
+                                    </h2>
+                                </div>
+                                <div class="col-md-6 text-md-right">
+                                    <div class="advanced-wishlist-items-actions">
+                                        <button type="button" 
+                                                class="btn btn-outline-primary btn-sm" 
+                                                data-toggle="modal" 
+                                                data-target="#addItemModal">
+                                            <i class="fas fa-plus" aria-hidden="true"></i>
+                                            {{ 'advanced-wishlist.action.addItem'|trans }}
+                                        </button>
+                                        
+                                        <div class="btn-group ml-2">
+                                            <button type="button" 
+                                                    class="btn btn-outline-secondary btn-sm dropdown-toggle" 
+                                                    data-toggle="dropdown">
+                                                <i class="fas fa-shopping-cart" aria-hidden="true"></i>
+                                                {{ 'advanced-wishlist.action.addToCart'|trans }}
+                                            </button>
+                                            <div class="dropdown-menu dropdown-menu-right">
+                                                <a class="dropdown-item" href="#" data-add-all-to-cart>
+                                                    {{ 'advanced-wishlist.action.addAllToCart'|trans }}
+                                                </a>
+                                                <a class="dropdown-item" href="#" data-add-selected-to-cart>
+                                                    {{ 'advanced-wishlist.action.addSelectedToCart'|trans }}
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endblock %}
+
+                        {% block advanced_wishlist_items_list %}
+                            <div class="advanced-wishlist-items-list">
+                                {% for item in wishlist.items %}
+                                    {% block advanced_wishlist_item %}
+                                        <div class="advanced-wishlist-item" data-item-id="{{ item.id }}">
+                                            <div class="row align-items-center">
+                                                <div class="col-auto">
+                                                    {% block advanced_wishlist_item_checkbox %}
+                                                        <div class="form-check">
+                                                            <input class="form-check-input advanced-wishlist-item-select" 
+                                                                   type="checkbox" 
+                                                                   value="{{ item.id }}" 
+                                                                   id="item-{{ item.id }}">
+                                                            <label class="form-check-label sr-only" for="item-{{ item.id }}">
+                                                                {{ 'advanced-wishlist.item.select'|trans }}
+                                                            </label>
+                                                        </div>
+                                                    {% endblock %}
+                                                </div>
+                                                
+                                                <div class="col-auto">
+                                                    {% block advanced_wishlist_item_image %}
+                                                        <div class="advanced-wishlist-item-image-container">
+                                                            {% if item.product.media and item.product.media|length > 0 %}
+                                                                <img src="{{ item.product.media|first.url }}" 
+                                                                     alt="{{ item.product.name }}"
+                                                                     class="advanced-wishlist-item-image"
+                                                                     loading="lazy">
+                                                            {% else %}
+                                                                <div class="advanced-wishlist-item-placeholder">
+                                                                    <i class="fas fa-image" aria-hidden="true"></i>
+                                                                </div>
+                                                            {% endif %}
+                                                        </div>
+                                                    {% endblock %}
+                                                </div>
+                                                
+                                                <div class="col">
+                                                    {% block advanced_wishlist_item_details %}
+                                                        <div class="advanced-wishlist-item-details">
+                                                            <h3 class="advanced-wishlist-item-name">
+                                                                <a href="{{ path('frontend.detail.page', {'productId': item.product.id}) }}" 
+                                                                   class="advanced-wishlist-item-link">
+                                                                    {{ item.product.name }}
+                                                                </a>
+                                                            </h3>
+                                                            
+                                                            {% if item.product.productNumber %}
+                                                                <p class="advanced-wishlist-item-number">
+                                                                    {{ 'advanced-wishlist.item.productNumber'|trans }}: {{ item.product.productNumber }}
+                                                                </p>
+                                                            {% endif %}
+                                                            
+                                                            {% if item.product.price %}
+                                                                <div class="advanced-wishlist-item-price">
+                                                                    <span class="price">
+                                                                        {{ item.product.price.gross|currency }}
+                                                                    </span>
+                                                                    {% if item.product.listPrice and item.product.listPrice.gross > item.product.price.gross %}
+                                                                        <span class="list-price">
+                                                                            {{ item.product.listPrice.gross|currency }}
+                                                                        </span>
+                                                                        <span class="discount-badge">
+                                                                            -{{ (((item.product.listPrice.gross - item.product.price.gross) / item.product.listPrice.gross) * 100)|round }}%
+                                                                        </span>
+                                                                    {% endif %}
+                                                                </div>
+                                                            {% endif %}
+                                                            
+                                                            <div class="advanced-wishlist-item-meta">
+                                                                <small class="text-muted">
+                                                                    {{ 'advanced-wishlist.item.addedOn'|trans }} {{ item.createdAt|format_date('short') }}
+                                                                </small>
+                                                            </div>
+                                                        </div>
+                                                    {% endblock %}
+                                                </div>
+                                                
+                                                <div class="col-auto">
+                                                    {% block advanced_wishlist_item_quantity %}
+                                                        <div class="advanced-wishlist-item-quantity">
+                                                            <label for="quantity-{{ item.id }}" class="sr-only">
+                                                                {{ 'advanced-wishlist.item.quantity'|trans }}
+                                                            </label>
+                                                            <div class="input-group input-group-sm">
+                                                                <div class="input-group-prepend">
+                                                                    <button class="btn btn-outline-secondary" 
+                                                                            type="button" 
+                                                                            data-quantity-decrease="{{ item.id }}">
+                                                                        <i class="fas fa-minus" aria-hidden="true"></i>
+                                                                    </button>
+                                                                </div>
+                                                                <input type="number" 
+                                                                       class="form-control text-center" 
+                                                                       id="quantity-{{ item.id }}"
+                                                                       value="{{ item.quantity }}" 
+                                                                       min="1" 
+                                                                       max="999"
+                                                                       data-item-quantity="{{ item.id }}">
+                                                                <div class="input-group-append">
+                                                                    <button class="btn btn-outline-secondary" 
+                                                                            type="button" 
+                                                                            data-quantity-increase="{{ item.id }}">
+                                                                        <i class="fas fa-plus" aria-hidden="true"></i>
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    {% endblock %}
+                                                </div>
+                                                
+                                                <div class="col-auto">
+                                                    {% block advanced_wishlist_item_actions %}
+                                                        <div class="advanced-wishlist-item-actions">
+                                                            <div class="btn-group">
+                                                                <button type="button" 
+                                                                        class="btn btn-primary btn-sm" 
+                                                                        data-add-to-cart="{{ item.id }}">
+                                                                    <i class="fas fa-shopping-cart" aria-hidden="true"></i>
+                                                                    <span class="d-none d-md-inline">{{ 'advanced-wishlist.action.addToCart'|trans }}</span>
+                                                                </button>
+                                                                
+                                                                <button type="button" 
+                                                                        class="btn btn-outline-danger btn-sm" 
+                                                                        data-remove-item="{{ item.id }}"
+                                                                        data-confirm-remove="{{ 'advanced-wishlist.item.confirmRemove'|trans }}">
+                                                                    <i class="fas fa-trash" aria-hidden="true"></i>
+                                                                    <span class="d-none d-md-inline">{{ 'advanced-wishlist.action.remove'|trans }}</span>
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    {% endblock %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endblock %}
+                                {% endfor %}
+                            </div>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+            {% else %}
+                {% block advanced_wishlist_detail_empty %}
+                    <div class="advanced-wishlist-detail-empty">
+                        <div class="text-center">
+                            <div class="advanced-wishlist-empty-illustration">
+                                <i class="fas fa-heart-broken" aria-hidden="true"></i>
+                            </div>
+                            <h2 class="advanced-wishlist-empty-title">
+                                {{ 'advanced-wishlist.detail.emptyTitle'|trans }}
+                            </h2>
+                            <p class="advanced-wishlist-empty-description">
+                                {{ 'advanced-wishlist.detail.emptyDescription'|trans }}
+                            </p>
+                            <div class="advanced-wishlist-empty-actions">
+                                <button type="button" 
+                                        class="btn btn-primary btn-lg" 
+                                        data-toggle="modal" 
+                                        data-target="#addItemModal">
+                                    <i class="fas fa-plus" aria-hidden="true"></i>
+                                    {{ 'advanced-wishlist.detail.addFirstItem'|trans }}
+                                </button>
+                                <a href="{{ path('frontend.home.page') }}" 
+                                   class="btn btn-outline-secondary btn-lg ml-3">
+                                    <i class="fas fa-shopping-bag" aria-hidden="true"></i>
+                                    {{ 'advanced-wishlist.detail.startShopping'|trans }}
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                {% endblock %}
+            {% endif %}
+        {% endblock %}
+
+        {% if wishlist.shares and wishlist.shares|length > 0 %}
+            {% block advanced_wishlist_detail_shares %}
+                <div class="advanced-wishlist-shares-container mt-5">
+                    <h2 class="advanced-wishlist-shares-title">
+                        {{ 'advanced-wishlist.detail.sharesTitle'|trans }}
+                        <span class="badge badge-info">{{ wishlist.shares|length }}</span>
+                    </h2>
+                    
+                    <div class="advanced-wishlist-shares-list">
+                        {% for share in wishlist.shares %}
+                            <div class="advanced-wishlist-share-item">
+                                <div class="row align-items-center">
+                                    <div class="col">
+                                        <div class="advanced-wishlist-share-info">
+                                            <strong>{{ share.recipientEmail }}</strong>
+                                            <small class="text-muted ml-2">
+                                                {{ 'advanced-wishlist.share.sharedOn'|trans }} {{ share.createdAt|format_date('short') }}
+                                            </small>
+                                        </div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <button type="button" 
+                                                class="btn btn-outline-danger btn-sm" 
+                                                data-revoke-share="{{ share.id }}"
+                                                data-confirm-revoke="{{ 'advanced-wishlist.share.confirmRevoke'|trans }}">
+                                            <i class="fas fa-times" aria-hidden="true"></i>
+                                            {{ 'advanced-wishlist.action.revoke'|trans }}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endblock %}
+        {% endif %}
+    </div>
+
+    {% block advanced_wishlist_add_item_modal %}
+        <div class="modal fade" id="addItemModal" tabindex="-1" role="dialog" aria-labelledby="addItemModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addItemModalLabel">
+                            {{ 'advanced-wishlist.modal.addItem.title'|trans }}
+                        </h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="{{ 'general.close'|trans }}">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="addItemForm">
+                            <div class="form-group">
+                                <label for="productSearch">{{ 'advanced-wishlist.modal.addItem.searchLabel'|trans }}</label>
+                                <input type="text" 
+                                       class="form-control" 
+                                       id="productSearch" 
+                                       placeholder="{{ 'advanced-wishlist.modal.addItem.searchPlaceholder'|trans }}">
+                            </div>
+                            <input type="hidden" name="_token" value="{{ csrf_token('wishlist_add_item') }}">
+                            <input type="hidden" name="wishlistId" value="{{ wishlist.id }}">
+                            <input type="hidden" name="productId" id="selectedProductId">
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                            {{ 'general.cancel'|trans }}
+                        </button>
+                        <button type="button" class="btn btn-primary" id="addItemButton" disabled>
+                            {{ 'advanced-wishlist.modal.addItem.add'|trans }}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endblock %}
+{% endblock %}
+
+{% block base_body_script %}
+    {{ parent() }}
+    
+    {% block advanced_wishlist_detail_scripts %}
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                // Initialize wishlist detail functionality
+                const wishlistId = '{{ wishlist.id }}';
+                const csrfToken = window.wishlistCsrfToken;
+                
+                // Quantity management
+                document.querySelectorAll('[data-quantity-decrease]').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const itemId = this.getAttribute('data-quantity-decrease');
+                        const input = document.querySelector(`[data-item-quantity="${itemId}"]`);
+                        const currentValue = parseInt(input.value);
+                        if (currentValue > 1) {
+                            input.value = currentValue - 1;
+                            updateItemQuantity(itemId, input.value);
+                        }
+                    });
+                });
+                
+                document.querySelectorAll('[data-quantity-increase]').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const itemId = this.getAttribute('data-quantity-increase');
+                        const input = document.querySelector(`[data-item-quantity="${itemId}"]`);
+                        const currentValue = parseInt(input.value);
+                        if (currentValue < 999) {
+                            input.value = currentValue + 1;
+                            updateItemQuantity(itemId, input.value);
+                        }
+                    });
+                });
+                
+                document.querySelectorAll('[data-item-quantity]').forEach(input => {
+                    input.addEventListener('change', function() {
+                        const itemId = this.getAttribute('data-item-quantity');
+                        updateItemQuantity(itemId, this.value);
+                    });
+                });
+                
+                function updateItemQuantity(itemId, quantity) {
+                    // Implementation for quantity update
+                    console.log(`Update item ${itemId} quantity to ${quantity}`);
+                }
+                
+                // Remove item functionality
+                document.querySelectorAll('[data-remove-item]').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const itemId = this.getAttribute('data-remove-item');
+                        const confirmMessage = this.getAttribute('data-confirm-remove');
+                        
+                        if (confirm(confirmMessage)) {
+                            removeWishlistItem(itemId);
+                        }
+                    });
+                });
+                
+                function removeWishlistItem(itemId) {
+                    // Implementation for item removal
+                    console.log(`Remove item ${itemId}`);
+                }
+                
+                // Add to cart functionality
+                document.querySelectorAll('[data-add-to-cart]').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const itemId = this.getAttribute('data-add-to-cart');
+                        addItemToCart(itemId);
+                    });
+                });
+                
+                function addItemToCart(itemId) {
+                    // Implementation for add to cart
+                    console.log(`Add item ${itemId} to cart`);
+                }
+            });
+        </script>
+    {% endblock %}
+{% endblock %}

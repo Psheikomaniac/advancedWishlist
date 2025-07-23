@@ -1,4 +1,68 @@
 {
+  "advanced-wishlist-main": {
+    "general": {
+      "mainMenuItemGeneral": "Wunschlisten",
+      "descriptionTextModule": "Verwalten Sie Kundenwunschlisten und analysieren Sie das Wunschlistenverhalten"
+    },
+    "list": {
+      "textTitle": "Wunschlisten-Verwaltung",
+      "placeholderSearchBar": "Wunschlisten suchen...",
+      "addWishlist": "Wunschliste erstellen",
+      "columnName": "Name",
+      "columnCustomer": "Kunde",
+      "columnType": "Typ",
+      "columnItemCount": "Artikel",
+      "columnShares": "Geteilt",
+      "columnCreatedAt": "Erstellt",
+      "columnUpdatedAt": "Aktualisiert",
+      "typePrivate": "Privat",
+      "typePublic": "Öffentlich",
+      "typeShared": "Geteilt",
+      "unknownCustomer": "Unbekannter Kunde",
+      "filterType": "Typ",
+      "filterTypePlaceholder": "Typ auswählen...",
+      "filterTypeAll": "Alle Typen",
+      "filterCustomer": "Kunde",
+      "filterCustomerPlaceholder": "Kunde auswählen...",
+      "filterDateFrom": "Erstellt ab",
+      "filterDateFromPlaceholder": "Datum auswählen...",
+      "filterDateTo": "Erstellt bis",
+      "filterDateToPlaceholder": "Datum auswählen...",
+      "bulkDelete": "Ausgewählte löschen",
+      "exportCsv": "CSV exportieren",
+      "exportExcel": "Excel exportieren",
+      "contextMenuView": "Details anzeigen",
+      "contextMenuDuplicate": "Duplizieren",
+      "contextMenuDelete": "Löschen",
+      "modalTitleDelete": "Wunschlisten löschen",
+      "textDeleteConfirm": "Sind Sie sicher, dass Sie {count} Wunschliste(n) löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
+      "buttonCancel": "Abbrechen",
+      "buttonDelete": "Löschen",
+      "titleSidebarItemRefresh": "Aktualisieren",
+      "saveSuccessTitle": "Erfolg",
+      "saveSuccessMessage": "Wunschliste wurde erfolgreich gespeichert.",
+      "saveErrorTitle": "Fehler",
+      "deleteSuccessTitle": "Erfolg",
+      "deleteSuccessMessage": "Wunschliste wurde erfolgreich gelöscht.",
+      "deleteErrorTitle": "Fehler",
+      "bulkDeleteSuccessTitle": "Erfolg",
+      "bulkDeleteSuccessMessage": "{count} Wunschliste(n) wurden erfolgreich gelöscht.",
+      "bulkDeleteErrorTitle": "Fehler",
+      "exportSuccessTitle": "Erfolg",
+      "exportSuccessMessage": "Wunschlisten-Export wurde erfolgreich abgeschlossen.",
+      "exportErrorTitle": "Fehler"
+    },
+    "detail": {
+      "textTitle": "Wunschlisten-Details",
+      "saveAction": "Speichern",
+      "cancelAction": "Abbrechen"
+    },
+    "create": {
+      "textTitle": "Wunschliste erstellen",
+      "saveAction": "Erstellen",
+      "cancelAction": "Abbrechen"
+    }
+  },
   "advanced-wishlist-analytics": {
     "general": {
       "mainMenuItem": "Wunschlisten-Analysen",

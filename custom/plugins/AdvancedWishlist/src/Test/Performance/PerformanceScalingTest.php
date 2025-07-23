@@ -118,7 +118,8 @@ class PerformanceScalingTest extends TestCase
         $cache = $this->createMock(\Psr\Cache\CacheItemPoolInterface::class);
         $logger = $this->createMock(\Psr\Log\LoggerInterface::class);
 
-        $queryOptimizer = new QueryOptimizer($cache, $logger);
+        $connection = $this->createMock(\Doctrine\DBAL\Connection::class);
+        $queryOptimizer = new QueryOptimizer($connection, $cache, $logger);
 
         // Test that the query optimizer correctly optimizes wishlist criteria
         $criteria = new Criteria();

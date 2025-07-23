@@ -1,4 +1,68 @@
 {
+  "advanced-wishlist-main": {
+    "general": {
+      "mainMenuItemGeneral": "Wishlists",
+      "descriptionTextModule": "Manage customer wishlists and analyze wishlist behavior"
+    },
+    "list": {
+      "textTitle": "Wishlist Management",
+      "placeholderSearchBar": "Search wishlists...",
+      "addWishlist": "Create Wishlist",
+      "columnName": "Name",
+      "columnCustomer": "Customer",
+      "columnType": "Type",
+      "columnItemCount": "Items",
+      "columnShares": "Shares",
+      "columnCreatedAt": "Created",
+      "columnUpdatedAt": "Updated",
+      "typePrivate": "Private",
+      "typePublic": "Public",
+      "typeShared": "Shared",
+      "unknownCustomer": "Unknown Customer",
+      "filterType": "Type",
+      "filterTypePlaceholder": "Select type...",
+      "filterTypeAll": "All Types",
+      "filterCustomer": "Customer",
+      "filterCustomerPlaceholder": "Select customer...",
+      "filterDateFrom": "Created from",
+      "filterDateFromPlaceholder": "Select date...",
+      "filterDateTo": "Created to",
+      "filterDateToPlaceholder": "Select date...",
+      "bulkDelete": "Delete Selected",
+      "exportCsv": "Export CSV",
+      "exportExcel": "Export Excel",
+      "contextMenuView": "View Details",
+      "contextMenuDuplicate": "Duplicate",
+      "contextMenuDelete": "Delete",
+      "modalTitleDelete": "Delete Wishlists",
+      "textDeleteConfirm": "Are you sure you want to delete {count} wishlist(s)? This action cannot be undone.",
+      "buttonCancel": "Cancel",
+      "buttonDelete": "Delete",
+      "titleSidebarItemRefresh": "Refresh",
+      "saveSuccessTitle": "Success",
+      "saveSuccessMessage": "Wishlist has been saved successfully.",
+      "saveErrorTitle": "Error",
+      "deleteSuccessTitle": "Success",
+      "deleteSuccessMessage": "Wishlist has been deleted successfully.",
+      "deleteErrorTitle": "Error",
+      "bulkDeleteSuccessTitle": "Success",
+      "bulkDeleteSuccessMessage": "{count} wishlist(s) have been deleted successfully.",
+      "bulkDeleteErrorTitle": "Error",
+      "exportSuccessTitle": "Success",
+      "exportSuccessMessage": "Wishlist export has been completed successfully.",
+      "exportErrorTitle": "Error"
+    },
+    "detail": {
+      "textTitle": "Wishlist Details",
+      "saveAction": "Save",
+      "cancelAction": "Cancel"
+    },
+    "create": {
+      "textTitle": "Create Wishlist",
+      "saveAction": "Create",
+      "cancelAction": "Cancel"
+    }
+  },
   "advanced-wishlist-analytics": {
     "general": {
       "mainMenuItem": "Wishlist Analytics",
