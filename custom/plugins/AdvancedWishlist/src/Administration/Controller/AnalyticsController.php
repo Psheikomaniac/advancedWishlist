@@ -23,12 +23,20 @@ class AnalyticsController extends AbstractController
      */
     public function getAnalyticsSummary(Context $context): JsonResponse
     {
-        // TODO: Implement logic to fetch and return analytics summary data
-        return new JsonResponse([
-            'totalWishlists' => 0,
-            'totalItems' => 0,
-            'totalShares' => 0,
-            'totalConversions' => 0,
-        ]);
+        try {
+            $summary = $this->analyticsService->getAnalyticsSummary($context);
+            
+            return new JsonResponse([
+                'totalWishlists' => $summary['totalWishlists'] ?? 0,
+                'totalItems' => $summary['totalItems'] ?? 0,
+                'totalShares' => $summary['totalShares'] ?? 0,
+                'totalConversions' => $summary['totalConversions'] ?? 0,
+            ]);
+        } catch (\Exception $e) {
+            return new JsonResponse([
+                'error' => 'Failed to fetch analytics data',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
     }
 }
