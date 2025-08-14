@@ -1,0 +1,250 @@
+{% block advanced_wishlist_item_manager %}
+    <div class="advanced-wishlist-item-manager">
+        {% block advanced_wishlist_item_manager_header %}
+            <div class="advanced-wishlist-item-manager__header">
+                {% block advanced_wishlist_item_manager_toolbar %}
+                    <div class="advanced-wishlist-item-manager__toolbar">
+                        <sw-container columns="auto 1fr auto auto" gap="16px" class="advanced-wishlist-item-manager__toolbar-content">
+                            {% block advanced_wishlist_item_manager_add_button %}
+                                <sw-button
+                                    @click="onAddItem"
+                                    :disabled="disabled"
+                                    variant="primary"
+                                    size="small">
+                                    {{ $tc('advanced-wishlist-main.itemManager.addItem') }}
+                                </sw-button>
+                            {% endblock %}
+
+                            <div></div>
+
+                            {% block advanced_wishlist_item_manager_bulk_actions %}
+                                <div v-if="selectedItemsCount > 0" class="advanced-wishlist-item-manager__bulk-actions">
+                                    <sw-button
+                                        @click="onRemoveSelectedItems"
+                                        :disabled="!canRemoveSelected"
+                                        variant="danger"
+                                        size="small">
+                                        {{ $tc('advanced-wishlist-main.itemManager.removeSelected') }}
+                                        ({{ selectedItemsCount }})
+                                    </sw-button>
+                                </div>
+                            {% endblock %}
+
+                            {% block advanced_wishlist_item_manager_summary %}
+                                <div class="advanced-wishlist-item-manager__summary">
+                                    <sw-label variant="info" size="small">
+                                        {{ $tc('advanced-wishlist-main.itemManager.totalItems', totalItems, { count: totalItems }) }}
+                                    </sw-label>
+                                    <sw-label variant="success" size="small" class="advanced-wishlist-item-manager__total-value">
+                                        {{ formatPrice(totalValue) }}
+                                    </sw-label>
+                                </div>
+                            {% endblock %}
+                        </sw-container>
+                    </div>
+                {% endblock %}
+            </div>
+        {% endblock %}
+
+        {% block advanced_wishlist_item_manager_content %}
+            <div class="advanced-wishlist-item-manager__content">
+                {% block advanced_wishlist_item_manager_grid %}
+                    <sw-data-grid
+                        v-if="hasItems"
+                        ref="dataGrid"
+                        :data-source="items"
+                        :columns="itemColumns"
+                        :full-page="false"
+                        :show-settings="true"
+                        :show-selection="true"
+                        :is-loading="isLoading"
+                        :allow-inline-edit="!disabled"
+                        identifier="advanced-wishlist-item-manager"
+                        class="advanced-wishlist-item-manager__grid"
+                        @column-sort="onSortColumn"
+                        @selection-change="onSelectionChanged"
+                        @inline-edit-save="onInlineEditSave"
+                        @inline-edit-cancel="onInlineEditCancel">
+
+                        {% block advanced_wishlist_item_manager_grid_columns %}
+                            {% block advanced_wishlist_item_manager_grid_columns_product_name %}
+                                <template #column-productName="{ item }">
+                                    <div class="advanced-wishlist-item-manager__product-info">
+                                        <router-link
+                                            v-if="item.product"
+                                            :to="{ name: 'sw.product.detail', params: { id: item.productId } }"
+                                            class="advanced-wishlist-item-manager__product-link">
+                                            {{ item.productName }}
+                                        </router-link>
+                                        <span v-else class="advanced-wishlist-item-manager__product-name">
+                                            {{ item.productName }}
+                                        </span>
+                                        
+                                        <div v-if="item.product?.media && item.product.media.length > 0" 
+                                             class="advanced-wishlist-item-manager__product-image">
+                                            <sw-media-preview-v2
+                                                :source="item.product.media[0]"
+                                                size="40px">
+                                            </sw-media-preview-v2>
+                                        </div>
+                                    </div>
+                                </template>
+                            {% endblock %}
+
+                            {% block advanced_wishlist_item_manager_grid_columns_unit_price %}
+                                <template #column-unitPrice="{ item }">
+                                    <span class="advanced-wishlist-item-manager__price">
+                                        {{ formatPrice(item.unitPrice) }}
+                                    </span>
+                                </template>
+                            {% endblock %}
+
+                            {% block advanced_wishlist_item_manager_grid_columns_total_price %}
+                                <template #column-totalPrice="{ item }">
+                                    <span class="advanced-wishlist-item-manager__price advanced-wishlist-item-manager__total-price">
+                                        {{ formatPrice(item.totalPrice) }}
+                                    </span>
+                                </template>
+                            {% endblock %}
+
+                            {% block advanced_wishlist_item_manager_grid_columns_stock %}
+                                <template #column-stock="{ item }">
+                                    <sw-label
+                                        :variant="getStockVariant(item.stock)"
+                                        size="small"
+                                        class="advanced-wishlist-item-manager__stock-label">
+                                        {{ item.stock }}
+                                    </sw-label>
+                                </template>
+                            {% endblock %}
+
+                            {% block advanced_wishlist_item_manager_grid_columns_available %}
+                                <template #column-available="{ item }">
+                                    <sw-icon
+                                        :name="item.available ? 'default-checkmark-line' : 'default-x-line'"
+                                        :color="item.available ? 'var(--color-success-500)' : 'var(--color-danger-500)'"
+                                        size="16px">
+                                    </sw-icon>
+                                </template>
+                            {% endblock %}
+
+                            {% block advanced_wishlist_item_manager_grid_columns_created_at %}
+                                <template #column-createdAt="{ item }">
+                                    {{ item.createdAt | date }}
+                                </template>
+                            {% endblock %}
+
+                            {% block advanced_wishlist_item_manager_grid_columns_actions %}
+                                <template #actions="{ item }">
+                                    {% block advanced_wishlist_item_manager_grid_columns_actions_view %}
+                                        <sw-context-menu-item
+                                            v-if="item.product"
+                                            class="advanced-wishlist-item-manager__view-product-action"
+                                            :router-link="{ name: 'sw.product.detail', params: { id: item.productId } }">
+                                            {{ $tc('advanced-wishlist-main.itemManager.contextMenuViewProduct') }}
+                                        </sw-context-menu-item>
+                                    {% endblock %}
+
+                                    {% block advanced_wishlist_item_manager_grid_columns_actions_remove %}
+                                        <sw-context-menu-item
+                                            class="advanced-wishlist-item-manager__remove-action"
+                                            variant="danger"
+                                            :disabled="disabled"
+                                            @click="onRemoveItem(item)">
+                                            {{ $tc('advanced-wishlist-main.itemManager.contextMenuRemove') }}
+                                        </sw-context-menu-item>
+                                    {% endblock %}
+                                </template>
+                            {% endblock %}
+                        {% endblock %}
+                    </sw-data-grid>
+                {% endblock %}
+
+                {% block advanced_wishlist_item_manager_empty_state %}
+                    <div v-else class="advanced-wishlist-item-manager__empty-state">
+                        <sw-empty-state
+                            :title="$tc('advanced-wishlist-main.itemManager.emptyStateTitle')"
+                            :subline="$tc('advanced-wishlist-main.itemManager.emptyStateSubline')"
+                            icon="default-shopping-cart">
+                            <template #actions>
+                                <sw-button
+                                    @click="onAddItem"
+                                    :disabled="disabled"
+                                    variant="primary">
+                                    {{ $tc('advanced-wishlist-main.itemManager.addFirstItem') }}
+                                </sw-button>
+                            </template>
+                        </sw-empty-state>
+                    </div>
+                {% endblock %}
+            </div>
+        {% endblock %}
+
+        {% block advanced_wishlist_item_manager_modals %}
+            {% block advanced_wishlist_item_manager_add_product_modal %}
+                <sw-modal
+                    v-if="showAddProductModal"
+                    class="advanced-wishlist-item-manager__add-product-modal"
+                    :title="$tc('advanced-wishlist-main.itemManager.modalTitleAddProduct')"
+                    size="large"
+                    @modal-close="showAddProductModal = false">
+                    
+                    {% block advanced_wishlist_item_manager_add_product_modal_content %}
+                        <div class="advanced-wishlist-item-manager__product-search">
+                            <sw-entity-multi-id-select
+                                v-model="selectedProducts"
+                                entity="product"
+                                :label="$tc('advanced-wishlist-main.itemManager.labelSelectProducts')"
+                                :placeholder="$tc('advanced-wishlist-main.itemManager.placeholderSelectProducts')"
+                                :criteria="productCriteria"
+                                labelProperty="name"
+                                valueProperty="id">
+                                <template #result-item="{ item }">
+                                    <li>
+                                        <div class="advanced-wishlist-item-manager__product-result">
+                                            <div v-if="item.media && item.media.length > 0" 
+                                                 class="advanced-wishlist-item-manager__product-result-image">
+                                                <sw-media-preview-v2
+                                                    :source="item.media[0]"
+                                                    size="30px">
+                                                </sw-media-preview-v2>
+                                            </div>
+                                            
+                                            <div class="advanced-wishlist-item-manager__product-result-info">
+                                                <strong>{{ item.name }}</strong>
+                                                <small v-if="item.productNumber" class="advanced-wishlist-item-manager__product-result-number">
+                                                    {{ item.productNumber }}
+                                                </small>
+                                            </div>
+                                            
+                                            <div v-if="item.price && item.price.length > 0" 
+                                                 class="advanced-wishlist-item-manager__product-result-price">
+                                                {{ formatPrice(item.price[0].gross) }}
+                                            </div>
+                                        </div>
+                                    </li>
+                                </template>
+                            </sw-entity-multi-id-select>
+                        </div>
+                    {% endblock %}
+
+                    {% block advanced_wishlist_item_manager_add_product_modal_footer %}
+                        <template #modal-footer>
+                            <sw-button @click="showAddProductModal = false" size="small">
+                                {{ $tc('advanced-wishlist-main.itemManager.buttonCancel') }}
+                            </sw-button>
+                            <sw-button
+                                @click="onAddProducts"
+                                :disabled="!selectedProducts.length"
+                                variant="primary"
+                                size="small">
+                                {{ $tc('advanced-wishlist-main.itemManager.buttonAddProducts') }}
+                                <span v-if="selectedProducts.length > 0">({{ selectedProducts.length }})</span>
+                            </sw-button>
+                        </template>
+                    {% endblock %}
+                </sw-modal>
+            {% endblock %}
+        {% endblock %}
+    </div>
+{% endblock %}

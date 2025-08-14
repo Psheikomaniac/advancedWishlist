@@ -1,0 +1,273 @@
+{% block advanced_wishlist_detail %}
+    <sw-page class="advanced-wishlist-detail">
+        {% block advanced_wishlist_detail_header %}
+            <template #smart-bar-header>
+                {% block advanced_wishlist_detail_header_title %}
+                    <h2 v-if="wishlist">
+                        {% block advanced_wishlist_detail_header_title_text %}
+                            {{ isNew ? $tc('advanced-wishlist-main.detail.textTitleCreate') : wishlist.name }}
+                        {% endblock %}
+                        
+                        {% block advanced_wishlist_detail_header_type_badge %}
+                            <sw-label
+                                v-if="!isNew && wishlist.type"
+                                :variant="getVariantFromWishlistType(wishlist.type)"
+                                class="advanced-wishlist-detail__type-badge">
+                                {{ $tc(`advanced-wishlist-main.list.type${wishlist.type.charAt(0).toUpperCase() + wishlist.type.slice(1)}`) }}
+                            </sw-label>
+                        {% endblock %}
+                    </h2>
+                {% endblock %}
+            </template>
+        {% endblock %}
+
+        {% block advanced_wishlist_detail_actions %}
+            <template #smart-bar-actions>
+                {% block advanced_wishlist_detail_actions_abort %}
+                    <sw-button @click="onCancel">
+                        {{ $tc('advanced-wishlist-main.detail.cancelAction') }}
+                    </sw-button>
+                {% endblock %}
+
+                {% block advanced_wishlist_detail_actions_save %}
+                    <sw-button-process
+                        v-tooltip="{
+                            message: tooltipSave,
+                            disabled: acl.can('advanced_wishlist.editor')
+                        }"
+                        class="advanced-wishlist-detail__save-action"
+                        :is-loading="isSaveLoading"
+                        :process-success="processSuccess"
+                        :disabled="!canSave || !acl.can('advanced_wishlist.editor')"
+                        variant="primary"
+                        @process-finish="processSuccess = false"
+                        @click="onSave">
+                        {{ isNew ? $tc('advanced-wishlist-main.create.saveAction') : $tc('advanced-wishlist-main.detail.saveAction') }}
+                    </sw-button-process>
+                {% endblock %}
+
+                {% block advanced_wishlist_detail_actions_context_menu %}
+                    <sw-context-button v-if="!isNew && wishlist">
+                        {% block advanced_wishlist_detail_actions_context_menu_content %}
+                            <template #button>
+                                <sw-button variant="context" size="small">
+                                    <sw-icon name="default-more-horizontal" size="24px"></sw-icon>
+                                </sw-button>
+                            </template>
+
+                            {% block advanced_wishlist_detail_actions_context_menu_duplicate %}
+                                <sw-context-menu-item @click="$router.push({ name: 'advanced.wishlist.main.create', params: { duplicateId: wishlist.id } })">
+                                    {{ $tc('advanced-wishlist-main.list.contextMenuDuplicate') }}
+                                </sw-context-menu-item>
+                            {% endblock %}
+
+                            {% block advanced_wishlist_detail_actions_context_menu_delete %}
+                                <sw-context-menu-item
+                                    variant="danger"
+                                    :disabled="!acl.can('advanced_wishlist.deleter')"
+                                    @click="showDeleteModal = true">
+                                    {{ $tc('advanced-wishlist-main.list.contextMenuDelete') }}
+                                </sw-context-menu-item>
+                            {% endblock %}
+                        {% endblock %}
+                    </sw-context-button>
+                {% endblock %}
+            </template>
+        {% endblock %}
+
+        {% block advanced_wishlist_detail_language_switch %}
+            <template #language-switch>
+                <sw-language-switch
+                    @on-change="onChangeLanguage"
+                    :save-changes-function="() => Promise.resolve()"
+                    :abort-change-function="() => Promise.resolve()">
+                </sw-language-switch>
+            </template>
+        {% endblock %}
+
+        <template #content>
+            {% block advanced_wishlist_detail_content %}
+                <div v-if="isLoading" class="advanced-wishlist-detail__loading">
+                    <sw-loader size="50px"></sw-loader>
+                </div>
+
+                <div v-else-if="wishlist" class="advanced-wishlist-detail__content">
+                    {% block advanced_wishlist_detail_tabs %}
+                        <sw-tabs class="advanced-wishlist-detail__tabs" @tab-change="onTabChange" :default-item="activeTab">
+                            {% block advanced_wishlist_detail_tabs_general %}
+                                <sw-tabs-item name="general" :title="$tc('advanced-wishlist-main.detail.tabGeneral')">
+                                    {{ $tc('advanced-wishlist-main.detail.tabGeneral') }}
+                                </sw-tabs-item>
+                            {% endblock %}
+
+                            {% block advanced_wishlist_detail_tabs_items %}
+                                <sw-tabs-item name="items" :title="$tc('advanced-wishlist-main.detail.tabItems', itemCount)">
+                                    {{ $tc('advanced-wishlist-main.detail.tabItems') }} ({{ itemCount }})
+                                </sw-tabs-item>
+                            {% endblock %}
+
+                            {% block advanced_wishlist_detail_tabs_shares %}
+                                <sw-tabs-item name="shares" :title="$tc('advanced-wishlist-main.detail.tabShares', shareCount)">
+                                    {{ $tc('advanced-wishlist-main.detail.tabShares') }} ({{ shareCount }})
+                                </sw-tabs-item>
+                            {% endblock %}
+                        </sw-tabs>
+                    {% endblock %}
+
+                    {% block advanced_wishlist_detail_tab_content %}
+                        <div class="advanced-wishlist-detail__tab-content">
+                            {% block advanced_wishlist_detail_general_tab %}
+                                <div v-show="activeTab === 'general'" class="advanced-wishlist-detail__general-tab">
+                                    {% block advanced_wishlist_detail_general_card %}
+                                        <sw-card :title="$tc('advanced-wishlist-main.detail.cardGeneral')" class="advanced-wishlist-detail__general-card">
+                                            {% block advanced_wishlist_detail_general_form %}
+                                                <sw-container columns="repeat(auto-fit, minmax(250px, 1fr))" gap="0px 30px">
+                                                    {% block advanced_wishlist_detail_general_form_name %}
+                                                        <sw-text-field
+                                                            v-model="wishlist.name"
+                                                            :label="$tc('advanced-wishlist-main.detail.labelName')"
+                                                            :placeholder="$tc('advanced-wishlist-main.detail.placeholderName')"
+                                                            required
+                                                            validation="required">
+                                                        </sw-text-field>
+                                                    {% endblock %}
+
+                                                    {% block advanced_wishlist_detail_general_form_type %}
+                                                        <sw-single-select
+                                                            v-model="wishlist.type"
+                                                            :label="$tc('advanced-wishlist-main.detail.labelType')"
+                                                            :options="[
+                                                                { value: 'private', label: $tc('advanced-wishlist-main.list.typePrivate') },
+                                                                { value: 'public', label: $tc('advanced-wishlist-main.list.typePublic') },
+                                                                { value: 'shared', label: $tc('advanced-wishlist-main.list.typeShared') }
+                                                            ]"
+                                                            required>
+                                                        </sw-single-select>
+                                                    {% endblock %}
+
+                                                    {% block advanced_wishlist_detail_general_form_customer %}
+                                                        <sw-entity-single-select
+                                                            v-model="wishlist.customerId"
+                                                            entity="customer"
+                                                            :label="$tc('advanced-wishlist-main.detail.labelCustomer')"
+                                                            :placeholder="$tc('advanced-wishlist-main.detail.placeholderCustomer')"
+                                                            :criteria="customerCriteria"
+                                                            labelProperty="firstName,lastName"
+                                                            valueProperty="id"
+                                                            required>
+                                                            <template #result-item="{ item }">
+                                                                <li>
+                                                                    {{ item.firstName }} {{ item.lastName }}
+                                                                    <small class="advanced-wishlist-detail__customer-number">
+                                                                        ({{ item.customerNumber }})
+                                                                    </small>
+                                                                </li>
+                                                            </template>
+                                                        </sw-entity-single-select>
+                                                    {% endblock %}
+
+                                                    {% block advanced_wishlist_detail_general_form_active %}
+                                                        <sw-checkbox-field
+                                                            v-model="wishlist.isActive"
+                                                            :label="$tc('advanced-wishlist-main.detail.labelActive')">
+                                                        </sw-checkbox-field>
+                                                    {% endblock %}
+                                                </sw-container>
+                                            {% endblock %}
+
+                                            {% block advanced_wishlist_detail_general_form_description %}
+                                                <sw-textarea-field
+                                                    v-model="wishlist.description"
+                                                    :label="$tc('advanced-wishlist-main.detail.labelDescription')"
+                                                    :placeholder="$tc('advanced-wishlist-main.detail.placeholderDescription')">
+                                                </sw-textarea-field>
+                                            {% endblock %}
+                                        </sw-card>
+                                    {% endblock %}
+
+                                    {% block advanced_wishlist_detail_statistics_card %}
+                                        <sw-card 
+                                            v-if="!isNew" 
+                                            :title="$tc('advanced-wishlist-main.detail.cardStatistics')" 
+                                            class="advanced-wishlist-detail__statistics-card">
+                                            {% block advanced_wishlist_detail_statistics_content %}
+                                                <sw-container columns="repeat(auto-fit, minmax(200px, 1fr))" gap="0px 30px">
+                                                    <sw-description-list>
+                                                        <dt>{{ $tc('advanced-wishlist-main.detail.labelItemCount') }}</dt>
+                                                        <dd>{{ itemCount }}</dd>
+                                                        
+                                                        <dt>{{ $tc('advanced-wishlist-main.detail.labelShareCount') }}</dt>
+                                                        <dd>{{ shareCount }}</dd>
+                                                        
+                                                        <dt>{{ $tc('advanced-wishlist-main.detail.labelTotalValue') }}</dt>
+                                                        <dd>{{ totalValue | currency }}</dd>
+                                                        
+                                                        <dt>{{ $tc('advanced-wishlist-main.detail.labelCreated') }}</dt>
+                                                        <dd>{{ wishlist.createdAt | date }}</dd>
+                                                        
+                                                        <dt>{{ $tc('advanced-wishlist-main.detail.labelUpdated') }}</dt>
+                                                        <dd>{{ wishlist.updatedAt | date }}</dd>
+                                                    </sw-description-list>
+                                                </sw-container>
+                                            {% endblock %}
+                                        </sw-card>
+                                    {% endblock %}
+                                </div>
+                            {% endblock %}
+
+                            {% block advanced_wishlist_detail_items_tab %}
+                                <div v-show="activeTab === 'items'" class="advanced-wishlist-detail__items-tab">
+                                    <advanced-wishlist-item-manager
+                                        :wishlist="wishlist"
+                                        @add-item="onAddItem"
+                                        @remove-item="onRemoveItem"
+                                        @update-quantity="onUpdateItemQuantity"
+                                        @selection-change="onItemSelectionChanged">
+                                    </advanced-wishlist-item-manager>
+                                </div>
+                            {% endblock %}
+
+                            {% block advanced_wishlist_detail_shares_tab %}
+                                <div v-show="activeTab === 'shares'" class="advanced-wishlist-detail__shares-tab">
+                                    <advanced-wishlist-share-manager
+                                        :wishlist="wishlist"
+                                        @create-share="onCreateShare"
+                                        @revoke-share="onRevokeShare">
+                                    </advanced-wishlist-share-manager>
+                                </div>
+                            {% endblock %}
+                        </div>
+                    {% endblock %}
+                </div>
+            {% endblock %}
+        </template>
+
+        {% block advanced_wishlist_detail_modals %}
+            {% block advanced_wishlist_detail_delete_modal %}
+                <sw-modal
+                    v-if="showDeleteModal"
+                    class="advanced-wishlist-detail__delete-modal"
+                    :title="$tc('advanced-wishlist-main.detail.modalTitleDelete')"
+                    variant="small"
+                    @modal-close="showDeleteModal = false">
+                    {% block advanced_wishlist_detail_delete_modal_content %}
+                        <p class="advanced-wishlist-detail__confirm-delete-text">
+                            {{ $tc('advanced-wishlist-main.detail.textDeleteConfirm', 0, { name: wishlist.name }) }}
+                        </p>
+                    {% endblock %}
+
+                    {% block advanced_wishlist_detail_delete_modal_footer %}
+                        <template #modal-footer>
+                            <sw-button @click="showDeleteModal = false" size="small">
+                                {{ $tc('advanced-wishlist-main.detail.buttonCancel') }}
+                            </sw-button>
+                            <sw-button @click="onDelete" variant="danger" size="small">
+                                {{ $tc('advanced-wishlist-main.detail.buttonDelete') }}
+                            </sw-button>
+                        </template>
+                    {% endblock %}
+                </sw-modal>
+            {% endblock %}
+        {% endblock %}
+    </sw-page>
+{% endblock %}

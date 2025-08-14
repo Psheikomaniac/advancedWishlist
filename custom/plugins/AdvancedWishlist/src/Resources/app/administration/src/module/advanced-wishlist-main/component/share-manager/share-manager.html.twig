@@ -1,0 +1,311 @@
+{% block advanced_wishlist_share_manager %}
+    <div class="advanced-wishlist-share-manager">
+        {% block advanced_wishlist_share_manager_header %}
+            <div class="advanced-wishlist-share-manager__header">
+                {% block advanced_wishlist_share_manager_toolbar %}
+                    <div class="advanced-wishlist-share-manager__toolbar">
+                        <sw-container columns="auto 1fr auto" gap="16px" class="advanced-wishlist-share-manager__toolbar-content">
+                            {% block advanced_wishlist_share_manager_create_button %}
+                                <sw-button
+                                    @click="onCreateShare"
+                                    :disabled="disabled || wishlist.type === 'private'"
+                                    variant="primary"
+                                    size="small">
+                                    {{ $tc('advanced-wishlist-main.shareManager.createShare') }}
+                                </sw-button>
+                            {% endblock %}
+
+                            <div></div>
+
+                            {% block advanced_wishlist_share_manager_bulk_actions %}
+                                <div v-if="selectedSharesCount > 0" class="advanced-wishlist-share-manager__bulk-actions">
+                                    <sw-button
+                                        @click="onRevokeSelectedShares"
+                                        :disabled="!canRevokeSelected"
+                                        variant="danger"
+                                        size="small">
+                                        {{ $tc('advanced-wishlist-main.shareManager.revokeSelected') }}
+                                        ({{ selectedSharesCount }})
+                                    </sw-button>
+                                </div>
+                            {% endblock %}
+                        </sw-container>
+                    </div>
+                {% endblock %}
+                
+                {% block advanced_wishlist_share_manager_private_notice %}
+                    <sw-alert
+                        v-if="wishlist.type === 'private'"
+                        variant="info"
+                        class="advanced-wishlist-share-manager__private-notice">
+                        {{ $tc('advanced-wishlist-main.shareManager.privateWishlistNotice') }}
+                    </sw-alert>
+                {% endblock %}
+            </div>
+        {% endblock %}
+
+        {% block advanced_wishlist_share_manager_content %}
+            <div class="advanced-wishlist-share-manager__content">
+                {% block advanced_wishlist_share_manager_grid %}
+                    <sw-data-grid
+                        v-if="hasShares"
+                        ref="dataGrid"
+                        :data-source="shares"
+                        :columns="shareColumns"
+                        :full-page="false"
+                        :show-settings="true"
+                        :show-selection="true"
+                        :is-loading="isLoading"
+                        identifier="advanced-wishlist-share-manager"
+                        class="advanced-wishlist-share-manager__grid"
+                        @column-sort="onSortColumn"
+                        @selection-change="onSelectionChanged">
+
+                        {% block advanced_wishlist_share_manager_grid_columns %}
+                            {% block advanced_wishlist_share_manager_grid_columns_type %}
+                                <template #column-type="{ item }">
+                                    <sw-label
+                                        :variant="item.type === 'link' ? 'warning' : 'info'"
+                                        size="small"
+                                        class="advanced-wishlist-share-manager__type-label">
+                                        {{ getShareTypeLabel(item.type) }}
+                                    </sw-label>
+                                </template>
+                            {% endblock %}
+
+                            {% block advanced_wishlist_share_manager_grid_columns_recipient %}
+                                <template #column-recipientName="{ item }">
+                                    <div class="advanced-wishlist-share-manager__recipient-info">
+                                        <span class="advanced-wishlist-share-manager__recipient-name">
+                                            {{ item.recipientName || $tc('advanced-wishlist-main.shareManager.unknownRecipient') }}
+                                        </span>
+                                        <small v-if="item.recipientEmail" class="advanced-wishlist-share-manager__recipient-email">
+                                            {{ item.recipientEmail }}
+                                        </small>
+                                    </div>
+                                </template>
+                            {% endblock %}
+
+                            {% block advanced_wishlist_share_manager_grid_columns_permissions %}
+                                <template #column-permissionsList="{ item }">
+                                    <div class="advanced-wishlist-share-manager__permissions">
+                                        <sw-label
+                                            v-for="permission in (item.permissions || [])"
+                                            :key="permission"
+                                            variant="neutral"
+                                            size="small"
+                                            class="advanced-wishlist-share-manager__permission-label">
+                                            {{ $tc(`advanced-wishlist-main.shareManager.permission${permission.charAt(0).toUpperCase() + permission.slice(1)}`) }}
+                                        </sw-label>
+                                    </div>
+                                </template>
+                            {% endblock %}
+
+                            {% block advanced_wishlist_share_manager_grid_columns_status %}
+                                <template #column-isActive="{ item }">
+                                    <sw-label
+                                        :variant="item.statusVariant"
+                                        size="small"
+                                        class="advanced-wishlist-share-manager__status-label">
+                                        <sw-icon
+                                            v-if="item.isExpired"
+                                            name="default-time-clock"
+                                            size="12px"
+                                            class="advanced-wishlist-share-manager__expired-icon">
+                                        </sw-icon>
+                                        <sw-icon
+                                            v-else-if="item.isActive"
+                                            name="default-checkmark-line"
+                                            size="12px">
+                                        </sw-icon>
+                                        <sw-icon
+                                            v-else
+                                            name="default-x-line"
+                                            size="12px">
+                                        </sw-icon>
+                                        {{ item.isExpired ? $tc('advanced-wishlist-main.shareManager.statusExpired') :
+                                           item.isActive ? $tc('advanced-wishlist-main.shareManager.statusActive') :
+                                           $tc('advanced-wishlist-main.shareManager.statusInactive') }}
+                                    </sw-label>
+                                </template>
+                            {% endblock %}
+
+                            {% block advanced_wishlist_share_manager_grid_columns_created_at %}
+                                <template #column-createdAt="{ item }">
+                                    {{ item.createdAt | date }}
+                                </template>
+                            {% endblock %}
+
+                            {% block advanced_wishlist_share_manager_grid_columns_actions %}
+                                <template #actions="{ item }">
+                                    {% block advanced_wishlist_share_manager_grid_columns_actions_copy_link %}
+                                        <sw-context-menu-item
+                                            class="advanced-wishlist-share-manager__copy-link-action"
+                                            @click="onCopyShareLink(item)">
+                                            {{ $tc('advanced-wishlist-main.shareManager.contextMenuCopyLink') }}
+                                        </sw-context-menu-item>
+                                    {% endblock %}
+
+                                    {% block advanced_wishlist_share_manager_grid_columns_actions_toggle_status %}
+                                        <sw-context-menu-item
+                                            class="advanced-wishlist-share-manager__toggle-status-action"
+                                            :disabled="disabled || item.isExpired"
+                                            @click="onToggleShareStatus(item)">
+                                            {{ item.isActive ? 
+                                               $tc('advanced-wishlist-main.shareManager.contextMenuDeactivate') :
+                                               $tc('advanced-wishlist-main.shareManager.contextMenuActivate') }}
+                                        </sw-context-menu-item>
+                                    {% endblock %}
+
+                                    {% block advanced_wishlist_share_manager_grid_columns_actions_revoke %}
+                                        <sw-context-menu-item
+                                            class="advanced-wishlist-share-manager__revoke-action"
+                                            variant="danger"
+                                            :disabled="disabled"
+                                            @click="onRevokeShare(item)">
+                                            {{ $tc('advanced-wishlist-main.shareManager.contextMenuRevoke') }}
+                                        </sw-context-menu-item>
+                                    {% endblock %}
+                                </template>
+                            {% endblock %}
+                        {% endblock %}
+                    </sw-data-grid>
+                {% endblock %}
+
+                {% block advanced_wishlist_share_manager_empty_state %}
+                    <div v-else class="advanced-wishlist-share-manager__empty-state">
+                        <sw-empty-state
+                            :title="$tc('advanced-wishlist-main.shareManager.emptyStateTitle')"
+                            :subline="$tc('advanced-wishlist-main.shareManager.emptyStateSubline')"
+                            icon="default-communication-share-square">
+                            <template #actions>
+                                <sw-button
+                                    @click="onCreateShare"
+                                    :disabled="disabled || wishlist.type === 'private'"
+                                    variant="primary">
+                                    {{ $tc('advanced-wishlist-main.shareManager.createFirstShare') }}
+                                </sw-button>
+                            </template>
+                        </sw-empty-state>
+                    </div>
+                {% endblock %}
+            </div>
+        {% endblock %}
+
+        {% block advanced_wishlist_share_manager_modals %}
+            {% block advanced_wishlist_share_manager_create_modal %}
+                <sw-modal
+                    v-if="showCreateShareModal"
+                    class="advanced-wishlist-share-manager__create-modal"
+                    :title="$tc('advanced-wishlist-main.shareManager.modalTitleCreateShare')"
+                    size="medium"
+                    @modal-close="showCreateShareModal = false">
+                    
+                    {% block advanced_wishlist_share_manager_create_modal_content %}
+                        <div class="advanced-wishlist-share-manager__create-form">
+                            {% block advanced_wishlist_share_manager_form_type %}
+                                <sw-single-select
+                                    v-model="newShare.type"
+                                    :label="$tc('advanced-wishlist-main.shareManager.labelShareType')"
+                                    :options="shareTypes"
+                                    @change="onShareTypeChange"
+                                    required>
+                                </sw-single-select>
+                            {% endblock %}
+
+                            {% block advanced_wishlist_share_manager_form_recipient_email %}
+                                <sw-text-field
+                                    v-if="newShare.type === 'email' || newShare.type === 'link'"
+                                    v-model="newShare.recipientEmail"
+                                    :label="$tc('advanced-wishlist-main.shareManager.labelRecipientEmail')"
+                                    :placeholder="$tc('advanced-wishlist-main.shareManager.placeholderRecipientEmail')"
+                                    validation="email"
+                                    required>
+                                </sw-text-field>
+                            {% endblock %}
+
+                            {% block advanced_wishlist_share_manager_form_recipient_name %}
+                                <sw-text-field
+                                    v-if="newShare.type === 'email' || newShare.type === 'link'"
+                                    v-model="newShare.recipientName"
+                                    :label="$tc('advanced-wishlist-main.shareManager.labelRecipientName')"
+                                    :placeholder="$tc('advanced-wishlist-main.shareManager.placeholderRecipientName')"
+                                    required>
+                                </sw-text-field>
+                            {% endblock %}
+
+                            {% block advanced_wishlist_share_manager_form_customer %}
+                                <sw-entity-single-select
+                                    v-if="newShare.type === 'customer'"
+                                    v-model="newShare.customerId"
+                                    entity="customer"
+                                    :label="$tc('advanced-wishlist-main.shareManager.labelCustomer')"
+                                    :placeholder="$tc('advanced-wishlist-main.shareManager.placeholderCustomer')"
+                                    labelProperty="firstName,lastName"
+                                    valueProperty="id"
+                                    required>
+                                    <template #result-item="{ item }">
+                                        <li>
+                                            {{ item.firstName }} {{ item.lastName }}
+                                            <small class="advanced-wishlist-share-manager__customer-number">
+                                                ({{ item.customerNumber }})
+                                            </small>
+                                        </li>
+                                    </template>
+                                </sw-entity-single-select>
+                            {% endblock %}
+
+                            {% block advanced_wishlist_share_manager_form_permissions %}
+                                <sw-multi-select
+                                    v-model="newShare.permissions"
+                                    :label="$tc('advanced-wishlist-main.shareManager.labelPermissions')"
+                                    :options="permissionOptions"
+                                    required>
+                                </sw-multi-select>
+                            {% endblock %}
+
+                            {% block advanced_wishlist_share_manager_form_expires_at %}
+                                <sw-datepicker
+                                    v-model="newShare.expiresAt"
+                                    :label="$tc('advanced-wishlist-main.shareManager.labelExpiresAt')"
+                                    :placeholder="$tc('advanced-wishlist-main.shareManager.placeholderExpiresAt')"
+                                    :min="new Date().toISOString().split('T')[0]">
+                                </sw-datepicker>
+                            {% endblock %}
+
+                            {% block advanced_wishlist_share_manager_form_message %}
+                                <sw-textarea-field
+                                    v-model="newShare.message"
+                                    :label="$tc('advanced-wishlist-main.shareManager.labelMessage')"
+                                    :placeholder="$tc('advanced-wishlist-main.shareManager.placeholderMessage')">
+                                </sw-textarea-field>
+                            {% endblock %}
+
+                            {% block advanced_wishlist_share_manager_form_active %}
+                                <sw-checkbox-field
+                                    v-model="newShare.isActive"
+                                    :label="$tc('advanced-wishlist-main.shareManager.labelActiveShare')">
+                                </sw-checkbox-field>
+                            {% endblock %}
+                        </div>
+                    {% endblock %}
+
+                    {% block advanced_wishlist_share_manager_create_modal_footer %}
+                        <template #modal-footer>
+                            <sw-button @click="showCreateShareModal = false" size="small">
+                                {{ $tc('advanced-wishlist-main.shareManager.buttonCancel') }}
+                            </sw-button>
+                            <sw-button
+                                @click="onCreateShareConfirm"
+                                :disabled="!canCreateShare"
+                                variant="primary"
+                                size="small">
+                                {{ $tc('advanced-wishlist-main.shareManager.buttonCreateShare') }}
+                            </sw-button>
+                        </template>
+                    {% endblock %}
+                </sw-modal>
+            {% endblock %}
+        {% endblock %}
+    </div>
+{% endblock %}
