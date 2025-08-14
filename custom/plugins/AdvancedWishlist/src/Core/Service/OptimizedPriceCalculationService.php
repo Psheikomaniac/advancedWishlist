@@ -108,64 +108,76 @@ class OptimizedPriceCalculationService
         $versionId = $context->getVersionId();
 
         // Convert UUIDs to binary for database query
-        $productIdsBinary = array_map([Uuid::class, 'fromHexToBytesList'], $productIds);
         $ruleIdBinary = !empty($ruleIds) ? Uuid::fromHexToBytes($ruleIds[0]) : null;
         $currencyIdBinary = Uuid::fromHexToBytes($currencyId);
         $versionIdBinary = Uuid::fromHexToBytes($versionId);
 
+        // Build optimized query with proper placeholders
+        $productIdPlaceholders = [];
+        $params = [
+            'currency_id' => $currencyIdBinary,
+            'version_id' => $versionIdBinary,
+        ];
+
+        // Add rule parameter if available
+        if ($ruleIdBinary) {
+            $params['rule_id'] = $ruleIdBinary;
+        }
+
+        // Add product ID parameters
+        foreach ($productIds as $index => $productId) {
+            $placeholder = "product_id_{$index}";
+            $productIdPlaceholders[] = ":{$placeholder}";
+            $params[$placeholder] = Uuid::fromHexToBytes($productId);
+        }
+
+        $productIdsList = implode(',', $productIdPlaceholders);
+        $ruleCondition = $ruleIdBinary ? "AND pc.rule_id = :rule_id" : "";
+
         $query = "
             SELECT 
                 LOWER(HEX(p.id)) as product_id,
-                p.price,
-                p.calculated_price,
-                COALESCE(pc.net_price, p.price) as net_price,
-                COALESCE(pc.gross_price, p.price) as gross_price,
-                LOWER(HEX(COALESCE(pc.currency_id, :currency_id))) as currency_id,
-                COALESCE(pr.percentage, 0) as rule_discount,
-                p.tax_id,
+                COALESCE(
+                    (SELECT pc.gross_price 
+                     FROM product_price pc 
+                     WHERE pc.product_id = p.id 
+                       AND pc.currency_id = :currency_id 
+                       {$ruleCondition}
+                       AND pc.quantity_start <= 1
+                       AND (pc.quantity_end IS NULL OR pc.quantity_end >= 1)
+                     ORDER BY pc.priority DESC
+                     LIMIT 1
+                    ),
+                    COALESCE(
+                        CAST(JSON_UNQUOTE(JSON_EXTRACT(p.price, CONCAT('$.', LOWER(HEX(:currency_id)), '.gross'))) AS DECIMAL(20,4)),
+                        0
+                    )
+                ) as gross_price,
+                COALESCE(
+                    (SELECT pc.net_price 
+                     FROM product_price pc 
+                     WHERE pc.product_id = p.id 
+                       AND pc.currency_id = :currency_id 
+                       {$ruleCondition}
+                       AND pc.quantity_start <= 1
+                       AND (pc.quantity_end IS NULL OR pc.quantity_end >= 1)
+                     ORDER BY pc.priority DESC
+                     LIMIT 1
+                    ),
+                    COALESCE(
+                        CAST(JSON_UNQUOTE(JSON_EXTRACT(p.price, CONCAT('$.', LOWER(HEX(:currency_id)), '.net'))) AS DECIMAL(20,4)),
+                        0
+                    )
+                ) as net_price,
+                LOWER(HEX(:currency_id)) as currency_id,
                 p.stock,
-                p.available
+                p.available,
+                p.active
             FROM product p
-            STRAIGHT_JOIN (
-                SELECT UNHEX(:product_ids_placeholder) as id
-                UNION ALL SELECT UNHEX(:product_ids_placeholder)
-                -- Dynamic UNION ALL for each product ID
-            ) pids ON p.id = pids.id
-            LEFT JOIN product_price pc ON p.id = pc.product_id 
-                AND pc.rule_id = :rule_id 
-                AND pc.currency_id = :currency_id
-                AND pc.quantity_start <= 1
-                AND pc.quantity_end IS NULL OR pc.quantity_end >= 1
-            LEFT JOIN rule pr ON pc.rule_id = pr.id AND pr.invalid != 1
             WHERE p.version_id = :version_id
-                AND p.id IN (:product_ids)
-            ORDER BY p.id, pc.quantity_start DESC, pc.priority DESC
+                AND p.id IN ({$productIdsList})
+                AND p.active = 1
         ";
-
-        // Build the dynamic UNION ALL for product IDs
-        $productUnions = [];
-        foreach ($productIdsBinary as $index => $productId) {
-            $productUnions[] = "SELECT UNHEX(:product_id_$index) as id";
-        }
-        $unionClause = implode(' UNION ALL ', $productUnions);
-        $query = str_replace(
-            'SELECT UNHEX(:product_ids_placeholder) as id UNION ALL SELECT UNHEX(:product_ids_placeholder)',
-            $unionClause,
-            $query
-        );
-
-        // Prepare parameters
-        $params = [
-            'rule_id' => $ruleIdBinary,
-            'currency_id' => $currencyIdBinary,
-            'version_id' => $versionIdBinary,
-            'product_ids' => $productIdsBinary
-        ];
-
-        // Add individual product ID parameters
-        foreach ($productIdsBinary as $index => $productId) {
-            $params["product_id_$index"] = bin2hex($productId);
-        }
 
         try {
             $stmt = $this->connection->prepare($query);
@@ -175,22 +187,31 @@ class OptimizedPriceCalculationService
             while ($row = $result->fetchAssociative()) {
                 $productId = $row['product_id'];
                 $prices[$productId] = [
-                    'net_price' => (float) $row['net_price'],
-                    'gross_price' => (float) $row['gross_price'],
+                    'net_price' => (float) ($row['net_price'] ?? 0),
+                    'gross_price' => (float) ($row['gross_price'] ?? 0),
                     'currency_id' => $row['currency_id'],
-                    'rule_discount' => (float) $row['rule_discount'],
-                    'stock' => (int) $row['stock'],
-                    'available' => (bool) $row['available'],
+                    'rule_discount' => 0.0, // Simplified for now
+                    'stock' => (int) ($row['stock'] ?? 0),
+                    'available' => (bool) ($row['available'] ?? false),
+                    'active' => (bool) ($row['active'] ?? false),
                     'calculated_at' => time()
                 ];
             }
+
+            $this->logger->debug('Batch price query executed successfully', [
+                'product_count' => count($productIds),
+                'prices_found' => count($prices),
+                'has_rules' => !empty($ruleIds),
+                'currency_id' => $currencyId
+            ]);
 
             return $prices;
         } catch (\Exception $e) {
             $this->logger->error('Failed to execute optimized price query', [
                 'product_count' => count($productIds),
                 'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'query_length' => strlen($query),
+                'params_count' => count($params)
             ]);
 
             // Fallback to individual queries if batch fails

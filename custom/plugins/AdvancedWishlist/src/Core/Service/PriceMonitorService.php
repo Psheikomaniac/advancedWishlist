@@ -29,11 +29,12 @@ class PriceMonitorService
         private EventDispatcherInterface $eventDispatcher,
         private LoggerInterface $logger,
         private CacheItemPoolInterface $cache,
+        private OptimizedPriceCalculationService $priceCalculationService,
     ) {
     }
 
     /**
-     * Check all active price alerts.
+     * Check all active price alerts with optimized batch processing.
      */
     public function checkPriceAlerts(Context $context): array
     {
@@ -42,28 +43,50 @@ class PriceMonitorService
         $offset = 0;
 
         do {
-            // Get items with active price alerts
+            // Get items with active price alerts (optimized query)
             $criteria = new Criteria();
             $criteria->addFilter(new EqualsFilter('priceAlertActive', true));
             $criteria->addFilter(new RangeFilter('priceAlertThreshold', [
                 RangeFilter::GT => 0,
             ]));
-            $criteria->addAssociation('product.prices');
+            // Eager load all needed associations in one query
+            $criteria->addAssociation('product');
             $criteria->addAssociation('wishlist.customer');
             $criteria->setLimit(self::BATCH_SIZE);
             $criteria->setOffset($offset);
 
             $items = $this->wishlistItemRepository->search($criteria, $context);
+            $itemsArray = $items->getElements();
 
-            foreach ($items as $item) {
+            if (empty($itemsArray)) {
+                break;
+            }
+
+            // Batch calculate prices for all items at once
+            $batchStartTime = microtime(true);
+            $pricesData = $this->priceCalculationService->calculateWishlistItemPrices($itemsArray, $context);
+            $batchTime = microtime(true) - $batchStartTime;
+
+            $this->logger->debug('Batch price calculation completed', [
+                'items_count' => count($itemsArray),
+                'execution_time_ms' => round($batchTime * 1000, 2),
+                'prices_calculated' => count($pricesData)
+            ]);
+
+            // Process each item with pre-calculated prices
+            foreach ($itemsArray as $item) {
                 try {
-                    if ($this->checkPriceDrop($item, $context)) {
+                    $productId = $item->getProductId();
+                    $priceData = $pricesData[$productId] ?? null;
+                    
+                    if ($this->checkPriceDropOptimized($item, $priceData, $context)) {
                         ++$triggered;
                     }
                     ++$processed;
                 } catch (\Exception $e) {
                     $this->logger->error('Failed to check price alert', [
                         'itemId' => $item->getId(),
+                        'productId' => $item->getProductId(),
                         'error' => $e->getMessage(),
                     ]);
                 }
@@ -84,7 +107,7 @@ class PriceMonitorService
     }
 
     /**
-     * Check single item for price drop.
+     * Check single item for price drop (legacy method - maintained for compatibility).
      */
     public function checkPriceDrop(
         WishlistItemEntity $item,
@@ -108,6 +131,50 @@ class PriceMonitorService
             return false;
         }
 
+        return $this->processPriceDropNotification($item, $currentPrice, $threshold, $context);
+    }
+
+    /**
+     * Optimized version using pre-calculated price data.
+     */
+    private function checkPriceDropOptimized(
+        WishlistItemEntity $item,
+        ?array $priceData,
+        Context $context,
+    ): bool {
+        if (!$priceData || !isset($priceData['gross_price'])) {
+            $this->logger->warning('No price data available for product', [
+                'itemId' => $item->getId(),
+                'productId' => $item->getProductId()
+            ]);
+            return false;
+        }
+
+        $currentPrice = $priceData['gross_price'];
+        $threshold = $item->getPriceAlertThreshold();
+
+        // Check if price dropped below threshold
+        if ($currentPrice >= $threshold) {
+            return false;
+        }
+
+        // Check if we already notified recently
+        if ($this->wasRecentlyNotified($item->getId())) {
+            return false;
+        }
+
+        return $this->processPriceDropNotification($item, $currentPrice, $threshold, $context);
+    }
+
+    /**
+     * Process price drop notification (shared logic).
+     */
+    private function processPriceDropNotification(
+        WishlistItemEntity $item,
+        float $currentPrice,
+        float $threshold,
+        Context $context
+    ): bool {
         // Calculate savings
         $savings = $threshold - $currentPrice;
         $savingsPercentage = ($savings / $threshold) * 100;
@@ -127,15 +194,23 @@ class PriceMonitorService
 
         // Track price history
         // $this->priceHistoryService->recordPrice(
-        //     $product->getId(),
+        //     $item->getProduct()->getId(),
         //     $currentPrice,
         //     $context
         // );
 
         // Dispatch event
-        // Using PHP 8.4 new without parentheses feature
         $event = new PriceDropDetectedEvent($item, $threshold, $currentPrice, $context);
         $this->eventDispatcher->dispatch($event);
+
+        $this->logger->info('Price drop detected', [
+            'itemId' => $item->getId(),
+            'productId' => $item->getProductId(),
+            'threshold' => $threshold,
+            'currentPrice' => $currentPrice,
+            'savings' => $savings,
+            'savingsPercentage' => round($savingsPercentage, 2)
+        ]);
 
         return true;
     }
@@ -288,5 +363,97 @@ class PriceMonitorService
             'price' => $price,
             'timestamp' => time(),
         ], 86400);
+    }
+
+    /**
+     * Batch setup price alerts for multiple items.
+     */
+    public function batchSetupAlerts(
+        array $alertData,
+        Context $context,
+    ): array {
+        if (empty($alertData)) {
+            return ['successful' => 0, 'failed' => 0, 'results' => []];
+        }
+
+        // Extract product IDs for batch price calculation
+        $productIds = array_column($alertData, 'productId');
+        $mockItems = array_map(fn($id) => new class($id) {
+            public function __construct(private string $productId) {}
+            public function getProductId(): string { return $this->productId; }
+        }, $productIds);
+
+        // Batch calculate prices
+        $pricesData = $this->priceCalculationService->calculateWishlistItemPrices($mockItems, $context);
+
+        $successful = 0;
+        $failed = 0;
+        $results = [];
+        $updateData = [];
+
+        foreach ($alertData as $data) {
+            $itemId = $data['itemId'];
+            $productId = $data['productId'];
+            $threshold = $data['threshold'];
+
+            try {
+                if ($threshold <= 0) {
+                    throw new \InvalidArgumentException('Threshold must be greater than 0');
+                }
+
+                $currentPrice = $pricesData[$productId]['gross_price'] ?? null;
+                if (!$currentPrice) {
+                    throw new \RuntimeException('Could not determine current price');
+                }
+
+                if ($threshold <= $currentPrice) {
+                    throw new \InvalidArgumentException(
+                        sprintf('Threshold (%.2f) must be higher than current price (%.2f)', $threshold, $currentPrice)
+                    );
+                }
+
+                $updateData[] = [
+                    'id' => $itemId,
+                    'priceAlertThreshold' => $threshold,
+                    'priceAlertActive' => true,
+                    'priceAtAlert' => $currentPrice,
+                ];
+
+                $results[] = [
+                    'success' => true,
+                    'itemId' => $itemId,
+                    'productId' => $productId,
+                    'threshold' => $threshold,
+                    'currentPrice' => $currentPrice
+                ];
+
+                ++$successful;
+            } catch (\Exception $e) {
+                $results[] = [
+                    'success' => false,
+                    'itemId' => $itemId,
+                    'productId' => $productId,
+                    'error' => $e->getMessage()
+                ];
+                ++$failed;
+            }
+        }
+
+        // Batch update all successful items
+        if (!empty($updateData)) {
+            $this->wishlistItemRepository->update($updateData, $context);
+        }
+
+        $this->logger->info('Batch price alert setup completed', [
+            'total' => count($alertData),
+            'successful' => $successful,
+            'failed' => $failed
+        ]);
+
+        return [
+            'successful' => $successful,
+            'failed' => $failed,
+            'results' => $results
+        ];
     }
 }

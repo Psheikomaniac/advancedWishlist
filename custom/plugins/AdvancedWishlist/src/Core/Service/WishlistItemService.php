@@ -35,6 +35,7 @@ class WishlistItemService
         // private PriceAlertService $priceAlertService,
         private EventDispatcherInterface $eventDispatcher,
         private LoggerInterface $logger,
+        private OptimizedPriceCalculationService $priceCalculationService,
     ) {
     }
 
@@ -252,7 +253,7 @@ class WishlistItemService
     }
 
     /**
-     * Bulk add items.
+     * Bulk add items with optimized batch processing.
      */
     public function bulkAddItems(
         string $wishlistId,
@@ -262,6 +263,10 @@ class WishlistItemService
         $wishlist = $this->loadWishlist($wishlistId, $context);
         $this->validator->validateOwnership($wishlist, $context);
 
+        if (empty($items)) {
+            return ['total' => 0, 'successful' => 0, 'failed' => 0, 'results' => []];
+        }
+
         $results = [];
         $successful = 0;
         $failed = 0;
@@ -270,19 +275,39 @@ class WishlistItemService
         $batches = array_chunk($items, self::BATCH_SIZE);
 
         foreach ($batches as $batch) {
-            $createData = [];
+            // Extract all product IDs for this batch
+            $productIds = array_column($batch, 'productId');
+            
+            // Batch validate all products at once
+            $validProducts = $this->batchValidateProducts($productIds, $context);
+            
+            // Batch calculate prices for all products
+            $mockItems = array_map(fn($id) => new class($id) {
+                public function __construct(private string $productId) {}
+                public function getProductId(): string { return $this->productId; }
+            }, $productIds);
+            
+            $pricesData = $this->priceCalculationService->calculateWishlistItemPrices($mockItems, $context);
 
-            foreach ($batch as $item) {
+            $createData = [];
+            $existingProductIds = array_map(fn($item) => $item->getProductId(), $wishlist->getItems()->getElements());
+
+            foreach ($batch as $itemData) {
+                $productId = $itemData['productId'];
+                
                 try {
-                    // Validate product
-                    $product = $this->validateProduct($item['productId'], $context);
+                    // Check if product exists in our batch validation
+                    $product = $validProducts[$productId] ?? null;
+                    if (!$product) {
+                        throw new WishlistItemNotFoundException('Product not found', ['productId' => $productId]);
+                    }
 
                     // Check duplicate
-                    if ($this->isDuplicate($wishlist, $item['productId'])) {
-                        if ($item['skipDuplicates'] ?? true) {
+                    if (in_array($productId, $existingProductIds, true)) {
+                        if ($itemData['skipDuplicates'] ?? true) {
                             $results[] = [
                                 'success' => false,
-                                'productId' => $item['productId'],
+                                'productId' => $productId,
                                 'error' => 'Duplicate product',
                             ];
                             ++$failed;
@@ -290,25 +315,36 @@ class WishlistItemService
                         }
                     }
 
-                    // Prepare data
+                    // Prepare data with optimized price
                     $itemId = Uuid::randomHex();
-                    $createData[] = $this->prepareItemData(
-                        $itemId,
-                        AddItemRequest::fromArray($item),
-                        $product,
-                        $context
-                    );
+                    $request = AddItemRequest::fromArray($itemData);
+                    
+                    $itemDataArray = [
+                        'id' => $itemId,
+                        'wishlistId' => $wishlistId,
+                        'productId' => $productId,
+                        'productVersionId' => $product->getVersionId(),
+                        'quantity' => $request->getQuantity(),
+                        'note' => $request->getNote(),
+                        'priority' => $request->getPriority() ?? 0,
+                        'priceAtAddition' => $pricesData[$productId]['gross_price'] ?? $product->getCheapestPrice()?->getGross(),
+                        'priceAlertThreshold' => $request->getPriceAlertThreshold(),
+                        'priceAlertActive' => null !== $request->getPriceAlertThreshold(),
+                        'customFields' => $request->getCustomFields(),
+                    ];
+                    
+                    $createData[] = $itemDataArray;
 
                     $results[] = [
                         'success' => true,
                         'itemId' => $itemId,
-                        'productId' => $item['productId'],
+                        'productId' => $productId,
                     ];
                     ++$successful;
                 } catch (\Exception $e) {
                     $results[] = [
                         'success' => false,
-                        'productId' => $item['productId'],
+                        'productId' => $productId,
                         'error' => $e->getMessage(),
                     ];
                     ++$failed;
@@ -321,12 +357,53 @@ class WishlistItemService
             }
         }
 
+        $this->logger->info('Bulk add items completed', [
+            'wishlistId' => $wishlistId,
+            'total' => count($items),
+            'successful' => $successful,
+            'failed' => $failed
+        ]);
+
         return [
             'total' => count($items),
             'successful' => $successful,
             'failed' => $failed,
             'results' => $results,
         ];
+    }
+
+    /**
+     * Batch validate multiple products at once.
+     */
+    private function batchValidateProducts(array $productIds, Context $context): array
+    {
+        if (empty($productIds)) {
+            return [];
+        }
+
+        // Remove duplicates
+        $productIds = array_unique($productIds);
+        
+        $criteria = new Criteria($productIds);
+        // Only load minimal data needed for validation
+        $criteria->addField('id');
+        $criteria->addField('versionId');
+        $criteria->addAssociation('prices'); // For price calculation fallback
+        
+        $products = $this->productRepository->search($criteria, $context);
+        
+        $validProducts = [];
+        foreach ($products as $product) {
+            $validProducts[$product->getId()] = $product;
+        }
+
+        $this->logger->debug('Batch product validation completed', [
+            'requested' => count($productIds),
+            'found' => count($validProducts),
+            'missing' => count($productIds) - count($validProducts)
+        ]);
+
+        return $validProducts;
     }
 
     /**

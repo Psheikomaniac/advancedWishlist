@@ -525,4 +525,96 @@ class WishlistCacheService
             'wishlistCount' => count($wishlists),
         ]);
     }
+
+    /**
+     * Cache price data for products.
+     */
+    public function cachePriceData(array $productIds, array $priceData, int $ttl = 900): void
+    {
+        foreach ($productIds as $productId) {
+            if (isset($priceData[$productId])) {
+                $cacheKey = "product_price_{$productId}";
+                $this->set($cacheKey, $priceData[$productId], $ttl, ["product-{$productId}", "prices"]);
+            }
+        }
+
+        $this->logger->debug('Price data cached', [
+            'products' => count($productIds),
+            'cached_prices' => count(array_intersect_key($priceData, array_flip($productIds))),
+            'ttl' => $ttl
+        ]);
+    }
+
+    /**
+     * Get cached price data for a product.
+     */
+    public function getCachedPriceData(string $productId): ?array
+    {
+        $cacheKey = "product_price_{$productId}";
+        $cacheItem = $this->cache->getItem($cacheKey);
+        
+        if ($cacheItem->isHit()) {
+            ++$this->cacheHits;
+            $this->logger->debug('Price cache hit', ['productId' => $productId]);
+            return $cacheItem->get();
+        }
+
+        ++$this->cacheMisses;
+        return null;
+    }
+
+    /**
+     * Invalidate price cache for specific products.
+     */
+    public function invalidatePriceCache(array $productIds = []): void
+    {
+        if (empty($productIds)) {
+            // Clear all price cache
+            if ($this->cache instanceof \Symfony\Component\Cache\Adapter\TagAwareAdapterInterface) {
+                $this->cache->invalidateTags(["prices"]);
+                $this->logger->info('All price cache invalidated by tag');
+            } else {
+                // Fallback - this is less efficient but still works
+                $this->logger->warning('Price cache invalidation requires TagAwareAdapter for efficiency');
+            }
+        } else {
+            // Invalidate specific products
+            foreach ($productIds as $productId) {
+                $this->delete("product_price_{$productId}");
+                
+                if ($this->cache instanceof \Symfony\Component\Cache\Adapter\TagAwareAdapterInterface) {
+                    $this->cache->invalidateTags(["product-{$productId}"]);
+                }
+            }
+            
+            $this->logger->debug('Price cache invalidated for specific products', [
+                'product_count' => count($productIds)
+            ]);
+        }
+    }
+
+    /**
+     * Batch cache wishlist item prices.
+     */
+    public function batchCacheWishlistItemPrices(array $items, array $priceData): void
+    {
+        $startTime = microtime(true);
+        $cached = 0;
+
+        foreach ($items as $item) {
+            $productId = is_object($item) ? $item->getProductId() : $item['productId'];
+            if (isset($priceData[$productId])) {
+                $cacheKey = "wishlist_item_price_{$productId}";
+                $this->set($cacheKey, $priceData[$productId], 600, ["product-{$productId}", "wishlist-prices"]);
+                ++$cached;
+            }
+        }
+
+        $duration = microtime(true) - $startTime;
+        $this->logger->debug('Batch cached wishlist item prices', [
+            'items' => count($items),
+            'cached' => $cached,
+            'duration_ms' => round($duration * 1000, 2)
+        ]);
+    }
 }
