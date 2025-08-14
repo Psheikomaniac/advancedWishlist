@@ -283,9 +283,9 @@ class OAuth2Controller
      */
     private function validateCsrfToken(Request $request, string $intention): bool
     {
+        // Only accept proper CSRF tokens, not generic headers
         $token = $request->request->get('_csrf_token') 
-            ?? $request->headers->get('X-CSRF-Token')
-            ?? $request->headers->get('X-Requested-With');
+            ?? $request->headers->get('X-CSRF-Token');
 
         if (!$token) {
             return false;
