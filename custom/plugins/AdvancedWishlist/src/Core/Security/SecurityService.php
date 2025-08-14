@@ -37,6 +37,7 @@ final readonly class SecurityService
     public function __construct(
         private CsrfTokenManagerInterface $csrfTokenManager,
         private LoggerInterface $logger,
+        private RateLimitService $rateLimitService,
     ) {
     }
 
@@ -328,25 +329,61 @@ final readonly class SecurityService
     }
 
     /**
-     * Rate limit validation (basic implementation).
+     * Rate limit validation using the RateLimitService.
      */
     public function isRateLimited(Request $request, string $action, int $limit = 100): bool
     {
-        // This is a basic implementation - in production, you'd use Redis or similar
-        $key = $this->getRateLimitKey($request, $action);
+        // Map action to endpoint for rate limiting
+        $endpoint = $this->mapActionToEndpoint($action);
         
-        // For now, always return false (not rate limited)
-        // TODO: Implement proper rate limiting with cache backend
-        return false;
+        // Use the RateLimitService to check if request is allowed
+        if (!$this->rateLimitService->isAllowed($endpoint, $request)) {
+            $this->logger->warning('Rate limit exceeded', [
+                'action' => $action,
+                'endpoint' => $endpoint,
+                'ip' => $request->getClientIp(),
+                'path' => $request->getPathInfo(),
+                'user_agent' => $request->headers->get('User-Agent')
+            ]);
+            
+            return true; // Is rate limited
+        }
+        
+        return false; // Not rate limited
     }
 
     /**
-     * Generate rate limit key for caching.
+     * Map action to endpoint for rate limiting configuration.
      */
-    private function getRateLimitKey(Request $request, string $action): string
+    private function mapActionToEndpoint(string $action): string
     {
-        $ip = $request->getClientIp();
-        return "rate_limit:{$action}:{$ip}";
+        $mapping = [
+            'wishlist_read' => 'wishlist_read',
+            'wishlist_write' => 'wishlist_write',
+            'wishlist_bulk' => 'wishlist_bulk',
+            'wishlist_create' => 'wishlist_write',
+            'wishlist_update' => 'wishlist_write',
+            'wishlist_delete' => 'wishlist_write',
+            'auth' => 'auth',
+            'analytics' => 'analytics',
+            'share' => 'wishlist_write',
+            'default' => 'wishlist_read'
+        ];
+        
+        return $mapping[$action] ?? 'wishlist_read';
+    }
+    
+    /**
+     * Add rate limit headers to response.
+     */
+    public function addRateLimitHeaders(\Symfony\Component\HttpFoundation\Response $response, Request $request, string $action = 'default'): void
+    {
+        $endpoint = $this->mapActionToEndpoint($action);
+        $headers = $this->rateLimitService->getRateLimitHeaders($endpoint, $request);
+        
+        foreach ($headers as $name => $value) {
+            $response->headers->set($name, (string) $value);
+        }
     }
 
     /**
