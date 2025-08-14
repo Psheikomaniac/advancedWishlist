@@ -27,7 +27,7 @@ class WishlistController extends StorefrontController
     public function __construct(
         private WishlistCrudService $wishlistCrudService,
         private GetWishlistsQueryHandler $getWishlistsQueryHandler,
-        private ?CsrfTokenManagerInterface $csrfTokenManager = null,
+        private CsrfTokenManagerInterface $csrfTokenManager,
     ) {
     }
 
@@ -157,8 +157,8 @@ class WishlistController extends StorefrontController
         try {
             // Verify CSRF token for state-changing operation
             $token = $request->request->get('_csrf_token');
-            if ($this->csrfTokenManager && !$this->csrfTokenManager->isTokenValid(new CsrfToken('wishlist_create', $token))) {
-                return new JsonResponse(['errors' => [['code' => 'WISHLIST__INVALID_CSRF_TOKEN', 'title' => 'Invalid CSRF Token', 'detail' => 'Invalid CSRF token provided']]], JsonResponse::HTTP_FORBIDDEN);
+            if (!$token || !$this->csrfTokenManager->isTokenValid(new CsrfToken('wishlist_create', $token))) {
+                return new JsonResponse(['errors' => [['code' => 'WISHLIST__INVALID_CSRF_TOKEN', 'title' => 'Invalid CSRF Token', 'detail' => 'CSRF token is required for this operation']]], JsonResponse::HTTP_FORBIDDEN);
             }
 
             // Set the customer ID from the context
@@ -188,8 +188,8 @@ class WishlistController extends StorefrontController
         try {
             // Verify CSRF token for state-changing operation
             $token = $request->request->get('_csrf_token');
-            if ($this->csrfTokenManager && !$this->csrfTokenManager->isTokenValid(new CsrfToken('wishlist_update', $token))) {
-                return new JsonResponse(['errors' => [['code' => 'WISHLIST__INVALID_CSRF_TOKEN', 'title' => 'Invalid CSRF Token', 'detail' => 'Invalid CSRF token provided']]], JsonResponse::HTTP_FORBIDDEN);
+            if (!$token || !$this->csrfTokenManager->isTokenValid(new CsrfToken('wishlist_update', $token))) {
+                return new JsonResponse(['errors' => [['code' => 'WISHLIST__INVALID_CSRF_TOKEN', 'title' => 'Invalid CSRF Token', 'detail' => 'CSRF token is required for this operation']]], JsonResponse::HTTP_FORBIDDEN);
             }
 
             // Check ownership before updating
@@ -227,8 +227,8 @@ class WishlistController extends StorefrontController
         try {
             // Verify CSRF token for state-changing operation
             $token = $request->request->get('_csrf_token');
-            if ($this->csrfTokenManager && !$this->csrfTokenManager->isTokenValid(new CsrfToken('wishlist_delete', $token))) {
-                return new JsonResponse(['errors' => [['code' => 'WISHLIST__INVALID_CSRF_TOKEN', 'title' => 'Invalid CSRF Token', 'detail' => 'Invalid CSRF token provided']]], JsonResponse::HTTP_FORBIDDEN);
+            if (!$token || !$this->csrfTokenManager->isTokenValid(new CsrfToken('wishlist_delete', $token))) {
+                return new JsonResponse(['errors' => [['code' => 'WISHLIST__INVALID_CSRF_TOKEN', 'title' => 'Invalid CSRF Token', 'detail' => 'CSRF token is required for this operation']]], JsonResponse::HTTP_FORBIDDEN);
             }
 
             // Check ownership before deleting

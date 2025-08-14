@@ -24,6 +24,40 @@ use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 
 class AdvancedWishlist extends Plugin
 {
+    /**
+     * Minimum required PHP version for this plugin
+     * 
+     * This plugin uses PHP 8.4 features including:
+     * - Property hooks
+     * - Enhanced readonly properties
+     * - Improved type system
+     * - Performance optimizations
+     */
+    private const REQUIRED_PHP_VERSION = '8.4.0';
+
+    public function __construct(bool $boot, string $className, ?string $kernelClass = null)
+    {
+        // Check PHP version compatibility before any plugin initialization
+        if (!$this->isPhpVersionCompatible()) {
+            throw new \RuntimeException(
+                sprintf(
+                    'Advanced Wishlist Plugin requires PHP %s or higher. Current version: %s',
+                    self::REQUIRED_PHP_VERSION,
+                    PHP_VERSION
+                )
+            );
+        }
+        
+        parent::__construct($boot, $className, $kernelClass);
+    }
+
+    /**
+     * Check if the current PHP version meets the minimum requirements
+     */
+    private function isPhpVersionCompatible(): bool
+    {
+        return version_compare(PHP_VERSION, self::REQUIRED_PHP_VERSION, '>=');
+    }
     #[\Override]
     public function configureRoutes(RoutingConfigurator $routes, string $environment): void
     {

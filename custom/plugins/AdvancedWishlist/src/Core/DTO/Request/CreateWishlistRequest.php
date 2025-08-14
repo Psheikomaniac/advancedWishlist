@@ -89,15 +89,37 @@ class CreateWishlistRequest extends AbstractRequestDTO
 
     public function validate(): array
     {
-        // Custom validation logic
         $errors = [];
 
-        // Check if customer already has default wishlist
-        if ($this->isDefault) {
-            // This would be checked in service layer
-            // Just example of custom validation
+        // Validate name contains only allowed characters
+        if (preg_match('/[<>"\']/', $this->name)) {
+            $errors['name'] = 'Wishlist name contains invalid characters';
         }
 
+        // Validate description if provided
+        if ($this->description !== null && preg_match('/[<>"\']/', $this->description)) {
+            $errors['description'] = 'Wishlist description contains invalid characters';
+        }
+
+        // Validate type is one of allowed values
+        if (!in_array($this->type, ['private', 'public', 'shared'], true)) {
+            $errors['type'] = 'Invalid wishlist type. Must be one of: private, public, shared';
+        }
+
+        // Additional business rule: only one default wishlist per customer
+        // This validation would typically be done in service layer with database access
+        // but we can add basic structure validation here
+
         return $errors;
+    }
+
+    public function getSalesChannelId(): ?string
+    {
+        return $this->salesChannelId;
+    }
+
+    public function setSalesChannelId(?string $salesChannelId): void
+    {
+        $this->salesChannelId = $salesChannelId;
     }
 }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace AdvancedWishlist\Core\DTO;
 
 use AdvancedWishlist\Core\DTO\Request\AbstractRequestDTO;
+use AdvancedWishlist\Core\Exception\ValidationException;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class DTOValidator
@@ -34,7 +35,7 @@ class DTOValidator
         $errors = $this->validate($dto);
 
         if (!empty($errors)) {
-            // throw new ValidationException($errors);
+            throw new ValidationException($errors);
         }
     }
 }
