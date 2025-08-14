@@ -1,0 +1,175 @@
+{% block advanced_wishlist_card %}
+    <div :class="cardClass" @click="onCardClick">
+        {% block advanced_wishlist_card_header %}
+            <div class="advanced-wishlist-card__header">
+                {% block advanced_wishlist_card_selection %}
+                    <sw-checkbox-field
+                        v-if="selectable"
+                        :value="selected"
+                        class="advanced-wishlist-card__selection-checkbox"
+                        @input="$emit('selection-change', $event)"
+                        @click.stop>
+                    </sw-checkbox-field>
+                {% endblock %}
+
+                {% block advanced_wishlist_card_title %}
+                    <div class="advanced-wishlist-card__title-section">
+                        <h3 class="advanced-wishlist-card__title">
+                            {{ wishlist.name }}
+                        </h3>
+                        
+                        {% block advanced_wishlist_card_badges %}
+                            <div class="advanced-wishlist-card__badges">
+                                <sw-label
+                                    :variant="typeVariant"
+                                    size="small"
+                                    class="advanced-wishlist-card__type-badge">
+                                    {{ typeLabel }}
+                                </sw-label>
+                                
+                                <sw-label
+                                    :variant="statusVariant"
+                                    size="small"
+                                    class="advanced-wishlist-card__status-badge">
+                                    {{ statusLabel }}
+                                </sw-label>
+                            </div>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+
+                {% block advanced_wishlist_card_actions %}
+                    <div v-if="showActions" class="advanced-wishlist-card__actions">
+                        <sw-context-button>
+                            <template #button>
+                                <sw-button variant="context" size="small" @click.stop>
+                                    <sw-icon name="default-more-horizontal" size="16px"></sw-icon>
+                                </sw-button>
+                            </template>
+
+                            {% block advanced_wishlist_card_context_menu %}
+                                <sw-context-menu-item
+                                    class="advanced-wishlist-card__edit-action"
+                                    @click="onEditClick">
+                                    {{ $tc('advanced-wishlist-main.wishlistCard.contextMenuEdit') }}
+                                </sw-context-menu-item>
+
+                                <sw-context-menu-item
+                                    class="advanced-wishlist-card__duplicate-action"
+                                    @click="onDuplicateClick">
+                                    {{ $tc('advanced-wishlist-main.wishlistCard.contextMenuDuplicate') }}
+                                </sw-context-menu-item>
+
+                                <sw-context-menu-item
+                                    class="advanced-wishlist-card__delete-action"
+                                    variant="danger"
+                                    @click="onDeleteClick">
+                                    {{ $tc('advanced-wishlist-main.wishlistCard.contextMenuDelete') }}
+                                </sw-context-menu-item>
+                            {% endblock %}
+                        </sw-context-button>
+                    </div>
+                {% endblock %}
+            </div>
+        {% endblock %}
+
+        {% block advanced_wishlist_card_content %}
+            <div class="advanced-wishlist-card__content">
+                {% block advanced_wishlist_card_customer %}
+                    <div class="advanced-wishlist-card__customer">
+                        <div class="advanced-wishlist-card__customer-info">
+                            <sw-icon name="default-avatar-single" size="16px" class="advanced-wishlist-card__customer-icon"></sw-icon>
+                            <span 
+                                class="advanced-wishlist-card__customer-name"
+                                :class="{ 'advanced-wishlist-card__customer-name--clickable': wishlist.customer }"
+                                @click="onCustomerClick">
+                                {{ customerName }}
+                            </span>
+                        </div>
+                        
+                        <small v-if="wishlist.customer?.customerNumber" class="advanced-wishlist-card__customer-number">
+                            {{ wishlist.customer.customerNumber }}
+                        </small>
+                    </div>
+                {% endblock %}
+
+                {% block advanced_wishlist_card_description %}
+                    <div v-if="wishlist.description && !compact" class="advanced-wishlist-card__description">
+                        {{ wishlist.description }}
+                    </div>
+                {% endblock %}
+
+                {% block advanced_wishlist_card_stats %}
+                    <div class="advanced-wishlist-card__stats">
+                        {% block advanced_wishlist_card_stat_items %}
+                            <div class="advanced-wishlist-card__stat">
+                                <sw-icon name="default-shopping-cart" size="14px" class="advanced-wishlist-card__stat-icon"></sw-icon>
+                                <span class="advanced-wishlist-card__stat-value">{{ itemCount }}</span>
+                                <span class="advanced-wishlist-card__stat-label">
+                                    {{ $tc('advanced-wishlist-main.wishlistCard.items', itemCount) }}
+                                </span>
+                            </div>
+                        {% endblock %}
+
+                        {% block advanced_wishlist_card_stat_shares %}
+                            <div v-if="wishlist.type !== 'private'" class="advanced-wishlist-card__stat">
+                                <sw-icon name="default-communication-share-square" size="14px" class="advanced-wishlist-card__stat-icon"></sw-icon>
+                                <span class="advanced-wishlist-card__stat-value">{{ shareCount }}</span>
+                                <span class="advanced-wishlist-card__stat-label">
+                                    {{ $tc('advanced-wishlist-main.wishlistCard.shares', shareCount) }}
+                                </span>
+                            </div>
+                        {% endblock %}
+
+                        {% block advanced_wishlist_card_stat_value %}
+                            <div v-if="totalValue > 0" class="advanced-wishlist-card__stat advanced-wishlist-card__stat--value">
+                                <sw-icon name="default-money-cash" size="14px" class="advanced-wishlist-card__stat-icon"></sw-icon>
+                                <span class="advanced-wishlist-card__stat-value">{{ formatPrice(totalValue) }}</span>
+                                <span class="advanced-wishlist-card__stat-label">
+                                    {{ $tc('advanced-wishlist-main.wishlistCard.totalValue') }}
+                                </span>
+                            </div>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+            </div>
+        {% endblock %}
+
+        {% block advanced_wishlist_card_footer %}
+            <div v-if="!compact" class="advanced-wishlist-card__footer">
+                {% block advanced_wishlist_card_dates %}
+                    <div class="advanced-wishlist-card__dates">
+                        <div class="advanced-wishlist-card__date">
+                            <sw-icon name="default-calendar-plus" size="12px" class="advanced-wishlist-card__date-icon"></sw-icon>
+                            <span class="advanced-wishlist-card__date-label">
+                                {{ $tc('advanced-wishlist-main.wishlistCard.created') }}:
+                            </span>
+                            <span class="advanced-wishlist-card__date-value">
+                                {{ formattedCreatedAt }}
+                            </span>
+                        </div>
+                        
+                        <div v-if="wishlist.updatedAt !== wishlist.createdAt" class="advanced-wishlist-card__date">
+                            <sw-icon name="default-calendar-edit" size="12px" class="advanced-wishlist-card__date-icon"></sw-icon>
+                            <span class="advanced-wishlist-card__date-label">
+                                {{ $tc('advanced-wishlist-main.wishlistCard.updated') }}:
+                            </span>
+                            <span class="advanced-wishlist-card__date-value">
+                                {{ formattedUpdatedAt }}
+                            </span>
+                        </div>
+                    </div>
+                {% endblock %}
+            </div>
+        {% endblock %}
+
+        {% block advanced_wishlist_card_overlay %}
+            <div v-if="!wishlist.isActive" class="advanced-wishlist-card__overlay">
+                <sw-icon name="default-lock-closed" size="24px" class="advanced-wishlist-card__overlay-icon"></sw-icon>
+                <span class="advanced-wishlist-card__overlay-text">
+                    {{ $tc('advanced-wishlist-main.wishlistCard.inactive') }}
+                </span>
+            </div>
+        {% endblock %}
+    </div>
+{% endblock %}

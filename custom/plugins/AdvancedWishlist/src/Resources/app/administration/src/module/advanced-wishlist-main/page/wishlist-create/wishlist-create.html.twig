@@ -1,0 +1,272 @@
+{% block advanced_wishlist_create %}
+    <sw-page class="advanced-wishlist-create">
+        {% block advanced_wishlist_create_header %}
+            <template #smart-bar-header>
+                {% block advanced_wishlist_create_header_title %}
+                    <h2>
+                        {% block advanced_wishlist_create_header_title_text %}
+                            {{ pageTitle }}
+                        {% endblock %}
+                        
+                        {% block advanced_wishlist_create_header_duplicate_badge %}
+                            <sw-label
+                                v-if="isDuplicating"
+                                variant="warning"
+                                class="advanced-wishlist-create__duplicate-badge">
+                                {{ $tc('advanced-wishlist-main.create.badgeDuplicate') }}
+                            </sw-label>
+                        {% endblock %}
+                    </h2>
+                {% endblock %}
+            </template>
+        {% endblock %}
+
+        {% block advanced_wishlist_create_actions %}
+            <template #smart-bar-actions>
+                {% block advanced_wishlist_create_actions_cancel %}
+                    <sw-button @click="onCancel">
+                        {{ $tc('advanced-wishlist-main.create.cancelAction') }}
+                    </sw-button>
+                {% endblock %}
+
+                {% block advanced_wishlist_create_actions_save %}
+                    <sw-button-process
+                        v-tooltip="{
+                            message: tooltipSave,
+                            disabled: acl.can('advanced_wishlist.creator')
+                        }"
+                        class="advanced-wishlist-create__save-action"
+                        :is-loading="isSaveLoading"
+                        :process-success="processSuccess"
+                        :disabled="!canSave || !acl.can('advanced_wishlist.creator')"
+                        variant="primary"
+                        @process-finish="processSuccess = false"
+                        @click="onSave">
+                        {{ saveButtonText }}
+                    </sw-button-process>
+                {% endblock %}
+            </template>
+        {% endblock %}
+
+        <template #content>
+            {% block advanced_wishlist_create_content %}
+                <div v-if="isLoading" class="advanced-wishlist-create__loading">
+                    <sw-loader size="50px"></sw-loader>
+                </div>
+
+                <div v-else-if="wishlist" class="advanced-wishlist-create__content">
+                    {% block advanced_wishlist_create_basic_info %}
+                        <sw-card 
+                            :title="$tc('advanced-wishlist-main.create.cardBasicInfo')" 
+                            class="advanced-wishlist-create__basic-info-card">
+                            {% block advanced_wishlist_create_basic_form %}
+                                <sw-container columns="repeat(auto-fit, minmax(300px, 1fr))" gap="0px 30px">
+                                    {% block advanced_wishlist_create_form_name %}
+                                        <sw-text-field
+                                            v-model="wishlist.name"
+                                            :label="$tc('advanced-wishlist-main.create.labelName')"
+                                            :placeholder="$tc('advanced-wishlist-main.create.placeholderName')"
+                                            :error="formValidation.errors.name"
+                                            required
+                                            validation="required">
+                                        </sw-text-field>
+                                    {% endblock %}
+
+                                    {% block advanced_wishlist_create_form_type %}
+                                        <sw-single-select
+                                            v-model="wishlist.type"
+                                            :label="$tc('advanced-wishlist-main.create.labelType')"
+                                            :placeholder="$tc('advanced-wishlist-main.create.placeholderType')"
+                                            :options="[
+                                                { value: 'private', label: $tc('advanced-wishlist-main.list.typePrivate') },
+                                                { value: 'public', label: $tc('advanced-wishlist-main.list.typePublic') },
+                                                { value: 'shared', label: $tc('advanced-wishlist-main.list.typeShared') }
+                                            ]"
+                                            :error="formValidation.errors.type"
+                                            @change="onTypeChange"
+                                            required>
+                                        </sw-single-select>
+                                    {% endblock %}
+
+                                    {% block advanced_wishlist_create_form_customer %}
+                                        <sw-entity-single-select
+                                            v-model="wishlist.customerId"
+                                            entity="customer"
+                                            :label="$tc('advanced-wishlist-main.create.labelCustomer')"
+                                            :placeholder="$tc('advanced-wishlist-main.create.placeholderCustomer')"
+                                            :criteria="customerCriteria"
+                                            :error="formValidation.errors.customerId"
+                                            labelProperty="firstName,lastName"
+                                            valueProperty="id"
+                                            @change="onCustomerChange"
+                                            required>
+                                            <template #result-item="{ item }">
+                                                <li>
+                                                    {{ item.firstName }} {{ item.lastName }}
+                                                    <small class="advanced-wishlist-create__customer-number">
+                                                        ({{ item.customerNumber }})
+                                                    </small>
+                                                </li>
+                                            </template>
+                                        </sw-entity-single-select>
+                                    {% endblock %}
+
+                                    {% block advanced_wishlist_create_form_active %}
+                                        <sw-checkbox-field
+                                            v-model="wishlist.isActive"
+                                            :label="$tc('advanced-wishlist-main.create.labelActive')"
+                                            :helpText="$tc('advanced-wishlist-main.create.helpTextActive')">
+                                        </sw-checkbox-field>
+                                    {% endblock %}
+                                </sw-container>
+
+                                {% block advanced_wishlist_create_form_description %}
+                                    <sw-textarea-field
+                                        v-model="wishlist.description"
+                                        :label="$tc('advanced-wishlist-main.create.labelDescription')"
+                                        :placeholder="$tc('advanced-wishlist-main.create.placeholderDescription')"
+                                        :helpText="$tc('advanced-wishlist-main.create.helpTextDescription')">
+                                    </sw-textarea-field>
+                                {% endblock %}
+                            {% endblock %}
+                        </sw-card>
+                    {% endblock %}
+
+                    {% block advanced_wishlist_create_initial_items %}
+                        <sw-card 
+                            :title="$tc('advanced-wishlist-main.create.cardInitialItems')"
+                            :subtitle="$tc('advanced-wishlist-main.create.subtitleInitialItems')"
+                            class="advanced-wishlist-create__items-card">
+                            {% block advanced_wishlist_create_add_product %}
+                                <div class="advanced-wishlist-create__add-product">
+                                    <sw-entity-single-select
+                                        entity="product"
+                                        :label="$tc('advanced-wishlist-main.create.labelAddProduct')"
+                                        :placeholder="$tc('advanced-wishlist-main.create.placeholderAddProduct')"
+                                        :criteria="productCriteria"
+                                        labelProperty="name"
+                                        valueProperty="id"
+                                        @change="onAddProduct"
+                                        class="advanced-wishlist-create__product-selector">
+                                        <template #result-item="{ item }">
+                                            <li>
+                                                <div class="advanced-wishlist-create__product-item">
+                                                    <div class="advanced-wishlist-create__product-info">
+                                                        <strong>{{ item.name }}</strong>
+                                                        <small v-if="item.productNumber" class="advanced-wishlist-create__product-number">
+                                                            {{ item.productNumber }}
+                                                        </small>
+                                                    </div>
+                                                    <div v-if="item.price && item.price.length > 0" class="advanced-wishlist-create__product-price">
+                                                        {{ item.price[0].gross | currency }}
+                                                    </div>
+                                                </div>
+                                            </li>
+                                        </template>
+                                    </sw-entity-single-select>
+                                </div>
+                            {% endblock %}
+
+                            {% block advanced_wishlist_create_items_list %}
+                                <div v-if="wishlist.items && wishlist.items.length > 0" class="advanced-wishlist-create__items-list">
+                                    <sw-data-grid
+                                        :data-source="wishlist.items"
+                                        :columns="[
+                                            {
+                                                property: 'product.name',
+                                                dataIndex: 'product.name',
+                                                label: $tc('advanced-wishlist-main.create.columnProductName'),
+                                                allowResize: true,
+                                                primary: true
+                                            },
+                                            {
+                                                property: 'product.productNumber',
+                                                dataIndex: 'product.productNumber',
+                                                label: $tc('advanced-wishlist-main.create.columnProductNumber'),
+                                                allowResize: true
+                                            },
+                                            {
+                                                property: 'quantity',
+                                                dataIndex: 'quantity',
+                                                label: $tc('advanced-wishlist-main.create.columnQuantity'),
+                                                allowResize: true,
+                                                align: 'right'
+                                            }
+                                        ]"
+                                        :show-settings="false"
+                                        :show-selection="false"
+                                        :is-loading="false"
+                                        identifier="advanced-wishlist-create-items"
+                                        class="advanced-wishlist-create__items-grid">
+
+                                        {% block advanced_wishlist_create_items_quantity %}
+                                            <template #column-quantity="{ item }">
+                                                <sw-number-field
+                                                    v-model="item.quantity"
+                                                    :min="1"
+                                                    :max="999"
+                                                    size="small"
+                                                    @change="onUpdateItemQuantity(item.id, $event)">
+                                                </sw-number-field>
+                                            </template>
+                                        {% endblock %}
+
+                                        {% block advanced_wishlist_create_items_actions %}
+                                            <template #actions="{ item }">
+                                                <sw-context-menu-item
+                                                    class="advanced-wishlist-create__remove-item"
+                                                    variant="danger"
+                                                    @click="onRemoveItem(item.id)">
+                                                    {{ $tc('advanced-wishlist-main.create.contextMenuRemove') }}
+                                                </sw-context-menu-item>
+                                            </template>
+                                        {% endblock %}
+                                    </sw-data-grid>
+                                </div>
+
+                                <div v-else class="advanced-wishlist-create__empty-items">
+                                    <sw-empty-state
+                                        :title="$tc('advanced-wishlist-main.create.emptyItemsTitle')"
+                                        :subline="$tc('advanced-wishlist-main.create.emptyItemsSubline')"
+                                        icon="default-shopping-cart">
+                                    </sw-empty-state>
+                                </div>
+                            {% endblock %}
+                        </sw-card>
+                    {% endblock %}
+
+                    {% block advanced_wishlist_create_duplicate_info %}
+                        <sw-card 
+                            v-if="isDuplicating && duplicateWishlist"
+                            :title="$tc('advanced-wishlist-main.create.cardDuplicateInfo')"
+                            class="advanced-wishlist-create__duplicate-info-card">
+                            {% block advanced_wishlist_create_duplicate_details %}
+                                <sw-description-list>
+                                    <dt>{{ $tc('advanced-wishlist-main.create.labelOriginalName') }}</dt>
+                                    <dd>{{ duplicateWishlist.name }}</dd>
+                                    
+                                    <dt>{{ $tc('advanced-wishlist-main.create.labelOriginalType') }}</dt>
+                                    <dd>{{ $tc(`advanced-wishlist-main.list.type${duplicateWishlist.type.charAt(0).toUpperCase() + duplicateWishlist.type.slice(1)}`) }}</dd>
+                                    
+                                    <dt>{{ $tc('advanced-wishlist-main.create.labelOriginalItems') }}</dt>
+                                    <dd>{{ duplicateWishlist.items?.length || 0 }}</dd>
+                                    
+                                    <dt>{{ $tc('advanced-wishlist-main.create.labelOriginalCreated') }}</dt>
+                                    <dd>{{ duplicateWishlist.createdAt | date }}</dd>
+                                </sw-description-list>
+                            {% endblock %}
+                            
+                            {% block advanced_wishlist_create_duplicate_note %}
+                                <sw-alert 
+                                    variant="info"
+                                    class="advanced-wishlist-create__duplicate-note">
+                                    {{ $tc('advanced-wishlist-main.create.duplicateNote') }}
+                                </sw-alert>
+                            {% endblock %}
+                        </sw-card>
+                    {% endblock %}
+                </div>
+            {% endblock %}
+        </template>
+    </sw-page>
+{% endblock %}
